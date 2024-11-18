@@ -1,7 +1,8 @@
 #pragma once
 
-#include <iostream>
+#include <exception>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <glm/glm.hpp>
 

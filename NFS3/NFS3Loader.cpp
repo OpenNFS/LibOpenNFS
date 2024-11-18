@@ -1,7 +1,9 @@
 #include "NFS3Loader.h"
-#include <filesystem>
+
 #include "LibOpenNFS.h"
 
+#include <filesystem>
+#include <Common/Utils.h>
 #include <Entities/TrackSound.h>
 #include <Entities/TrackGeometry.h>
 #include <Entities/TrackEntity.h>
@@ -373,9 +375,9 @@ namespace LibOpenNFS::NFS3 {
             position.y += 0.2f;
 
             // Get VROAD right vector
-            glm::vec3 right   = glm::vec3(vroad.right) / 128.f;
-            glm::vec3 forward = glm::vec3(vroad.forward);
-            glm::vec3 normal  = glm::vec3(vroad.normal);
+            auto right   = glm::vec3(vroad.right) / 128.f;
+            auto forward = glm::vec3(vroad.forward);
+            auto normal  = glm::vec3(vroad.normal);
 
             glm::vec3 leftWall  = ((vroad.leftWall / 65536.0f) * NFS3_SCALE_FACTOR) * right;
             glm::vec3 rightWall = ((vroad.rightWall / 65536.0f) * NFS3_SCALE_FACTOR) * right;

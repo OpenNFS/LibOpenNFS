@@ -36,6 +36,7 @@ namespace LibOpenNFS {
                     const std::vector<glm::vec3>& norms,
                     const std::vector<uint32_t>& indices,
                     const glm::vec3& center_position);
+        CarGeometry() = default;
 
         // Multitextured Car
         bool isMultiTextured = false;

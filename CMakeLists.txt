@@ -17,9 +17,9 @@ set(LIB_OPENNFS_SOURCES
         Entities/TrackEntity.cpp
         Entities/TrackGeometry.cpp
         Entities/TrackLight.cpp
-        Entities/TrackTexture.cpp
+        Entities/TrackTextureAsset.cpp
         Entities/TrackVRoad.cpp
-        #[[NFS2/NFS2Loader.cpp]]
+        NFS2/NFS2Loader.cpp
         NFS2/COL/ColFile.cpp
         NFS2/GEO/GeoFile.cpp
         NFS2/PSH/PshFile.cpp
@@ -64,4 +64,3 @@ target_include_directories(
 # the debug and release version of library can be installed to the
 # same location and will not conflict (overwrite each other)
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
-

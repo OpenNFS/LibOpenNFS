@@ -4,9 +4,9 @@
 
 namespace LibOpenNFS {
     uint32_t TextureUtils::abgr1555ToARGB8888(uint16_t abgr_1555) {
-        uint8_t red   = static_cast<uint8_t>(round((abgr_1555 & 0x1F) / 31.0F * 255.0F));
-        uint8_t green = static_cast<uint8_t>(round(((abgr_1555 & 0x3E0) >> 5) / 31.0F * 255.0F));
-        uint8_t blue  = static_cast<uint8_t>(round(((abgr_1555 & 0x7C00) >> 10) / 31.0F * 255.0F));
+        auto red   = static_cast<uint8_t>(round((abgr_1555 & 0x1F) / 31.0F * 255.0F));
+        auto green = static_cast<uint8_t>(round(((abgr_1555 & 0x3E0) >> 5) / 31.0F * 255.0F));
+        auto blue  = static_cast<uint8_t>(round(((abgr_1555 & 0x7C00) >> 10) / 31.0F * 255.0F));
 
         uint32_t alpha = 255;
         if (((abgr_1555 & 0x8000) == 0 ? 1 : 0) == ((red == 0) && (green == 0) && (blue == 0) ? 1 : 0)) {
@@ -107,7 +107,7 @@ namespace LibOpenNFS {
     }
 
     glm::vec4 TextureUtils::ShadingDataToVec4(uint32_t packed_rgba) {
-        return glm::vec4(((packed_rgba >> 16) & 0xFF) / 255.0f, ((packed_rgba >> 8) & 0xFF) / 255.0f, (packed_rgba & 0xFF) / 255.0f, ((packed_rgba >> 24) & 0xFF) / 255.0f);
+        return {((packed_rgba >> 16) & 0xFF) / 255.0f, ((packed_rgba >> 8) & 0xFF) / 255.0f, (packed_rgba & 0xFF) / 255.0f, ((packed_rgba >> 24) & 0xFF) / 255.0f};
     }
 
     bool TextureUtils::ExtractQFS(const std::string &qfs_input, const std::string &output_dir) {
