@@ -5,7 +5,7 @@ using namespace LibOpenNFS::NFS2;
 template <typename Platform>
 SuperBlock<Platform>::SuperBlock(std::ifstream &trk, NFSVersion version) {
     this->version = version;
-    ASSERT(this->_SerializeIn(trk), "Failed to serialize SuperBlock from file stream");
+    ASSERT(this->SuperBlock<Platform>::_SerializeIn(trk), "Failed to serialize SuperBlock from file stream");
 }
 
 template <typename Platform>

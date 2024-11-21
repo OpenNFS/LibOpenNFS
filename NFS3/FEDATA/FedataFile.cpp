@@ -2,11 +2,11 @@
 
 using namespace LibOpenNFS::NFS3;
 
-bool FedataFile::Load(const std::string &fedataPath, FedataFile &fedataFile, uint8_t nPriColours) {
+bool FedataFile::Load(const std::string &fedataPath, FedataFile &fedataFile, const uint8_t nPriColours) {
     std::ifstream fedata(fedataPath, std::ios::in | std::ios::binary);
 
     fedataFile.m_nPriColours = nPriColours;
-    bool loadStatus          = fedataFile._SerializeIn(fedata);
+    bool const loadStatus          {fedataFile._SerializeIn(fedata)};
     fedata.close();
 
     return loadStatus;

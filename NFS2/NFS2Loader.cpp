@@ -257,7 +257,8 @@ namespace LibOpenNFS::NFS2 {
                                     structureReferenceCoordinates = structureReference.refCoordinates;
                                     refCoordsFound                = true;
                                     break;
-                                } else if (structureReference.recType == 3) {
+                                }
+                                if (structureReference.recType == 3) {
                                     // For now, if animated, use position 0 of animation sequence
                                     structureReferenceCoordinates = structureReference.animationData[0].position;
                                     refCoordsFound                = true;
@@ -435,7 +436,8 @@ namespace LibOpenNFS::NFS2 {
                         structureReferenceCoordinates = structure.refCoordinates;
                         refCoordsFound                = true;
                         break;
-                    } else if (structure.recType == 3) {
+                    }
+                    if (structure.recType == 3) {
                         // For now, if animated, use position 0 of animation sequence
                         structureReferenceCoordinates = structure.animationData[0].position;
                         refCoordsFound                = true;

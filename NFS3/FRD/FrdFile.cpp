@@ -5,7 +5,7 @@ namespace LibOpenNFS::NFS3 {
         //LOG(INFO) << "Loading FRD File located at " << frdPath;
         std::ifstream frd(frdPath, std::ios::in | std::ios::binary);
 
-        bool loadStatus = frdFile._SerializeIn(frd);
+        bool const loadStatus {frdFile._SerializeIn(frd)};
         frd.close();
 
         return loadStatus;

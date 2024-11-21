@@ -3,7 +3,7 @@
 using namespace LibOpenNFS::NFS3;
 
 TrkBlock::TrkBlock(std::ifstream &frd) {
-    ASSERT(this->_SerializeIn(frd), "Failed to serialize TrkBlock from file stream");
+    ASSERT(this->TrkBlock::_SerializeIn(frd), "Failed to serialize TrkBlock from file stream");
 }
 
 bool TrkBlock::_SerializeIn(std::ifstream &frd) {

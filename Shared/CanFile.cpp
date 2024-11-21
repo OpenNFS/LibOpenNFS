@@ -4,7 +4,7 @@ bool CanFile::Load(const std::string &canPath, CanFile &canFile) {
     //LOG(INFO) << "Loading CAN File located at " << canPath;
     std::ifstream can(canPath, std::ios::in | std::ios::binary);
 
-    bool loadStatus = canFile._SerializeIn(can);
+    bool const loadStatus {canFile._SerializeIn(can)};
     can.close();
 
     return loadStatus;

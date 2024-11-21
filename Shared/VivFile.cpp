@@ -25,9 +25,8 @@ namespace LibOpenNFS::Shared {
         if (std::filesystem::exists(outPath)) {
             // LOG(INFO) << "VIV has already been extracted, skipping";
             return true;
-        } else {
-            std::filesystem::create_directories(outPath);
         }
+        std::filesystem::create_directories(outPath);
 
         for (uint8_t fileIdx = 0; fileIdx < vivFile.nFiles; ++fileIdx) {
             VivEntry &curFile{vivFile.files.at(fileIdx)};

@@ -8,7 +8,7 @@ bool FfnFile::Load(const std::string &ffnPath, FfnFile &ffnFile) {
     //LOG(INFO) << "Loading FFN File located at " << ffnPath;
     std::ifstream ffn(ffnPath, std::ios::in | std::ios::binary);
 
-    bool loadStatus = ffnFile._SerializeIn(ffn);
+    bool const loadStatus {ffnFile._SerializeIn(ffn)};
     ffn.close();
 
     return loadStatus;
@@ -58,7 +58,7 @@ bool FfnFile::_SerializeIn(std::ifstream &ifstream) {
     // Rewrite the pixels using the palette data
     for (int y = 0; y < header.numChars; y++) {
         for (int x = 0; x < header.version; x++) {
-            uint32_t pixel                   = 0;//ImageLoader::abgr1555ToARGB8888(paletteColours[indices[(x + y * header.version)]]);
+            uint32_t const pixel                   {0};//ImageLoader::abgr1555ToARGB8888(paletteColours[indices[(x + y * header.version)]]);
             pixels[(x + y * header.version)] = pixel;
         }
     }

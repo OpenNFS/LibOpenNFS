@@ -1,15 +1,12 @@
 #include "TrackEntity.h"
 
-#include <utility>
-#include "Common/Utils.h"
-
 namespace LibOpenNFS {
-    TrackEntity::TrackEntity(uint32_t entityID, EntityType entityType, TrackGeometry geometry, uint32_t flags) :
-        type(entityType), geometry(std::move(geometry)), flags(flags), entityID(entityID), hasGeometry(true) {
+    TrackEntity::TrackEntity(const uint32_t entityID, const EntityType entityType, TrackGeometry geometry, const uint32_t flags) :
+        type(entityType), geometry(std::move(geometry)), entityID(entityID), flags(flags), hasGeometry(true) {
         this->_SetCollisionParameters();
     }
 
-    TrackEntity::TrackEntity(uint32_t entityID, EntityType entityType, uint32_t flags) : type(entityType), flags(flags), entityID(entityID) {
+    TrackEntity::TrackEntity(const uint32_t entityID, const EntityType entityType, const uint32_t flags) : type(entityType), entityID(entityID), flags(flags) {
         this->_SetCollisionParameters();
     }
 

@@ -1,7 +1,7 @@
 #include "TrackSound.h"
 
 namespace LibOpenNFS {
-    TrackSound::TrackSound(uint32_t entityID, glm::vec3 position, uint32_t type) : TrackEntity(entityID, EntityType::SOUND, 0u) {
+    TrackSound::TrackSound(const uint32_t entityID, const glm::vec3 position, const uint32_t type) : TrackEntity(entityID, EntityType::SOUND, 0u) {
         this->position = position;
         this->type     = type;
     }

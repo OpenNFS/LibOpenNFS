@@ -3,7 +3,7 @@
 using namespace LibOpenNFS::NFS3;
 
 ExtraObjectBlock::ExtraObjectBlock(std::ifstream &frd) {
-    ASSERT(this->_SerializeIn(frd), "Failed to serialize ExtraObjectBlock from file stream");
+    ASSERT(this->ExtraObjectBlock::_SerializeIn(frd), "Failed to serialize ExtraObjectBlock from file stream");
 }
 
 bool ExtraObjectBlock::_SerializeIn(std::ifstream &ifstream) {

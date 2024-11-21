@@ -6,7 +6,7 @@ bool SpeedsFile::Load(const std::string& speedBinPath, SpeedsFile& speedFile) {
     //LOG(INFO) << "Loading FRD File located at " << speedBinPath;
     std::ifstream speedBin(speedBinPath, std::ios::in | std::ios::binary);
 
-    bool loadStatus = speedFile._SerializeIn(speedBin);
+    bool const loadStatus {speedFile._SerializeIn(speedBin)};
     speedBin.close();
 
     return loadStatus;
@@ -36,7 +36,7 @@ void SpeedsFile::_SerializeOut(std::ofstream& ofstream) {
     ofstream.close();
 }
 
-void SpeedsFile::SaveCSV(const std::string& speedsCsvPath, SpeedsFile& speedFile) {
+void SpeedsFile::SaveCSV(const std::string& speedsCsvPath, const SpeedsFile& speedFile) {
     //LOG(INFO) << "Saving SPEED BIN File to CSV: " << speedsCsvPath;
     std::ofstream speedCsv(speedsCsvPath, std::ios::out | std::ios::binary);
 

@@ -4,12 +4,12 @@ using namespace LibOpenNFS::NFS2;
 
 template <typename Platform>
 StructureBlock<Platform>::StructureBlock(std::ifstream &ifstream) {
-    ASSERT(this->_SerializeIn(ifstream), "Failed to serialize StructureBlock from file stream");
+    ASSERT(this->StructureBlock::_SerializeIn(ifstream), "Failed to serialize StructureBlock from file stream");
 }
 
 template <typename Platform>
 bool StructureBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
-    std::streamoff padCheck = ifstream.tellg();
+    std::streamoff const padCheck {ifstream.tellg()};
 
     onfs_check(safe_read(ifstream, recSize));
     onfs_check(safe_read(ifstream, nVerts));

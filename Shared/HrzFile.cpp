@@ -7,7 +7,7 @@ namespace LibOpenNFS {
         // LOG(INFO) << "Loading HRZ File located at " << hrzPath;
         std::ifstream hrz(hrzPath, std::ios::in | std::ios::binary);
 
-        bool loadStatus = hrzFile._SerializeIn(hrz);
+        bool const loadStatus {hrzFile._SerializeIn(hrz)};
         hrz.close();
 
         return loadStatus;

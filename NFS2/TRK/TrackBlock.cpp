@@ -5,12 +5,12 @@ using namespace LibOpenNFS::NFS2;
 template <typename Platform>
 TrackBlock<Platform>::TrackBlock(std::ifstream &trk, NFSVersion version) {
     this->version = version;
-    ASSERT(this->_SerializeIn(trk), "Failed to serialize TrackBlock from file stream");
+    ASSERT(this->TrackBlock::_SerializeIn(trk), "Failed to serialize TrackBlock from file stream");
 }
 
 template <typename Platform>
 bool TrackBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
-    std::streampos trackBlockOffset = ifstream.tellg();
+    std::streampos const trackBlockOffset {ifstream.tellg()};
     // Read Header
     onfs_check(safe_read(ifstream, blockSize));
     onfs_check(safe_read(ifstream, blockSizeDup));
@@ -63,13 +63,13 @@ void TrackBlock<Platform>::_SerializeOut(std::ofstream &ofstream) {
 }
 
 template <typename Platform>
-ExtraObjectBlock<Platform> TrackBlock<Platform>::GetExtraObjectBlock(ExtraBlockID eBlockType) {
+ExtraObjectBlock<Platform> TrackBlock<Platform>::GetExtraObjectBlock(const ExtraBlockID eBlockType) {
     return extraObjectBlocks[extraObjectBlockMap[eBlockType]];
 }
 
 template <typename Platform>
-bool TrackBlock<Platform>::IsBlockPresent(ExtraBlockID eBlockType) {
-    return extraObjectBlockMap.count(eBlockType);
+bool TrackBlock<Platform>::IsBlockPresent(const ExtraBlockID eBlockType) const {
+    return extraObjectBlockMap.contains(eBlockType);
 }
 
 template class LibOpenNFS::NFS2::TrackBlock<PS1>;

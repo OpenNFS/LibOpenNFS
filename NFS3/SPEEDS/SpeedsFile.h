@@ -9,7 +9,7 @@ namespace LibOpenNFS {
             SpeedsFile() = default;
             static bool Load(const std::string &speedBinPath, SpeedsFile &speedFile);
             static void Save(const std::string &speedBinPath, SpeedsFile &speedFile);
-            static void SaveCSV(const std::string &speedsCsvPath, SpeedsFile &speedFile);
+            static void SaveCSV(const std::string &speedsCsvPath, const SpeedsFile &speedFile);
 
             std::vector<uint8_t> speeds;
 

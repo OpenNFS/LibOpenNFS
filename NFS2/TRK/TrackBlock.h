@@ -15,7 +15,7 @@ namespace LibOpenNFS {
             explicit TrackBlock(std::ifstream &trk, NFSVersion version);
             void _SerializeOut(std::ofstream &ofstream) override;
             ExtraObjectBlock<Platform> GetExtraObjectBlock(ExtraBlockID eBlockType);
-            bool IsBlockPresent(ExtraBlockID eBlockType);
+            bool IsBlockPresent(ExtraBlockID eBlockType) const;
 
             // ONFS attribute
             NFSVersion version;

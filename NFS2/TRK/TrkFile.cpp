@@ -10,7 +10,7 @@ bool TrkFile<Platform>::Load(const std::string &trkPath, TrkFile &trkFile, NFSVe
     std::ifstream trk(trkPath, std::ios::in | std::ios::binary);
     trkFile.version = version;
 
-    bool loadStatus = trkFile._SerializeIn(trk);
+    bool const loadStatus {trkFile._SerializeIn(trk)};
     trk.close();
 
     return loadStatus;

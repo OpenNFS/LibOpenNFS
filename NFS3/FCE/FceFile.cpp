@@ -5,7 +5,7 @@ namespace LibOpenNFS::NFS3 {
         //LOG(INFO) << "Loading FCE File located at " << fcePath;
         std::ifstream fce(fcePath, std::ios::in | std::ios::binary);
 
-        bool loadStatus = fceFile._SerializeIn(fce);
+        bool const loadStatus {fceFile._SerializeIn(fce)};
         fce.close();
 
         return loadStatus;

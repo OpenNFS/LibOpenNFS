@@ -3,7 +3,7 @@
 using namespace LibOpenNFS::NFS2;
 
 StructureRefBlock::StructureRefBlock(std::ifstream &trk) {
-    ASSERT(this->_SerializeIn(trk), "Failed to serialize StructureRefBlock from file stream");
+    ASSERT(this->StructureRefBlock::_SerializeIn(trk), "Failed to serialize StructureRefBlock from file stream");
 }
 
 bool StructureRefBlock::_SerializeIn(std::ifstream &ifstream) {

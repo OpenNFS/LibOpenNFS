@@ -11,7 +11,7 @@ bool PshFile::Load(const std::string &pshPath, PshFile &pshFile) {
     // LOG(INFO) << "Loading PSH File located at " << pshPath;
     std::ifstream psh(pshPath, std::ios::in | std::ios::binary);
 
-    bool loadStatus = pshFile._SerializeIn(psh);
+    bool const loadStatus {pshFile._SerializeIn(psh)};
     psh.close();
 
     return loadStatus;

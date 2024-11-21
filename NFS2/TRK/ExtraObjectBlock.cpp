@@ -5,7 +5,7 @@ using namespace LibOpenNFS::NFS2;
 template <typename Platform>
 ExtraObjectBlock<Platform>::ExtraObjectBlock(std::ifstream &trk, NFSVersion version) {
     this->version = version;
-    ASSERT(this->_SerializeIn(trk), "Failed to serialize ExtraObjectBlock from file stream");
+    ASSERT(this->ExtraObjectBlock<Platform>::_SerializeIn(trk), "Failed to serialize ExtraObjectBlock from file stream");
 }
 
 template <typename Platform>

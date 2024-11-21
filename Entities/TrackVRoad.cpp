@@ -1,7 +1,7 @@
 #include "TrackVRoad.h"
 
 namespace LibOpenNFS {
-    TrackVRoad::TrackVRoad(glm::vec3 position, glm::vec3 respawn, glm::vec3 normal, glm::vec3 forward, glm::vec3 right, glm::vec3 leftWall, glm::vec3 rightWall, uint32_t unknown) {
+    TrackVRoad::TrackVRoad(const glm::vec3 position, const glm::vec3 respawn, const glm::vec3 normal, const glm::vec3 forward, const glm::vec3 right, const glm::vec3 leftWall, const glm::vec3 rightWall, const uint32_t unknown) {
         this->position  = position;
         this->respawn   = respawn;
         this->normal    = normal;
