@@ -1,10 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include <string>
 #include <unordered_map>
 
-#include "Common/NFSVersion.h"
 #include "TrackGeometry.h"
 
 namespace LibOpenNFS {
