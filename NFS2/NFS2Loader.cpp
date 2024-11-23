@@ -78,7 +78,8 @@ namespace LibOpenNFS::NFS2 {
     }*/
 
     template <>
-    Track Loader<PC>::LoadTrack(NFSVersion nfsVersion, const std::string &trackBasePath, const std::string &trackOutPath) {
+    Track Loader<PC>::LoadTrack(NFSVersion nfsVersion, const std::string &trackBasePath,
+                                const std::string &trackOutPath) {
         // LOG(INFO) << "Loading Track located at " << trackBasePath;
         std::filesystem::path p(trackBasePath);
         Track track(nfsVersion, p.filename().string(), trackBasePath);
@@ -112,7 +113,8 @@ namespace LibOpenNFS::NFS2 {
         for (uint32_t texIdx = 0; texIdx < textureExtraObjectBlock.nTextures; texIdx++) {
             TEXTURE_BLOCK textureBlock = textureExtraObjectBlock.polyToQfsTexTable[texIdx];
             std::stringstream fileReference;
-            fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4) << textureBlock.texNumber
+            fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4) <<
+                    textureBlock.texNumber
                           << ".BMP";
             // TODO: Add the alignment metadata into the Texture Class
             // NFS2 doesn't encode much asset data in the texture block. We'll need to populate them when we open the textures.
@@ -131,7 +133,7 @@ namespace LibOpenNFS::NFS2 {
         return track;
     }
 
-    template <>
+    template<>
     Track Loader<PS1>::LoadTrack(NFSVersion nfsVersion, const std::string &trackBasePath, const std::string &trackOutPath) {
         // LOG(INFO) << "Loading Track located at " << trackBasePath;
         std::filesystem::path p(trackBasePath);

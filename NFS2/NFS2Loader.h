@@ -15,13 +15,16 @@ namespace LibOpenNFS::NFS2 {
     class Loader {
     public:
         /*static Car LoadCar(const std::string &carBasePath, NFSVersion nfsVersion);*/
-        static Track LoadTrack(NFSVersion nfsVersion, const std::string &trackBasePath, const std::string &trackOutPath);
+        static Track LoadTrack(NFSVersion nfsVersion, const std::string &trackBasePath,
+                               const std::string &trackOutPath);
 
     private:
         static Car::MetaData _ParseGEOModels(const GeoFile<Platform> &geoFile);
         static std::vector<LibOpenNFS::TrackBlock>
         _ParseTRKModels(const TrkFile<Platform> &trkFile, ColFile<Platform> &colFile, const Track &track);
+
         static std::vector<TrackVRoad> _ParseVirtualRoad(ColFile<Platform> &colFile);
+
         static std::vector<TrackEntity> _ParseCOLModels(ColFile<Platform> &colFile, const Track &track);
     };
 } // namespace LibOpenNFS::NFS2

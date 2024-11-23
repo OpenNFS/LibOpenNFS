@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+#include <functional>
 #include <sstream>
 
 /* Still WIP, interface subject to change */
@@ -23,7 +25,9 @@ namespace LibOpenNFS {
     };
 
     // I hate this
-    inline void _InternalLog(const LogLevel logLevel, const char *fmt, ...) {
+    inline void _InternalLog(const LogLevel logLevel, const char *file, uint32_t line, const char *func,
+                             const char *fmt, ...) {
+        // TODO: Do something with file, line, func
         va_list args;
         va_start(args, fmt);
         vsnprintf(loggingBuffer, LOG_BUFFER_SIZE, fmt, args);
@@ -31,8 +35,7 @@ namespace LibOpenNFS {
         loggerFunctions.at(logLevel)(loggingBuffer);
     }
 
-    // TODO: These aren't quite right yet either....
-    #define LogInfo(X, ...) { _InternalLog(LONFS_INFO, __VA_ARGS__); };
-    #define LogWarning(X, ...) { _InternalLog(LONFS_WARNING, __VA_ARGS__); };
-    #define LogDebug(X, ...) { _InternalLog(LONFS_DEBUG, __VA_ARGS__); };
+#define LogInfo(...) { _InternalLog(LONFS_INFO, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); };
+#define LogWarning(...) { _InternalLog(LONFS_WARNING, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); };
+#define LogDebug(...) { _InternalLog(LONFS_DEBUG, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); };
 } // namespace LibOpenNFS
