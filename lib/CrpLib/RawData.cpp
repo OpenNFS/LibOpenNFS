@@ -29,7 +29,7 @@ namespace CrpLib {
         CEntry *en = (CEntry *) entry;
         m_Length = en->GetLength();
         m_pData = new char[m_Length];
-        file->read((char *) m_pData, m_Length);
+        file->read((char *) m_pData, (std::streamsize)m_Length);
     }
 
     void CRawData::Write(std::fstream *file) {
@@ -58,7 +58,7 @@ namespace CrpLib {
             FreeData();
             m_Init = true;
             m_pData = new char[m_Length];
-            file->read((char *) m_pData, m_Length);
+            file->read((char *) m_pData, (std::streamsize)m_Length);
 
             file->close();
             delete file;
