@@ -9,23 +9,24 @@
 #include <Entities/TrackEntity.h>
 
 namespace LibOpenNFS::NFS3 {
-    Car Loader::LoadCar(const std::string &carBasePath) {
+    Car Loader::LoadCar(const std::string &carBasePath, const std::string &carOutPath) {
+        LogInfo("Loading NFS3 car from %s into %s", carBasePath.c_str(), carOutPath.c_str());
+
         std::filesystem::path p(carBasePath);
         std::string carName = p.filename().string();
 
-        std::stringstream vivPath, carOutPath, fcePath, fedataPath;
+        std::stringstream vivPath, fcePath, fedataPath;
         vivPath << carBasePath << "/car.viv";
-        carOutPath << CAR_PATH << get_string(NFSVersion::NFS_3) << "/" << carName << "/";
-        fcePath << CAR_PATH << get_string(NFSVersion::NFS_3) << "/" << carName << "/car.fce";
-        fedataPath << carOutPath.str() << "fedata.eng";
+        fcePath << carOutPath << "/car.fce";
+        fedataPath << carOutPath << "/fedata.eng";
 
         Shared::VivFile vivFile;
         FceFile fceFile;
         FedataFile fedataFile;
 
         ASSERT(Shared::VivFile::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
-        ASSERT(Shared::VivFile::Extract(carOutPath.str(), vivFile),
-               "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath.str());
+        ASSERT(Shared::VivFile::Extract(carOutPath, vivFile),
+               "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
         ASSERT(FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
         if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nPriColours)) {
             // LOG(WARNING) << "Could not load FeData file: " << fedataPath.str();
@@ -36,8 +37,8 @@ namespace LibOpenNFS::NFS3 {
         return Car(carData, NFSVersion::NFS_3, carName);
     }
 
-    Track Loader::LoadTrack(const std::string &trackBasePath) {
-        // LOG(INFO) << "Loading Track located at " << trackBasePath;
+    Track Loader::LoadTrack(const std::string &trackBasePath, const std::string &trackOutPath) {
+        LogInfo("Loading Track located at %s", trackBasePath.c_str());
         std::filesystem::path p(trackBasePath);
         std::string trackName = p.filename().string();
         std::string frdPath, colPath, canPath, hrzPath, binPath;
@@ -73,7 +74,7 @@ namespace LibOpenNFS::NFS3 {
 
         track.nBlocks = frdFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
-        track.trackTextureAssets = _ParseTextures(frdFile, track);
+        track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
         track.trackBlocks = _ParseTRKModels(frdFile, track);
         track.globalObjects = _ParseCOLModels(colFile, track, frdFile.textureBlocks);
         track.virtualRoad = _ParseVirtualRoad(colFile);
@@ -140,7 +141,8 @@ namespace LibOpenNFS::NFS3 {
         return carMetadata;
     }
 
-    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(const FrdFile &frdFile, const Track &track) {
+    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(const FrdFile &frdFile, const Track &track,
+                                                                 const std::string &trackOutPath) {
         std::map<uint32_t, TrackTextureAsset> textureAssetMap;
         size_t max_width = 0, max_height = 0;
 
@@ -164,10 +166,10 @@ namespace LibOpenNFS::NFS3 {
                 alphaFileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex +
                         9 << "-a.BMP";
             } else {
-                fileReference << LibOpenNFS::TRACK_PATH << get_string(NFSVersion::NFS_3) << "/" << track.name <<
+                fileReference << trackOutPath << "/" << track.name <<
                         "/textures/" << std::setfill('0') << std::setw(4)
                         << frdTexBlock.qfsIndex << ".BMP";
-                alphaFileReference << LibOpenNFS::TRACK_PATH << get_string(NFSVersion::NFS_3) << "/" << track.name <<
+                alphaFileReference << trackOutPath << "/" << track.name <<
                         "/textures/" << std::setfill('0') << std::setw(4)
                         << frdTexBlock.qfsIndex << "-a.BMP";
             }
