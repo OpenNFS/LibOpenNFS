@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(LibOpenNFS VERSION 0.0.1 LANGUAGES CXX)
+project(LibOpenNFS VERSION 0.0.2 LANGUAGES CXX)
 
 set(LIB_OPENNFS_SOURCES
         LibOpenNFS.h

@@ -114,26 +114,27 @@ namespace LibOpenNFS::NFS3 {
 
             std::string part_name(fceFile.partNames[partIdx]);
             glm::vec3 center = fceFile.partCoords[partIdx] * NFS3_SCALE_FACTOR;
+            FceFile::CarPart const &part {fceFile.carParts[partIdx]};
 
             for (uint32_t vert_Idx = 0; vert_Idx < fceFile.partNumVertices[partIdx]; ++vert_Idx) {
-                vertices.emplace_back(fceFile.carParts[partIdx].vertices[vert_Idx] * NFS3_SCALE_FACTOR);
+                vertices.emplace_back(part.vertices[vert_Idx] * NFS3_SCALE_FACTOR);
             }
             for (uint32_t normal_Idx = 0; normal_Idx < fceFile.partNumVertices[partIdx]; ++normal_Idx) {
-                normals.emplace_back(fceFile.carParts[partIdx].normals[normal_Idx]);
+                normals.emplace_back(part.normals[normal_Idx] * NFS3_SCALE_FACTOR);
             }
             for (uint32_t tri_Idx = 0; tri_Idx < fceFile.partNumTriangles[partIdx]; ++tri_Idx) {
-                polygonFlags.emplace_back(fceFile.carParts[partIdx].triangles[tri_Idx].polygonFlags);
-                polygonFlags.emplace_back(fceFile.carParts[partIdx].triangles[tri_Idx].polygonFlags);
-                polygonFlags.emplace_back(fceFile.carParts[partIdx].triangles[tri_Idx].polygonFlags);
-                indices.emplace_back(fceFile.carParts[partIdx].triangles[tri_Idx].vertex[0]);
-                indices.emplace_back(fceFile.carParts[partIdx].triangles[tri_Idx].vertex[1]);
-                indices.emplace_back(fceFile.carParts[partIdx].triangles[tri_Idx].vertex[2]);
-                uvs.emplace_back(fceFile.carParts[partIdx].triangles[tri_Idx].uvTable[0],
-                                 1.0f - fceFile.carParts[partIdx].triangles[tri_Idx].uvTable[3]);
-                uvs.emplace_back(fceFile.carParts[partIdx].triangles[tri_Idx].uvTable[1],
-                                 1.0f - fceFile.carParts[partIdx].triangles[tri_Idx].uvTable[4]);
-                uvs.emplace_back(fceFile.carParts[partIdx].triangles[tri_Idx].uvTable[2],
-                                 1.0f - fceFile.carParts[partIdx].triangles[tri_Idx].uvTable[5]);
+                polygonFlags.emplace_back(part.triangles[tri_Idx].polygonFlags);
+                polygonFlags.emplace_back(part.triangles[tri_Idx].polygonFlags);
+                polygonFlags.emplace_back(part.triangles[tri_Idx].polygonFlags);
+                indices.emplace_back(part.triangles[tri_Idx].vertex[0]);
+                indices.emplace_back(part.triangles[tri_Idx].vertex[1]);
+                indices.emplace_back(part.triangles[tri_Idx].vertex[2]);
+                uvs.emplace_back(part.triangles[tri_Idx].uvTable[0],
+                                 1.0f - part.triangles[tri_Idx].uvTable[3]);
+                uvs.emplace_back(part.triangles[tri_Idx].uvTable[1],
+                                 1.0f - part.triangles[tri_Idx].uvTable[4]);
+                uvs.emplace_back(part.triangles[tri_Idx].uvTable[2],
+                                 1.0f - part.triangles[tri_Idx].uvTable[5]);
             }
             carMetadata.meshes.emplace_back(part_name, vertices, uvs, normals, indices, polygonFlags, center);
         }
