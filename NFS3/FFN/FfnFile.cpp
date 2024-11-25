@@ -2,10 +2,12 @@
 
 #include <cstring>
 
+#include "LibOpenNFS.h"
+
 using namespace LibOpenNFS::NFS3;
 
 bool FfnFile::Load(const std::string &ffnPath, FfnFile &ffnFile) {
-    //LOG(INFO) << "Loading FFN File located at " << ffnPath;
+    LogInfo("Loading FFN File located at %s", ffnPath.c_str());
     std::ifstream ffn(ffnPath, std::ios::in | std::ios::binary);
 
     bool const loadStatus {ffnFile._SerializeIn(ffn)};
@@ -15,7 +17,7 @@ bool FfnFile::Load(const std::string &ffnPath, FfnFile &ffnFile) {
 }
 
 void FfnFile::Save(const std::string &ffnPath, FfnFile &ffnFile) {
-    //LOG(INFO) << "Saving FFN File to " << ffnPath;
+    LogInfo("Saving FFN File to %s", ffnPath.c_str());
     std::ofstream ffn(ffnPath, std::ios::out | std::ios::binary);
     ffnFile._SerializeOut(ffn);
 }
@@ -25,7 +27,7 @@ bool FfnFile::_SerializeIn(std::ifstream &ifstream) {
     onfs_check(safe_read(ifstream, header));
 
     if (memcmp(header.fntfChk, "FNTF", sizeof(header.fntfChk)) != 0) {
-        //LOG(WARNING) << "Invalid FFN Header";
+        LogWarning("Invalid FFN Header");
         return false;
     }
 

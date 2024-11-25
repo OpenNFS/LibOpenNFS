@@ -2,7 +2,7 @@
 
 #include "../Common/IRawData.h"
 
-namespace LibOpenNFS {
+namespace LibOpenNFS::Shared {
     class HrzFile : IRawData {
     public:
         HrzFile() = default;

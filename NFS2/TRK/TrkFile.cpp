@@ -2,11 +2,13 @@
 
 #include <cstring>
 
+#include "LibOpenNFS.h"
+
 using namespace LibOpenNFS::NFS2;
 
 template <typename Platform>
 bool TrkFile<Platform>::Load(const std::string &trkPath, TrkFile &trkFile, NFSVersion version) {
-    //LOG(INFO) << "Loading TRK File located at " << trkPath;
+    LogInfo("Loading TRK File located at %s", trkPath.c_str());
     std::ifstream trk(trkPath, std::ios::in | std::ios::binary);
     trkFile.version = version;
 
@@ -18,7 +20,7 @@ bool TrkFile<Platform>::Load(const std::string &trkPath, TrkFile &trkFile, NFSVe
 
 template <typename Platform>
 void TrkFile<Platform>::Save(const std::string &trkPath, TrkFile &trkFile) {
-    //LOG(INFO) << "Saving TRK File to " << trkPath;
+    LogInfo("Saving TRK File to %s", trkPath.c_str());
     std::ofstream trk(trkPath, std::ios::out | std::ios::binary);
     trkFile._SerializeOut(trk);
 }
@@ -30,7 +32,7 @@ bool TrkFile<Platform>::_SerializeIn(std::ifstream &ifstream) {
 
     // Header should contain TRAC
     if (memcmp(header, "TRAC", sizeof(header)) != 0) {
-        //LOG(WARNING) << "Invalid TRK Header";
+        LogWarning("Invalid TRK Header");
         return false;
     }
 
@@ -51,7 +53,7 @@ bool TrkFile<Platform>::_SerializeIn(std::ifstream &ifstream) {
 
     // Go read the superblocks in
     for (uint32_t superBlockIdx = 0; superBlockIdx < nSuperBlocks; ++superBlockIdx) {
-        //LOG(DEBUG) << "SuperBlock " << superBlockIdx + 1 << " of " << nSuperBlocks;
+        LogDebug("SuperBlock %d of %d", superBlockIdx + 1, nSuperBlocks);
         // Jump to the super block
         ifstream.seekg(superBlockOffsets[superBlockIdx], std::ios_base::beg);
         superBlocks.push_back(SuperBlock<Platform>(ifstream, this->version));

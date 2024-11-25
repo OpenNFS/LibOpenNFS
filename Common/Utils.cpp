@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <sstream>
 
+#include "LibOpenNFS.h"
+
 namespace LibOpenNFS::Utils {
     glm::vec3 FixedToFloat(const glm::vec3 fixedPoint) {
         return fixedPoint / 65536.0f;
@@ -11,11 +13,11 @@ namespace LibOpenNFS::Utils {
 
     // Modified Arushan CRP decompressor. Removes LZ77 style decompression from CRPs
     bool DecompressCRP(const std::string &compressedCrpPath, const std::string &decompressedCrpPath) {
-        // LOG(INFO) << "Decompressing CRP File located at " << compressedCrpPath;
+        LogInfo("Decompressing CRP File located at %s", compressedCrpPath.c_str());
 
         // Bail early if decompressed CRP present already
         if (std::filesystem::exists(decompressedCrpPath)) {
-            // LOG(INFO) << "Already decompressed, skipping";
+            LogInfo("Already decompressed, skipping");
             return true;
         }
 
@@ -41,7 +43,7 @@ namespace LibOpenNFS::Utils {
         // Uncompressed CRP
         if ((id & 0x0000FFFF) != 0xFB10) {
             file.close();
-            // LOG(INFO) << "CRP is already decompressed, skipping";
+            LogInfo("CRP is already decompressed, skipping");
             std::filesystem::copy_file(compressedCrpPath, decompressedCrpPath, std::filesystem::copy_options::overwrite_existing);
             return true;
         }

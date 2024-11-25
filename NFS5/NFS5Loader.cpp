@@ -54,8 +54,7 @@ std::shared_ptr<Car> NFS5::LoadCar(const std::string& carBasePath) {
 
 // Hook into CrpLib using ZModeler Import.cpp mechanism
 CarData NFS5::LoadCRP(const std::string& crpPath) {
-    LOG(INFO) << "Parsing CRP File located at " << crpPath << " with Arushan's CrpLib";
-
+    LogInfo("Parsing CRP File located at %s with Arushan's CrpLib", crpPath);
     CarData carData;
     CCrpFile* crp = new CCrpFile();
     ASSERT(crp->Open(crpPath), "Could not open CRP file located at " << crpPath);
@@ -185,7 +184,7 @@ CarData NFS5::LoadCRP(const std::string& crpPath) {
                     CEntry* enMt  = crp->GetMisc(ID_MATERIAL, pr->GetMaterial());
                     CMaterial* mt = (CMaterial*) enMt->GetData();
                     if (mt->GetTpgIndex() < 4) {
-                        LOG(INFO) << partName << " TP: " << mt->GetTpgIndex() << " TN: " << enMt->GetIndex();
+                        LogInfo("%s TP: %d TN: %d", partName, mt->GetTpgIndex(), enMt->GetIndex());
                     }
 
                     int vtOff = pr->GetIndex(pr->FindIndex(ID_INDEX_VERTEX))->Offset;
@@ -319,7 +318,7 @@ CarData NFS5::LoadCRP(const std::string& crpPath) {
 }
 
 void NFS5::DumpCrpTextures(const std::string& crpPath) {
-    LOG(INFO) << "Dumping FSH texture packs located in " << crpPath;
+    LogInfo("Dumping FSH texture packs located in %s", crpPath.c_str());
 
     std::ifstream crp(crpPath, std::ios::in | std::ios::binary);
 
@@ -383,7 +382,7 @@ void NFS5::DumpCrpTextures(const std::string& crpPath) {
         ImageLoader::ExtractQFS(fshPath.str(), fshOutputPath.str());
     }
     crp.close();
-    LOG(INFO) << "Done";
+    LogInfo("Done");
 }
 
 // Debug

@@ -80,7 +80,7 @@ namespace LibOpenNFS::NFS2 {
     template <>
     Track Loader<PC>::LoadTrack(NFSVersion nfsVersion, const std::string &trackBasePath,
                                 const std::string &trackOutPath) {
-        // LOG(INFO) << "Loading Track located at " << trackBasePath;
+        LogInfo("Loading Track located at %s", trackBasePath.c_str());
         std::filesystem::path p(trackBasePath);
         Track track(nfsVersion, p.filename().string(), trackBasePath);
 
@@ -102,9 +102,9 @@ namespace LibOpenNFS::NFS2 {
 
         TrkFile<PC> trkFile;
         ColFile<PC> colFile;
-        CanFile canFile;
+        Shared::CanFile canFile;
 
-        ASSERT(CanFile::Load(canPath, canFile), "Could not load CAN file (camera animation): " << canPath);    // Load camera intro/outro animation data
+        ASSERT(Shared::CanFile::Load(canPath, canFile), "Could not load CAN file (camera animation): " << canPath);    // Load camera intro/outro animation data
         ASSERT(TrkFile<PC>::Load(trkPath, trkFile, track.nfsVersion), "Could not load TRK file: " << trkPath); // Load TRK file to get track block specific data
         ASSERT(ColFile<PC>::Load(colPath, colFile, track.nfsVersion), "Could not load COL file: " << colPath); // Load Catalogue file to get global (non block specific) data
 
@@ -115,7 +115,7 @@ namespace LibOpenNFS::NFS2 {
             std::stringstream fileReference;
             fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4) <<
                     textureBlock.texNumber
-                          << ".BMP";
+                    << ".BMP";
             // TODO: Add the alignment metadata into the Texture Class
             // NFS2 doesn't encode much asset data in the texture block. We'll need to populate them when we open the textures.
             track.trackTextureAssets[textureExtraObjectBlock.polyToQfsTexTable[texIdx].texNumber] =
@@ -128,14 +128,14 @@ namespace LibOpenNFS::NFS2 {
         track.globalObjects   = _ParseCOLModels(colFile, track);
         track.virtualRoad     = _ParseVirtualRoad(colFile);
 
-        // LOG(INFO) << "Track loaded successfully";
+        LogInfo("Track loaded successfully");
 
         return track;
     }
 
     template<>
     Track Loader<PS1>::LoadTrack(NFSVersion nfsVersion, const std::string &trackBasePath, const std::string &trackOutPath) {
-        // LOG(INFO) << "Loading Track located at " << trackBasePath;
+        LogInfo("Loading Track located at %s", trackBasePath.c_str());
         std::filesystem::path p(trackBasePath);
         Track track(nfsVersion, p.filename().string(), trackBasePath);
 
@@ -165,7 +165,7 @@ namespace LibOpenNFS::NFS2 {
         track.globalObjects = _ParseCOLModels(colFile, track);
         track.virtualRoad   = _ParseVirtualRoad(colFile);
 
-        // LOG(INFO) << "Track loaded successfully";
+        LogInfo("Track loaded successfully");
 
         return track;
     }
@@ -179,7 +179,7 @@ namespace LibOpenNFS::NFS2 {
     // One might question why a TRK parsing function requires the COL file too. Simples, we need XBID 2 for Texture remapping during ONFS texgen.
     template <typename Platform>
     std::vector<LibOpenNFS::TrackBlock> Loader<Platform>::_ParseTRKModels(const TrkFile<Platform> &trkFile, ColFile<Platform> &colFile, const Track &track) {
-        // LOG(INFO) << "Parsing TRK file into ONFS GL structures";
+        LogInfo("Parsing TRK file into ONFS GL structures");
         std::vector<LibOpenNFS::TrackBlock> trackBlocks;
 
         // Pull out a shorter reference to the texture table
@@ -231,8 +231,8 @@ namespace LibOpenNFS::NFS2 {
                 if (rawTrackBlock.IsBlockPresent(ExtraBlockID::STRUCTURE_BLOCK_ID)) {
                     // Check whether there are enough struct references for how many strucutres there are for this trackblock
                     if (rawTrackBlock.GetExtraObjectBlock(ExtraBlockID::STRUCTURE_BLOCK_ID).nStructures != structureReferences.size()) {
-                        // LOG(WARNING) << "Trk block " << (int) rawTrackBlock.serialNum << " is missing "
-                        //              << rawTrackBlock.GetExtraObjectBlock(ExtraBlockID::STRUCTURE_BLOCK_ID).nStructures - structureReferences.size() << " structure locations!";
+                        LogWarning("Trk block %d is missing %d structure locations!", (int) rawTrackBlock.serialNum,
+                            rawTrackBlock.GetExtraObjectBlock(ExtraBlockID::STRUCTURE_BLOCK_ID).nStructures - structureReferences.size());
                     }
 
                     // Shorter reference to structures for trackblock
@@ -269,7 +269,7 @@ namespace LibOpenNFS::NFS2 {
                             }
                         }
                         if (!refCoordsFound) {
-                            // LOG(WARNING) << "Couldn't find a reference coordinate for Structure " << structureIdx << " in TB" << rawTrackBlock.serialNum;
+                            LogWarning("Couldn't find a reference coordinate for Structure %d in TB %d", structureIdx, rawTrackBlock.serialNum);
                         }
                         for (uint16_t vertIdx = 0; vertIdx < structures[structureIdx].nVerts; ++vertIdx) {
                             structureVertices.emplace_back(orientation * ((256.f * Utils::PointToVec(structures[structureIdx].vertexTable[vertIdx])) / NFS2_SCALE_FACTOR));
@@ -381,7 +381,7 @@ namespace LibOpenNFS::NFS2 {
         glm::quat orientation = glm::normalize(glm::quat(glm::vec3(-glm::pi<float>() / 2, 0, 0)));
 
         if (!colFile.IsBlockPresent(ExtraBlockID::COLLISION_BLOCK_ID)) {
-            // LOG(WARNING) << "Col file is missing virtual road data";
+            LogWarning("Col file is missing virtual road data");
             return virtualRoad;
         }
 
@@ -409,7 +409,7 @@ namespace LibOpenNFS::NFS2 {
 
     template <typename Platform>
     std::vector<TrackEntity> Loader<Platform>::_ParseCOLModels(ColFile<Platform> &colFile, const Track &track) {
-        // LOG(INFO) << "Parsing COL file into ONFS GL structures";
+        LogInfo("Parsing COL file into ONFS GL structures");
         std::vector<TrackEntity> colEntities;
 
         // All Vertices are stored so that the model is rotated 90 degs on X. Remove this at Vert load time.
@@ -448,7 +448,7 @@ namespace LibOpenNFS::NFS2 {
                 }
             }
             if (!refCoordsFound) {
-                // LOG(WARNING) << "Couldn't find a reference coordinate for Structure " << structureIdx << " in COL file";
+                LogWarning("Couldn't find a reference coordinate for Structure %d in COL file", structureIdx);
             }
             for (uint16_t vertIdx = 0; vertIdx < structures[structureIdx].nVerts; ++vertIdx) {
                 globalStructureVertices.emplace_back(orientation * ((256.f * Utils::PointToVec(structures[structureIdx].vertexTable[vertIdx])) / NFS2_SCALE_FACTOR));

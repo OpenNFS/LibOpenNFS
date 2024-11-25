@@ -4,9 +4,11 @@
 #include <sstream>
 #include <filesystem>
 
+#include "LibOpenNFS.h"
+
 namespace LibOpenNFS::Shared {
     bool VivFile::Load(const std::string &vivPath, VivFile &vivFile) {
-        // LOG(INFO) << "Loading VIV File located at " << vivPath;
+        LogInfo("Loading VIV File located at %s", vivPath.c_str());
         std::ifstream viv(vivPath, std::ios::in | std::ios::binary);
 
         bool loadStatus = vivFile._SerializeIn(viv);
@@ -16,14 +18,14 @@ namespace LibOpenNFS::Shared {
     }
 
     void VivFile::Save(const std::string &vivPath, VivFile &vivFile) {
-        // LOG(INFO) << "Saving CAN File to " << vivPath;
+        LogInfo("Saving CAN File to %s", vivPath.c_str());
         std::ofstream viv(vivPath, std::ios::out | std::ios::binary);
         vivFile._SerializeOut(viv);
     }
 
     bool VivFile::Extract(const std::string &outPath, VivFile &vivFile) {
         if (std::filesystem::exists(outPath)) {
-            // LOG(INFO) << "VIV has already been extracted, skipping";
+            LogInfo("VIV has already been extracted, skipping");
             return true;
         }
         std::filesystem::create_directories(outPath);
@@ -36,7 +38,7 @@ namespace LibOpenNFS::Shared {
 
             std::ofstream out(out_file_path.str(), std::ios::out | std::ios::binary);
             if (!out.is_open()) {
-                // LOG(WARNING) << "Error while creating output file " << fileName;
+                LogWarning("Error while creating output file %s", out_file_path.str().c_str());
                 return false;
             }
             out.write((char *) curFile.data.data(), curFile.data.size());
@@ -49,7 +51,7 @@ namespace LibOpenNFS::Shared {
         onfs_check(safe_read(ifstream, vivHeader));
 
         if (memcmp(vivHeader, "BIGF", sizeof(vivHeader))) {
-            // LOG(WARNING) << "Not a valid VIV file (BIGF header missing)";
+            LogWarning("Not a valid VIV file (BIGF header missing)");
             return false;
         }
 
@@ -60,7 +62,7 @@ namespace LibOpenNFS::Shared {
         nFiles = _SwapEndian(nFiles);
         files.resize(nFiles);
 
-        // LOG(INFO) << "VIV contains " << nFiles << " files";
+        LogInfo("VIV contains %d files", nFiles);
         onfs_check(safe_read(ifstream, startPos));
         startPos = _SwapEndian(startPos);
 
@@ -90,7 +92,7 @@ namespace LibOpenNFS::Shared {
             ifstream.seekg(filePos, std::ios_base::beg);
             curFile.data.resize(fileSize);
             ifstream.read((char *) curFile.data.data(), fileSize);
-            // LOG(INFO) << "File " << fileName << " was written successfully";
+            LogInfo("File %s was written successfully", curFile.filename);
         }
 
         return true;

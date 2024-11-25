@@ -2,11 +2,13 @@
 
 #include <cstring>
 
+#include "LibOpenNFS.h"
+
 using namespace LibOpenNFS::NFS2;
 
 template <typename Platform>
 bool ColFile<Platform>::Load(const std::string &colPath, ColFile &colFile, NFSVersion version) {
-    //LOG(INFO) << "Loading COL File located at " << colPath;
+    LogInfo("Loading COL File located at %s", colPath.c_str());
     std::ifstream col(colPath, std::ios::in | std::ios::binary);
     colFile.version = version;
 
@@ -18,7 +20,7 @@ bool ColFile<Platform>::Load(const std::string &colPath, ColFile &colFile, NFSVe
 
 template <typename Platform>
 void ColFile<Platform>::Save(const std::string &colPath, ColFile &colFile) {
-    //LOG(INFO) << "Saving COL File to " << colPath;
+    LogInfo("Saving COL File to %s", colPath.c_str());
     std::ofstream col(colPath, std::ios::out | std::ios::binary);
     colFile._SerializeOut(col);
 }
@@ -40,8 +42,8 @@ bool ColFile<Platform>::_SerializeIn(std::ifstream &ifstream) {
     extraBlockOffsets.resize(nExtraBlocks);
     onfs_check(safe_read(ifstream, extraBlockOffsets));
 
-    //LOG(INFO) << "Version: " << colVersion << " nExtraBlocks: " << nExtraBlocks;
-    //LOG(DEBUG) << "Parsing COL Extrablocks";
+    LogInfo("Version: %d nExtraBlocks: %d", colVersion, nExtraBlocks);
+    LogDebug("Parsing COL Extrablocks");
 
     for (uint32_t extraBlockIdx = 0; extraBlockIdx < nExtraBlocks; ++extraBlockIdx) {
         ifstream.seekg(16 + extraBlockOffsets[extraBlockIdx], std::ios_base::beg);

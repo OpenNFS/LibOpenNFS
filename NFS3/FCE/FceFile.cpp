@@ -1,5 +1,7 @@
 #include "FceFile.h"
 
+#include "LibOpenNFS.h"
+
 namespace LibOpenNFS::NFS3 {
     bool FceFile::Load(const std::string &fcePath, FceFile &fceFile) {
         //LOG(INFO) << "Loading FCE File located at " << fcePath;
@@ -12,7 +14,7 @@ namespace LibOpenNFS::NFS3 {
     }
 
     void FceFile::Save(const std::string &fcePath, FceFile &fceFile) {
-        //LOG(INFO) << "Saving FCE File to " << fcePath;
+        LogInfo("Saving FCE File to %s", fcePath.c_str());
         std::ofstream fce(fcePath, std::ios::out | std::ios::binary);
         fceFile._SerializeOut(fce);
     }

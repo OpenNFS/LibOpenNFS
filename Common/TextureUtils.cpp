@@ -2,6 +2,8 @@
 
 #include <sstream>
 
+#include "LibOpenNFS.h"
+
 namespace LibOpenNFS {
     uint32_t TextureUtils::abgr1555ToARGB8888(uint16_t abgr_1555) {
         auto red   = static_cast<uint8_t>(round((abgr_1555 & 0x1F) / 31.0F * 255.0F));
@@ -111,9 +113,9 @@ namespace LibOpenNFS {
     }
 
     bool TextureUtils::ExtractQFS(const std::string &qfs_input, const std::string &output_dir) {
-        // LOG(INFO) << "Extracting QFS file: " << qfs_input << " to " << output_dir;
+        LogInfo("Extracting QFS file: %s to %s", qfs_input.c_str(), output_dir.c_str());
         if (std::filesystem::exists(output_dir)) {
-            // LOG(INFO) << "Textures already exist at " << output_dir << ", nothing to extract";
+            LogInfo("Textures already exist at %s, nothing to extract",  output_dir.c_str());
             return true;
         }
 
@@ -168,7 +170,7 @@ namespace LibOpenNFS {
             break;
         }
 
-        //LOG(INFO) << "Extracting track textures";
+        LogInfo("Extracting track textures");
         std::string onfsTrackAssetTextureDir = outPath + "/textures/";
 
         switch (nfsVer) {

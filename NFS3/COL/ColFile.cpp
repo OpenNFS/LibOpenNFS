@@ -2,10 +2,12 @@
 
 #include <cstring>
 
+#include "LibOpenNFS.h"
+
 using namespace LibOpenNFS::NFS3;
 
 bool ColFile::Load(const std::string &colPath, ColFile &colFile) {
-    //LOG(INFO) << "Loading COL File located at " << colPath;
+    LogInfo("Loading COL File located at %s", colPath.c_str());
     std::ifstream col(colPath, std::ios::in | std::ios::binary);
 
     bool loadStatus = colFile._SerializeIn(col);
@@ -15,7 +17,7 @@ bool ColFile::Load(const std::string &colPath, ColFile &colFile) {
 }
 
 void ColFile::Save(const std::string &colPath, ColFile &colFile) {
-    //LOG(INFO) << "Saving COL File to " << colPath;
+    LogInfo("Saving COL File to %s", colPath.c_str());
     std::ofstream col(colPath, std::ios::out | std::ios::binary);
     colFile._SerializeOut(col);
 }
@@ -27,7 +29,7 @@ bool ColFile::_SerializeIn(std::ifstream &ifstream) {
     onfs_check(safe_read(ifstream, nBlocks));
 
     if ((memcmp(header, "COLL", sizeof(char)) != 0) || (version != 11) || ((nBlocks != 2) && (nBlocks != 4) && (nBlocks != 5))) {
-        //LOG(WARNING) << "Invalid COL file";
+        LogWarning("Invalid COL file");
         return false;
     }
 

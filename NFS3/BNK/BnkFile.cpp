@@ -5,7 +5,7 @@
 using namespace LibOpenNFS::NFS3;
 
 bool BnkFile::Load(const std::string &bnkPath, BnkFile &bnkFile) {
-    //LOG(INFO) << "Loading COL File located at " << bnkPath;
+    LogInfo("Loading BNK File located at %s", bnkPath.c_str());
     std::ifstream bnk(bnkPath, std::ios::in | std::ios::binary);
 
     bool loadStatus = bnkFile._SerializeIn(bnk);
@@ -15,7 +15,7 @@ bool BnkFile::Load(const std::string &bnkPath, BnkFile &bnkFile) {
 }
 
 void BnkFile::Save(const std::string &bnkPath, BnkFile &bnkFile) {
-    //LOG(INFO) << "Saving COL File to " << bnkPath;
+    LogInfo("Saving BNK File to %s", bnkPath.c_str());
     std::ofstream bnk(bnkPath, std::ios::out | std::ios::binary);
     bnkFile._SerializeOut(bnk);
 }
@@ -24,7 +24,7 @@ bool BnkFile::_SerializeIn(std::ifstream &ifstream) {
     // Read in the BNK file header
     onfs_check(safe_read(ifstream, header, 4));
     if (memcmp(header, "BNKl", sizeof(char)) != 0) {
-        //LOG(WARNING) << "Invalid BNK file";
+        LogWarning("Invalid BNK file");
         return false;
     }
 

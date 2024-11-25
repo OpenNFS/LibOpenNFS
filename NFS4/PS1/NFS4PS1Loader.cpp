@@ -212,7 +212,7 @@ void NFS4PS1::LoadGRP(const std::string &grpPath) {
 std::vector<CarModel> NFS4PS1::LoadGEO(const std::string &geoPath, std::map<unsigned int, Texture> carTextures) {
     // All Vertices are stored so that the model is rotated 90 degs on X, 180 on Z. Remove this at Vert load time.
     glm::quat rotationMatrix = glm::normalize(glm::quat(glm::vec3(glm::radians(90.f), 0, glm::radians(180.f))));
-    LOG(INFO) << "Parsing NFS4 PS1 GEO File located at " << geoPath;
+    LogInfo("Parsing NFS4 PS1 GEO File located at %s", geoPath.c_str());
     std::vector<CarModel> carMeshes;
 
     // Build a buffer of the file in memory

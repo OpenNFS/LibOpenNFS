@@ -30,7 +30,7 @@ std::shared_ptr<Car> NFS4::LoadCar(const std::string &car_base_path, NFSVer vers
         if (std::filesystem::exists(fsh_path.str())) {
             ImageLoader::ExtractQFS(fsh_path.str(), car_out_path.str() + "/Textures/");
         } else {
-            LOG(INFO) << "Can't find MCO car texture at " << fsh_path.str() << " (More work needed to identify when certain fsh's are used)";
+            LogInfo("Can't find MCO car texture at %s (More work needed to identify when certain fsh's are used)", fsh_path.str());
         }
     }
 

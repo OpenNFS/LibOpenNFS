@@ -1,8 +1,10 @@
 #include "FrdFile.h"
 
+#include "LibOpenNFS.h"
+
 namespace LibOpenNFS::NFS3 {
     bool FrdFile::Load(const std::string &frdPath, FrdFile &frdFile) {
-        //LOG(INFO) << "Loading FRD File located at " << frdPath;
+        LogInfo("Loading FRD File located at %s", frdPath.c_str());
         std::ifstream frd(frdPath, std::ios::in | std::ios::binary);
 
         bool const loadStatus {frdFile._SerializeIn(frd)};
@@ -12,7 +14,7 @@ namespace LibOpenNFS::NFS3 {
     }
 
     void FrdFile::Save(const std::string &frdPath, FrdFile &frdFile) {
-        //LOG(INFO) << "Saving FRD File to " << frdPath;
+        LogInfo("Saving FRD File to %s", frdPath.c_str());
         std::ofstream frd(frdPath, std::ios::out | std::ios::binary);
         frdFile._SerializeOut(frd);
     }

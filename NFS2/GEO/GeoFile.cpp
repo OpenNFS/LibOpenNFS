@@ -1,12 +1,14 @@
 #include "GeoFile.h"
 
+#include "LibOpenNFS.h"
+
 //#include "../../../../src/Scene/Models/CarModel.h"
 
 namespace LibOpenNFS {
     namespace NFS2 {
         template <typename Platform>
         bool GeoFile<Platform>::Load(const std::string &geoPath, GeoFile &geoFile) {
-            //LOG(INFO) << "Loading GEO File located at " << geoPath;
+            LogInfo("Loading GEO File located at %s", geoPath.c_str());
             std::ifstream geo(geoPath, std::ios::in | std::ios::binary);
 
             bool loadStatus = geoFile._SerializeIn(geo);
@@ -17,7 +19,7 @@ namespace LibOpenNFS {
 
         template <typename Platform>
         void GeoFile<Platform>::Save(const std::string &geoPath, GeoFile &geoFile) {
-            //LOG(INFO) << "Saving FCE File to " << geoPath;
+            LogInfo("Saving FCE File to %s", geoPath.c_str());
             std::ofstream geo(geoPath, std::ios::out | std::ios::binary);
             geoFile._SerializeOut(geo);
         }

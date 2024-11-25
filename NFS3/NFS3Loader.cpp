@@ -29,7 +29,7 @@ namespace LibOpenNFS::NFS3 {
                "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
         ASSERT(FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
         if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nPriColours)) {
-            // LOG(WARNING) << "Could not load FeData file: " << fedataPath.str();
+            LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
         }
 
         Car::MetaData carData = _ParseAssetData(fceFile, fedataFile);
@@ -57,17 +57,17 @@ namespace LibOpenNFS::NFS3 {
 
         FrdFile frdFile;
         ColFile colFile;
-        CanFile canFile;
-        HrzFile hrzFile;
+        Shared::CanFile canFile;
+        Shared::HrzFile hrzFile;
         SpeedsFile speedFile;
 
         ASSERT(FrdFile::Load(frdPath, frdFile), "Could not load FRD file: " << frdPath);
         // Load FRD file to get track block specific data
         ASSERT(ColFile::Load(colPath, colFile), "Could not load COL file: " << colPath);
         // Load Catalogue file to get global (non trkblock specific) data
-        ASSERT(CanFile::Load(canPath, canFile), "Could not load CAN file (camera animation): " << canPath);
+        ASSERT(Shared::CanFile::Load(canPath, canFile), "Could not load CAN file (camera animation): " << canPath);
         // Load camera intro/outro animation data
-        ASSERT(HrzFile::Load(hrzPath, hrzFile), "Could not load HRZ file (skybox/lighting):" << hrzPath);
+        ASSERT(Shared::HrzFile::Load(hrzPath, hrzFile), "Could not load HRZ file (skybox/lighting):" << hrzPath);
         // Load HRZ Data
         ASSERT(SpeedsFile::Load(binPath, speedFile), "Could not load speedsf.bin file (AI vroad speeds:" << binPath);
         // Load AI speed data
@@ -79,13 +79,13 @@ namespace LibOpenNFS::NFS3 {
         track.globalObjects = _ParseCOLModels(colFile, track, frdFile.textureBlocks);
         track.virtualRoad = _ParseVirtualRoad(colFile);
 
-        // LOG(INFO) << "Track loaded successfully";
+        LogInfo("Track loaded successfully");
 
         return track;
     }
 
     Car::MetaData Loader::_ParseAssetData(const FceFile &fceFile, const FedataFile &fedataFile) {
-        // LOG(INFO) << "Parsing FCE File into ONFS Structures";
+        LogInfo("Parsing FCE File into ONFS Structures");
         // All Vertices are stored so that the model is rotated 90 degs on X, 180 on Z. Remove this at Vert load time.
         Car::MetaData carMetadata;
 
@@ -190,7 +190,7 @@ namespace LibOpenNFS::NFS3 {
     }
 
     std::vector<TrackBlock> Loader::_ParseTRKModels(const FrdFile &frdFile, const Track &track) {
-        // LOG(INFO) << "Parsing TRK file into ONFS GL structures";
+        LogInfo("Parsing TRK file into ONFS GL structures");
         std::vector<TrackBlock> trackBlocks;
         trackBlocks.reserve(frdFile.nBlocks);
 
@@ -421,7 +421,7 @@ namespace LibOpenNFS::NFS3 {
 
     std::vector<TrackEntity> Loader::_ParseCOLModels(const ColFile &colFile, const Track &track,
                                                      std::vector<TexBlock> &texBlocks) {
-        // LOG(INFO) << "Parsing COL file into ONFS GL structures";
+        LogInfo("Parsing COL file into ONFS GL structures");
         std::vector<TrackEntity> colEntities;
 
         for (uint32_t i = 0; i < colFile.objectHead.nrec; ++i) {

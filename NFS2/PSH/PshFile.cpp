@@ -1,5 +1,6 @@
 #include "PshFile.h"
 
+#include "LibOpenNFS.h"
 #include "Common/TextureUtils.h"
 
 // TODO: Need to perform proper deserialisation in this file, and then use a helper in ImageLoader that calls into this class
@@ -8,7 +9,7 @@
 using namespace LibOpenNFS::NFS2;
 
 bool PshFile::Load(const std::string &pshPath, PshFile &pshFile) {
-    // LOG(INFO) << "Loading PSH File located at " << pshPath;
+    LogInfo("Loading PSH File located at %s", pshPath.c_str());
     std::ifstream psh(pshPath, std::ios::in | std::ios::binary);
 
     bool const loadStatus {pshFile._SerializeIn(psh)};
@@ -18,7 +19,7 @@ bool PshFile::Load(const std::string &pshPath, PshFile &pshFile) {
 }
 
 void PshFile::Save(const std::string &pshPath, PshFile &pshFile) {
-    // LOG(INFO) << "Saving PSH File to " << pshPath;
+    LogInfo("Saving PSH File to %s", pshPath.c_str());
     std::ofstream psh(pshPath, std::ios::out | std::ios::binary);
     pshFile._SerializeOut(psh);
 }
@@ -27,11 +28,11 @@ bool PshFile::_SerializeIn(std::ifstream &ifstream) {
     // Check we're in a valid PSH file
     onfs_check(safe_read(ifstream, header));
 
-    // LOG(INFO) << header.nDirectories << " images inside PSH";
+    LogInfo("%d images inside PSH", header.nDirectories);
 
     // Header should contain SHPP
     if (memcmp(header.header, "SHPP", sizeof(header.header)) != 0 && memcmp(header.chk, "GIMX", sizeof(header.chk)) != 0) {
-        // LOG(WARNING) << "Invalid PSH Header(s)";
+        LogWarning("Invalid PSH Header(s)");
         return false;
     }
 
@@ -43,7 +44,7 @@ bool PshFile::_SerializeIn(std::ifstream &ifstream) {
 }
 
 bool PshFile::Extract(const std::string &outputPath, PshFile &pshFile) {
-    // LOG(INFO) << "Extracting PSH file: " << psh_path << " to " << output_path;
+    LogInfo("Extracting PSH file to %s", outputPath.c_str());
 
     /*if (std::filesystem::exists(outputPath)) {
         // LOG(INFO) << "Textures already exist at " << output_path << ". Nothing to extract";

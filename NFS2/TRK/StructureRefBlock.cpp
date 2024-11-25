@@ -1,5 +1,7 @@
 #include "StructureRefBlock.h"
 
+#include "LibOpenNFS.h"
+
 using namespace LibOpenNFS::NFS2;
 
 StructureRefBlock::StructureRefBlock(std::ifstream &trk) {
@@ -26,7 +28,7 @@ bool StructureRefBlock::_SerializeIn(std::ifstream &ifstream) {
         // 4 Component PSX Vert data? TODO: Restructure to allow the 4th component to be read
         onfs_check(safe_read(ifstream, refCoordinates));
     } else {
-        // LOG(DEBUG) << "Unknown Structure Reference type: " << (int) recType << " Size: " << (int) recSize << " StructRef: " << (int) structureRef;
+        LogDebug("Unknown Structure Reference type: %d Size: %d StructRef: %d", (int) recType, (int) recSize, (int) structureRef);
         return true;
     }
 

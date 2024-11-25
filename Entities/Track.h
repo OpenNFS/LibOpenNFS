@@ -22,7 +22,7 @@ public:
     std::string name;
     std::string basePath;
     uint32_t nBlocks{0};
-    std::vector<CameraAnimPoint> cameraAnimation;
+    std::vector<Shared::CameraAnimPoint> cameraAnimation;
     std::vector<TrackVRoad> virtualRoad;
 
     // Geometry

@@ -1,10 +1,11 @@
 #include "HrzFile.h"
 
+#include "LibOpenNFS.h"
 #include "Common/TextureUtils.h"
 
-namespace LibOpenNFS {
+namespace LibOpenNFS::Shared {
     bool HrzFile::Load(const std::string &hrzPath, HrzFile &hrzFile) {
-        // LOG(INFO) << "Loading HRZ File located at " << hrzPath;
+        LogInfo("Loading HRZ File located at %s", hrzPath.c_str());
         std::ifstream hrz(hrzPath, std::ios::in | std::ios::binary);
 
         bool const loadStatus {hrzFile._SerializeIn(hrz)};
@@ -14,7 +15,7 @@ namespace LibOpenNFS {
     }
 
     void HrzFile::Save(const std::string &hrzPath, HrzFile &hrzFile) {
-        // LOG(INFO) << "Saving HRZ File to " << hrzPath;
+        LogInfo("Saving HRZ File to %s", hrzPath.c_str());
         std::ofstream hrz(hrzPath, std::ios::out | std::ios::binary);
         hrzFile._SerializeOut(hrz);
     }

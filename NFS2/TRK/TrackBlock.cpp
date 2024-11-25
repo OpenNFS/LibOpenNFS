@@ -1,5 +1,7 @@
 #include "TrackBlock.h"
 
+#include "LibOpenNFS.h"
+
 using namespace LibOpenNFS::NFS2;
 
 template <typename Platform>
@@ -30,7 +32,7 @@ bool TrackBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
 
     // Sanity Checks
     if (blockSize != blockSizeDup) {
-        //LOG(DEBUG) << "   --- Bad Block";
+        LogDebug("   --- Bad Block");
         return false;
     }
 

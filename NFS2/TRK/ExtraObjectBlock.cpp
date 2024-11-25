@@ -1,5 +1,7 @@
 #include "ExtraObjectBlock.h"
 
+#include "LibOpenNFS.h"
+
 using namespace LibOpenNFS::NFS2;
 
 template <typename Platform>
@@ -88,7 +90,7 @@ bool ExtraObjectBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
         onfs_check(safe_read(ifstream, collisionData));
         break;
     default:
-        //LOG(WARNING) << "Unknown XBID: " << id << " nRecords: " << nRecords << " RecSize: " << recSize;
+        LogWarning("Unknown XBID: %d nRecords: %d RecSize: %d", id, nRecords, recSize);
         break;
     }
     return true;
