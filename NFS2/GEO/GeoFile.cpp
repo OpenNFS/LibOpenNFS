@@ -1,6 +1,6 @@
 #include "GeoFile.h"
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 
 //#include "../../../../src/Scene/Models/CarModel.h"
 

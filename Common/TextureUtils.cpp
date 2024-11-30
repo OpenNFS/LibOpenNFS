@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 
 namespace LibOpenNFS {
     uint32_t TextureUtils::abgr1555ToARGB8888(uint16_t abgr_1555) {

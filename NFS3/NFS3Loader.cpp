@@ -1,8 +1,8 @@
 #include "NFS3Loader.h"
 
-#include "LibOpenNFS.h"
 
 #include <filesystem>
+#include <Common/Logging.h>
 #include <Common/Utils.h>
 #include <Entities/TrackSound.h>
 #include <Entities/TrackGeometry.h>

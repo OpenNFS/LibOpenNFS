@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <sstream>
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 
 namespace LibOpenNFS::Utils {
     glm::vec3 FixedToFloat(const glm::vec3 fixedPoint) {

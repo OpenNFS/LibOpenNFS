@@ -1,6 +1,6 @@
 #include "HrzFile.h"
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 #include "Common/TextureUtils.h"
 
 namespace LibOpenNFS::Shared {

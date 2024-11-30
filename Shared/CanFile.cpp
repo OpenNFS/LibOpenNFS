@@ -1,6 +1,6 @@
 #include "CanFile.h"
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 
 namespace LibOpenNFS::Shared {
     bool CanFile::Load(const std::string &canPath, CanFile &canFile) {

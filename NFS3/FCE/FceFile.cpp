@@ -1,6 +1,6 @@
 #include "FceFile.h"
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 
 namespace LibOpenNFS::NFS3 {
     bool FceFile::Load(const std::string &fcePath, FceFile &fceFile) {

@@ -4,7 +4,7 @@
 #include <sstream>
 #include <filesystem>
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 
 namespace LibOpenNFS::Shared {
     bool VivFile::Load(const std::string &vivPath, VivFile &vivFile) {

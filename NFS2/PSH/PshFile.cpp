@@ -1,6 +1,6 @@
 #include "PshFile.h"
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 #include "Common/TextureUtils.h"
 
 // TODO: Need to perform proper deserialisation in this file, and then use a helper in ImageLoader that calls into this class

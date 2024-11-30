@@ -1,6 +1,6 @@
 #include "StructureRefBlock.h"
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 
 using namespace LibOpenNFS::NFS2;
 

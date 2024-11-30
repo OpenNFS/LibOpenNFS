@@ -1,6 +1,6 @@
 #include "FrdFile.h"
 
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 
 namespace LibOpenNFS::NFS3 {
     bool FrdFile::Load(const std::string &frdPath, FrdFile &frdFile) {

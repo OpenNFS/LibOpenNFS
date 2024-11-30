@@ -1,7 +1,7 @@
 #include "NFS2Loader.h"
 
 #include "Common/TextureUtils.h"
-#include "LibOpenNFS.h"
+#include "Common/Logging.h"
 
 #include <array>
 
