@@ -2,6 +2,7 @@
 
 #include <glm/gtx/quaternion.hpp>
 #include <filesystem>
+#include <fstream>
 #include <sstream>
 
 #include "Common/Logging.h"

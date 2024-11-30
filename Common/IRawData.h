@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <array>
+#include <fstream>
 
 #include "NFSVersion.h"
 #include "Utils.h"

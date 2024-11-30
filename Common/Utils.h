@@ -1,9 +1,6 @@
 #pragma once
 
-#include <exception>
-#include <fstream>
 #include <iostream>
-#include <memory>
 #include <glm/glm.hpp>
 
 #define ASSERT(condition, message)                                                                                   \

@@ -15,7 +15,6 @@ namespace LibOpenNFS::Shared {
         CanFile() = default;
 
         static bool Load(const std::string &canPath, CanFile &canFile);
-
         static void Save(const std::string &canPath, CanFile &canFile);
 
         uint16_t size;
