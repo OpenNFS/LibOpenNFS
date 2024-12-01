@@ -8,7 +8,7 @@
 #include "TexBlock.h"
 
 namespace LibOpenNFS::NFS3 {
-    static const uint8_t HEADER_LENGTH = 28;
+    static constexpr uint8_t HEADER_LENGTH {28};
 
     class FrdFile : IRawData {
     public:

@@ -47,7 +47,7 @@ namespace LibOpenNFS::NFS3 {
         extraObjectBlocks.reserve((4 * nBlocks) + 1);
 
         // Detect NFS3 or NFSHS
-        int32_t hsMagic = 0;
+        int32_t hsMagic {0};
         onfs_check(safe_read(ifstream, hsMagic));
 
         if ((hsMagic < 0) || (hsMagic > 5000)) {

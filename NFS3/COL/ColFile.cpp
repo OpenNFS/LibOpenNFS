@@ -10,7 +10,7 @@ bool ColFile::Load(std::string const &colPath, ColFile &colFile) {
     LogInfo("Loading COL File located at %s", colPath.c_str());
     std::ifstream col(colPath, std::ios::in | std::ios::binary);
 
-    bool loadStatus = colFile._SerializeIn(col);
+    bool const loadStatus {colFile._SerializeIn(col)};
     col.close();
 
     return loadStatus;

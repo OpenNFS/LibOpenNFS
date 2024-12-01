@@ -11,7 +11,7 @@ namespace LibOpenNFS::Shared {
         LogInfo("Loading VIV File located at %s", vivPath.c_str());
         std::ifstream viv(vivPath, std::ios::in | std::ios::binary);
 
-        bool loadStatus = vivFile._SerializeIn(viv);
+        bool const loadStatus = vivFile._SerializeIn(viv);
         viv.close();
 
         return loadStatus;
@@ -26,7 +26,7 @@ namespace LibOpenNFS::Shared {
     bool VivFile::Extract(std::string const &outPath, VivFile &vivFile) {
         std::filesystem::create_directories(outPath);
 
-        for (uint8_t fileIdx = 0; fileIdx < vivFile.nFiles; ++fileIdx) {
+        for (uint32_t fileIdx = 0; fileIdx < vivFile.nFiles; ++fileIdx) {
             VivEntry &curFile{vivFile.files.at(fileIdx)};
 
             std::stringstream out_file_path;
@@ -46,32 +46,26 @@ namespace LibOpenNFS::Shared {
     bool VivFile::_SerializeIn(std::ifstream &ifstream) {
         onfs_check(safe_read(ifstream, vivHeader));
 
-        if (memcmp(vivHeader, "BIGF", sizeof(vivHeader))) {
+        if (memcmp(vivHeader, "BIGF", sizeof(vivHeader)) != 0) {
             LogWarning("Not a valid VIV file (BIGF header missing)");
             return false;
         }
 
-        onfs_check(safe_read(ifstream, vivSize));
-        vivSize = _SwapEndian(vivSize);
+        onfs_check(safe_read_bswap(ifstream, vivSize));
 
-        onfs_check(safe_read(ifstream, nFiles));
-        nFiles = _SwapEndian(nFiles);
+        onfs_check(safe_read_bswap(ifstream, nFiles));
         files.resize(nFiles);
 
         LogInfo("VIV contains %d files", nFiles);
-        onfs_check(safe_read(ifstream, startPos));
-        startPos = _SwapEndian(startPos);
+        onfs_check(safe_read_bswap(ifstream, startPos));
 
         std::streampos currentPos = ifstream.tellg();
 
         for (uint8_t fileIdx = 0; fileIdx < nFiles; ++fileIdx) {
             ifstream.seekg(currentPos, std::ios_base::beg);
             uint32_t filePos = 0, fileSize = 0;
-            onfs_check(safe_read(ifstream, filePos));
-            filePos = _SwapEndian(filePos);
-
-            onfs_check(safe_read(ifstream, fileSize));
-            fileSize = _SwapEndian(fileSize);
+            onfs_check(safe_read_bswap(ifstream, filePos));
+            onfs_check(safe_read_bswap(ifstream, fileSize));
 
             VivEntry &curFile{files.at(fileIdx)};
             int pos = 0;
@@ -96,9 +90,5 @@ namespace LibOpenNFS::Shared {
 
     void VivFile::_SerializeOut(std::ofstream &ofstream) {
         ASSERT(false, "VIV Output serialization is not implemented yet");
-    }
-
-    uint32_t VivFile::_SwapEndian(uint32_t const x) {
-        return (x >> 24) | ((x << 8) & 0x00FF0000) | ((x >> 8) & 0x0000FF00) | (x << 24);
     }
 } // namespace LibOpenNFS::Shared

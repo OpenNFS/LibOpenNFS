@@ -24,6 +24,5 @@ namespace LibOpenNFS::Shared {
     private:
         bool _SerializeIn(std::ifstream &ifstream) override;
         void _SerializeOut(std::ofstream &ofstream) override;
-        uint32_t _SwapEndian(uint32_t x);
     };
 } // namespace LibOpenNFS::Shared
