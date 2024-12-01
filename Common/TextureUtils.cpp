@@ -5,10 +5,10 @@
 #include "Common/Logging.h"
 
 namespace LibOpenNFS {
-    uint32_t TextureUtils::abgr1555ToARGB8888(uint16_t abgr_1555) {
-        auto red   = static_cast<uint8_t>(round((abgr_1555 & 0x1F) / 31.0F * 255.0F));
-        auto green = static_cast<uint8_t>(round(((abgr_1555 & 0x3E0) >> 5) / 31.0F * 255.0F));
-        auto blue  = static_cast<uint8_t>(round(((abgr_1555 & 0x7C00) >> 10) / 31.0F * 255.0F));
+    uint32_t TextureUtils::abgr1555ToARGB8888(uint16_t const abgr_1555) {
+        auto const red{static_cast<uint8_t>(round((abgr_1555 & 0x1F) / 31.0F * 255.0F))};
+        auto const green{static_cast<uint8_t>(round(((abgr_1555 & 0x3E0) >> 5) / 31.0F * 255.0F))};
+        auto const blue{static_cast<uint8_t>(round(((abgr_1555 & 0x7C00) >> 10) / 31.0F * 255.0F))};
 
         uint32_t alpha = 255;
         if (((abgr_1555 & 0x8000) == 0 ? 1 : 0) == ((red == 0) && (green == 0) && (blue == 0) ? 1 : 0)) {
@@ -32,9 +32,9 @@ namespace LibOpenNFS {
             return rgb;
         }
 
-        h       = fmodf(h, 1.0f) / (60.0f / 360.0f);
-        int i   = (int) h;
-        float f = h - (float) i;
+        h = fmodf(h, 1.0f) / (60.0f / 360.0f);
+        int i = (int)h;
+        float f = h - (float)i;
         float p = v * (1.0f - s);
         float q = v * (1.0f - s * f);
         float t = v * (1.0f - s * (1.0f - f));
@@ -76,7 +76,7 @@ namespace LibOpenNFS {
         return rgb;
     }
 
-    glm::vec3 TextureUtils::ParseRGBString(const std::string &rgb_string) {
+    glm::vec3 TextureUtils::ParseRGBString(std::string const &rgb_string) {
         std::stringstream tempComponent;
         uint8_t commaCount = 0;
         glm::vec3 rgbValue;
@@ -85,13 +85,13 @@ namespace LibOpenNFS {
             if (rgb_string[char_Idx] == ',') {
                 switch (commaCount) {
                 case 0:
-                    rgbValue.x = (float) stoi(tempComponent.str());
+                    rgbValue.x = (float)stoi(tempComponent.str());
                     break;
                 case 1:
-                    rgbValue.y = (float) stoi(tempComponent.str());
+                    rgbValue.y = (float)stoi(tempComponent.str());
                     break;
                 case 2:
-                    rgbValue.z = (float) stoi(tempComponent.str());
+                    rgbValue.z = (float)stoi(tempComponent.str());
                     break;
                 default:
                     ASSERT(false, "Attempted to parse 4 component RGB");
@@ -109,23 +109,24 @@ namespace LibOpenNFS {
     }
 
     glm::vec4 TextureUtils::ShadingDataToVec4(uint32_t packed_rgba) {
-        return {((packed_rgba >> 16) & 0xFF) / 255.0f, ((packed_rgba >> 8) & 0xFF) / 255.0f, (packed_rgba & 0xFF) / 255.0f, ((packed_rgba >> 24) & 0xFF) / 255.0f};
+        return {((packed_rgba >> 16) & 0xFF) / 255.0f, ((packed_rgba >> 8) & 0xFF) / 255.0f,
+                (packed_rgba & 0xFF) / 255.0f, ((packed_rgba >> 24) & 0xFF) / 255.0f};
     }
 
-    bool TextureUtils::ExtractQFS(const std::string &qfs_input, const std::string &output_dir) {
+    bool TextureUtils::ExtractQFS(std::string const &qfs_input, std::string const &output_dir) {
         LogInfo("Extracting QFS file: %s to %s", qfs_input.c_str(), output_dir.c_str());
         if (std::filesystem::exists(output_dir)) {
-            LogInfo("Textures already exist at %s, nothing to extract",  output_dir.c_str());
+            LogInfo("Textures already exist at %s, nothing to extract", output_dir.c_str());
             return true;
         }
 
         std::filesystem::create_directories(output_dir);
 
-        // Fshtool molests the current working directory, save and restore
+        // Fshtool changes the current working directory, save and restore
         char cwd[1024];
         getcwd(cwd, sizeof(cwd));
 
-        char *args[3]  = {const_cast<char *>(""), strdup(qfs_input.c_str()), strdup(output_dir.c_str())};
+        char *args[3] = {const_cast<char *>(""), strdup(qfs_input.c_str()), strdup(output_dir.c_str())};
         int returnCode = (fsh_main(3, args) == 1);
 
         chdir(cwd);
@@ -133,15 +134,17 @@ namespace LibOpenNFS {
         return returnCode;
     }
 
-    bool TextureUtils::ExtractTrackTextures(const std::string &trackPath, const ::std::string &trackName, NFSVersion nfsVer, const std::string &outPath) {
-        std::stringstream nfsTexArchivePath;
-        std::string fullTrackPath     = trackPath + "/" + trackName;
-
+    bool TextureUtils::ExtractTrackTextures(std::string const &trackPath,
+                                            ::std::string const &trackName,
+                                            NFSVersion nfsVer,
+                                            std::string const &outPath) {
         if (std::filesystem::exists(outPath)) {
             return true;
-        } else {
-            std::filesystem::create_directories(outPath);
         }
+        std::filesystem::create_directories(outPath);
+
+        std::stringstream nfsTexArchivePath;
+        std::string fullTrackPath = trackPath + "/" + trackName;
 
         switch (nfsVer) {
         case NFSVersion::NFS_2:
@@ -177,13 +180,14 @@ namespace LibOpenNFS {
         case NFSVersion::NFS_2_PS1:
         case NFSVersion::NFS_3_PS1:
             return true;
-            //return ImageLoader::ExtractPSH(nfsTexArchivePath.str(), onfsTrackAssetTextureDir);
+            // return ImageLoader::ExtractPSH(nfsTexArchivePath.str(), onfsTrackAssetTextureDir);
         case NFSVersion::NFS_3: {
             std::stringstream nfsSkyTexArchivePath;
             nfsSkyTexArchivePath << fullTrackPath.substr(0, fullTrackPath.find_last_of('/')) << "/sky.fsh";
             if (std::filesystem::exists(nfsSkyTexArchivePath.str())) {
                 std::string onfsTrackAssetSkyTexDir = outPath + "/sky_textures/";
-                ASSERT(ExtractQFS(nfsSkyTexArchivePath.str(), onfsTrackAssetSkyTexDir), "Unable to extract sky textures from " << nfsSkyTexArchivePath.str());
+                ASSERT(ExtractQFS(nfsSkyTexArchivePath.str(), onfsTrackAssetSkyTexDir),
+                       "Unable to extract sky textures from " << nfsSkyTexArchivePath.str());
             }
         } break;
         default:

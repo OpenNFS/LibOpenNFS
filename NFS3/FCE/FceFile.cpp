@@ -3,17 +3,17 @@
 #include "Common/Logging.h"
 
 namespace LibOpenNFS::NFS3 {
-    bool FceFile::Load(const std::string &fcePath, FceFile &fceFile) {
-        //LOG(INFO) << "Loading FCE File located at " << fcePath;
+    bool FceFile::Load(std::string const &fcePath, FceFile &fceFile) {
+        LogInfo("Loading FCE File located at %s", fcePath.c_str());
         std::ifstream fce(fcePath, std::ios::in | std::ios::binary);
 
-        bool const loadStatus {fceFile._SerializeIn(fce)};
+        bool const loadStatus{fceFile._SerializeIn(fce)};
         fce.close();
 
         return loadStatus;
     }
 
-    void FceFile::Save(const std::string &fcePath, FceFile &fceFile) {
+    void FceFile::Save(std::string const &fcePath, FceFile &fceFile) {
         LogInfo("Saving FCE File to %s", fcePath.c_str());
         std::ofstream fce(fcePath, std::ios::out | std::ios::binary);
         fceFile._SerializeOut(fce);
@@ -54,13 +54,16 @@ namespace LibOpenNFS::NFS3 {
             carParts[partIdx].normals.resize(partNumVertices[partIdx]);
             carParts[partIdx].triangles.resize(partNumTriangles[partIdx]);
 
-            ifstream.seekg(0x1F04 + vertTblOffset + (partFirstVertIndices[partIdx] * sizeof(glm::vec3)), std::ios_base::beg);
+            ifstream.seekg(0x1F04 + vertTblOffset + (partFirstVertIndices[partIdx] * sizeof(glm::vec3)),
+                           std::ios_base::beg);
             onfs_check(safe_read(ifstream, carParts[partIdx].vertices));
 
-            ifstream.seekg(0x1F04 + normTblOffset + (partFirstVertIndices[partIdx] * sizeof(glm::vec3)), std::ios_base::beg);
+            ifstream.seekg(0x1F04 + normTblOffset + (partFirstVertIndices[partIdx] * sizeof(glm::vec3)),
+                           std::ios_base::beg);
             onfs_check(safe_read(ifstream, carParts[partIdx].normals));
 
-            ifstream.seekg(0x1F04 + triTblOffset + (partFirstTriIndices[partIdx] * sizeof(Triangle)), std::ios_base::beg);
+            ifstream.seekg(0x1F04 + triTblOffset + (partFirstTriIndices[partIdx] * sizeof(Triangle)),
+                           std::ios_base::beg);
             onfs_check(safe_read(ifstream, carParts[partIdx].triangles));
         }
 

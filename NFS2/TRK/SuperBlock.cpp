@@ -4,14 +4,12 @@
 
 using namespace LibOpenNFS::NFS2;
 
-template <typename Platform>
-SuperBlock<Platform>::SuperBlock(std::ifstream &trk, NFSVersion version) {
+template <typename Platform> SuperBlock<Platform>::SuperBlock(std::ifstream &trk, NFSVersion version) {
     this->version = version;
     ASSERT(this->SuperBlock<Platform>::_SerializeIn(trk), "Failed to serialize SuperBlock from file stream");
 }
 
-template <typename Platform>
-bool SuperBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
+template <typename Platform> bool SuperBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
     // TODO: Gross, needs to be relative//passed in
     std::streampos superblockOffset = ifstream.tellg();
     onfs_check(safe_read(ifstream, superBlockSize));
@@ -26,7 +24,7 @@ bool SuperBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
         for (uint32_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx) {
             LogDebug("  Block %d of %d", blockIdx + 1, nBlocks);
             // TODO: Fix this
-            ifstream.seekg((uint32_t) superblockOffset + blockOffsets[blockIdx], std::ios_base::beg);
+            ifstream.seekg((uint32_t)superblockOffset + blockOffsets[blockIdx], std::ios_base::beg);
             trackBlocks.push_back(TrackBlock<Platform>(ifstream, this->version));
         }
     }
@@ -34,8 +32,7 @@ bool SuperBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
     return true;
 }
 
-template <typename Platform>
-void SuperBlock<Platform>::_SerializeOut(std::ofstream &ofstream) {
+template <typename Platform> void SuperBlock<Platform>::_SerializeOut(std::ofstream &ofstream) {
     ASSERT(false, "SuperBlock output serialization is not currently implemented");
 }
 

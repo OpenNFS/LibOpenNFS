@@ -66,30 +66,30 @@ bool ExtraObjectBlock::_SerializeIn(std::ifstream &ifstream) {
 }
 
 void ExtraObjectBlock::_SerializeOut(std::ofstream &ofstream) {
-    ofstream.write((char *) &(nobj), sizeof(uint32_t));
+    ofstream.write((char *)&(nobj), sizeof(uint32_t));
 
     for (uint32_t xobjIdx = 0; xobjIdx < nobj; ++xobjIdx) {
-        ofstream.write((char *) &obj[xobjIdx].crosstype, sizeof(uint32_t));
-        ofstream.write((char *) &obj[xobjIdx].crossno, sizeof(uint32_t));
-        ofstream.write((char *) &obj[xobjIdx].unknown, sizeof(uint32_t));
+        ofstream.write((char *)&obj[xobjIdx].crosstype, sizeof(uint32_t));
+        ofstream.write((char *)&obj[xobjIdx].crossno, sizeof(uint32_t));
+        ofstream.write((char *)&obj[xobjIdx].unknown, sizeof(uint32_t));
 
         if (obj[xobjIdx].crosstype == 4) {
             // Basic objects
-            ofstream.write((char *) &obj[xobjIdx].ptRef, sizeof(glm::vec3));
-            ofstream.write((char *) &obj[xobjIdx].AnimMemory, sizeof(uint32_t));
+            ofstream.write((char *)&obj[xobjIdx].ptRef, sizeof(glm::vec3));
+            ofstream.write((char *)&obj[xobjIdx].AnimMemory, sizeof(uint32_t));
         } else if (obj[xobjIdx].crosstype == 3) {
             // Animated objects
-            ofstream.write((char *) &obj[xobjIdx].unknown3, sizeof(uint16_t) * 9);
-            ofstream.write((char *) &obj[xobjIdx].type3, sizeof(uint8_t));
-            ofstream.write((char *) &obj[xobjIdx].objno, sizeof(uint8_t));
-            ofstream.write((char *) &obj[xobjIdx].nAnimLength, sizeof(uint16_t));
-            ofstream.write((char *) &obj[xobjIdx].AnimDelay, sizeof(uint16_t));
-            ofstream.write((char *) obj[xobjIdx].animData.data(), sizeof(AnimData) * obj[xobjIdx].nAnimLength);
+            ofstream.write((char *)&obj[xobjIdx].unknown3, sizeof(uint16_t) * 9);
+            ofstream.write((char *)&obj[xobjIdx].type3, sizeof(uint8_t));
+            ofstream.write((char *)&obj[xobjIdx].objno, sizeof(uint8_t));
+            ofstream.write((char *)&obj[xobjIdx].nAnimLength, sizeof(uint16_t));
+            ofstream.write((char *)&obj[xobjIdx].AnimDelay, sizeof(uint16_t));
+            ofstream.write((char *)obj[xobjIdx].animData.data(), sizeof(AnimData) * obj[xobjIdx].nAnimLength);
         }
-        ofstream.write((char *) &(obj[xobjIdx].nVertices), sizeof(uint32_t));
-        ofstream.write((char *) obj[xobjIdx].vert.data(), sizeof(glm::vec3) * obj[xobjIdx].nVertices);
-        ofstream.write((char *) obj[xobjIdx].vertShading.data(), sizeof(uint32_t) * obj[xobjIdx].nVertices);
-        ofstream.write((char *) &(obj[xobjIdx].nPolygons), sizeof(uint32_t));
-        ofstream.write((char *) obj[xobjIdx].polyData.data(), sizeof(PolygonData) * obj[xobjIdx].nPolygons);
+        ofstream.write((char *)&(obj[xobjIdx].nVertices), sizeof(uint32_t));
+        ofstream.write((char *)obj[xobjIdx].vert.data(), sizeof(glm::vec3) * obj[xobjIdx].nVertices);
+        ofstream.write((char *)obj[xobjIdx].vertShading.data(), sizeof(uint32_t) * obj[xobjIdx].nVertices);
+        ofstream.write((char *)&(obj[xobjIdx].nPolygons), sizeof(uint32_t));
+        ofstream.write((char *)obj[xobjIdx].polyData.data(), sizeof(PolygonData) * obj[xobjIdx].nPolygons);
     }
 }

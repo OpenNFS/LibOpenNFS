@@ -2,7 +2,7 @@
 
 using namespace LibOpenNFS::NFS3;
 
-PolyBlock::PolyBlock(std::ifstream &frd, const uint32_t nTrackBlockPolys) : m_nTrackBlockPolys(nTrackBlockPolys) {
+PolyBlock::PolyBlock(std::ifstream &frd, uint32_t const nTrackBlockPolys) : m_nTrackBlockPolys(nTrackBlockPolys) {
     ASSERT(this->PolyBlock::_SerializeIn(frd), "Failed to serialize PolyBlock from file stream");
 }
 
@@ -34,7 +34,7 @@ bool PolyBlock::_SerializeIn(std::ifstream &ifstream) {
             o.poly.resize(o.n2);
 
             uint32_t polygonCount = 0;
-            o.nobj                = 0;
+            o.nobj = 0;
 
             for (uint32_t k = 0; k < o.n2; ++k) {
                 onfs_check(safe_read(ifstream, o.types[k]));
@@ -61,23 +61,23 @@ bool PolyBlock::_SerializeIn(std::ifstream &ifstream) {
 
 void PolyBlock::_SerializeOut(std::ofstream &ofstream) {
     for (uint32_t polyBlockIdx = 0; polyBlockIdx < NUM_POLYGON_BLOCKS; polyBlockIdx++) {
-        ofstream.write((char *) &sz[polyBlockIdx], sizeof(uint32_t));
+        ofstream.write((char *)&sz[polyBlockIdx], sizeof(uint32_t));
         if (sz[polyBlockIdx] != 0) {
-            ofstream.write((char *) &szdup[polyBlockIdx], sizeof(uint32_t));
-            ofstream.write((char *) poly[polyBlockIdx].data(), sizeof(PolygonData) * sz[polyBlockIdx]);
+            ofstream.write((char *)&szdup[polyBlockIdx], sizeof(uint32_t));
+            ofstream.write((char *)poly[polyBlockIdx].data(), sizeof(PolygonData) * sz[polyBlockIdx]);
         }
     }
 
     for (auto &o : obj) {
-        ofstream.write((char *) &o.n1, sizeof(uint32_t));
+        ofstream.write((char *)&o.n1, sizeof(uint32_t));
         if (o.n1 > 0) {
-            ofstream.write((char *) &o.n2, sizeof(uint32_t));
+            ofstream.write((char *)&o.n2, sizeof(uint32_t));
             o.nobj = 0;
             for (uint32_t k = 0; k < o.n2; ++k) {
-                ofstream.write((char *) &o.types[k], sizeof(uint32_t));
+                ofstream.write((char *)&o.types[k], sizeof(uint32_t));
                 if (o.types[k] == 1) {
-                    ofstream.write((char *) &o.numpoly[o.nobj], sizeof(uint32_t));
-                    ofstream.write((char *) o.poly[o.nobj].data(), sizeof(PolygonData) * o.numpoly[o.nobj]);
+                    ofstream.write((char *)&o.numpoly[o.nobj], sizeof(uint32_t));
+                    ofstream.write((char *)o.poly[o.nobj].data(), sizeof(PolygonData) * o.numpoly[o.nobj]);
                     ++o.nobj;
                 }
             }

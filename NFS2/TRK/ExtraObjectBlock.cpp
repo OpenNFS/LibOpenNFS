@@ -4,14 +4,13 @@
 
 using namespace LibOpenNFS::NFS2;
 
-template <typename Platform>
-ExtraObjectBlock<Platform>::ExtraObjectBlock(std::ifstream &trk, NFSVersion version) {
+template <typename Platform> ExtraObjectBlock<Platform>::ExtraObjectBlock(std::ifstream &trk, NFSVersion version) {
     this->version = version;
-    ASSERT(this->ExtraObjectBlock<Platform>::_SerializeIn(trk), "Failed to serialize ExtraObjectBlock from file stream");
+    ASSERT(this->ExtraObjectBlock<Platform>::_SerializeIn(trk),
+           "Failed to serialize ExtraObjectBlock from file stream");
 }
 
-template <typename Platform>
-bool ExtraObjectBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
+template <typename Platform> bool ExtraObjectBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
     // Read the header
     onfs_check(safe_read(ifstream, recSize));
     onfs_check(safe_read(ifstream, id));
@@ -96,8 +95,7 @@ bool ExtraObjectBlock<Platform>::_SerializeIn(std::ifstream &ifstream) {
     return true;
 }
 
-template <typename Platform>
-void ExtraObjectBlock<Platform>::_SerializeOut(std::ofstream &ofstream) {
+template <typename Platform> void ExtraObjectBlock<Platform>::_SerializeOut(std::ofstream &ofstream) {
     ASSERT(false, "ExtraObjectBlock output serialization is not currently implemented");
 }
 

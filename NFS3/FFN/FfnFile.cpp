@@ -6,17 +6,17 @@
 
 using namespace LibOpenNFS::NFS3;
 
-bool FfnFile::Load(const std::string &ffnPath, FfnFile &ffnFile) {
+bool FfnFile::Load(std::string const &ffnPath, FfnFile &ffnFile) {
     LogInfo("Loading FFN File located at %s", ffnPath.c_str());
     std::ifstream ffn(ffnPath, std::ios::in | std::ios::binary);
 
-    bool const loadStatus {ffnFile._SerializeIn(ffn)};
+    bool const loadStatus{ffnFile._SerializeIn(ffn)};
     ffn.close();
 
     return loadStatus;
 }
 
-void FfnFile::Save(const std::string &ffnPath, FfnFile &ffnFile) {
+void FfnFile::Save(std::string const &ffnPath, FfnFile &ffnFile) {
     LogInfo("Saving FFN File to %s", ffnPath.c_str());
     std::ofstream ffn(ffnPath, std::ios::out | std::ios::binary);
     ffnFile._SerializeOut(ffn);
@@ -37,10 +37,11 @@ bool FfnFile::_SerializeIn(std::ifstream &ifstream) {
     uint32_t predictedAFontOffset = header.fontMapOffset;
 
     header.numChars = 400;
-    header.version  = 164;
+    header.version = 164;
 
     // streamoff readBytes = ffn.tellg();
-    // ASSERT(readBytes == header->fileSize, "Missing " << header.fileSize - readBytes << " bytes from loaded FFN file: " << ffn_path);
+    // ASSERT(readBytes == header->fileSize, "Missing " << header.fileSize - readBytes << " bytes from loaded FFN file:
+    // " << ffn_path);
 
     ifstream.seekg(header.fontMapOffset, std::ios_base::beg);
     std::vector<uint32_t> pixels(header.version * header.numChars);
@@ -60,14 +61,16 @@ bool FfnFile::_SerializeIn(std::ifstream &ifstream) {
     // Rewrite the pixels using the palette data
     for (int y = 0; y < header.numChars; y++) {
         for (int x = 0; x < header.version; x++) {
-            uint32_t const pixel                   {0};//ImageLoader::abgr1555ToARGB8888(paletteColours[indices[(x + y * header.version)]]);
+            uint32_t const pixel{
+                0}; // ImageLoader::abgr1555ToARGB8888(paletteColours[indices[(x + y * header.version)]]);
             pixels[(x + y * header.version)] = pixel;
         }
     }
 
-    //ImageLoader::SaveImage("C:/Users/Amrik/Desktop/test.bmp", pixels.data(), header.version, header.numChars);
+    // ImageLoader::SaveImage("C:/Users/Amrik/Desktop/test.bmp", pixels.data(), header.version, header.numChars);
 
-    // ASSERT(readBytes == header.fileSize, "Missing " << header.fileSize - readBytes << " bytes from loaded FFN file: " << ffn_path);
+    // ASSERT(readBytes == header.fileSize, "Missing " << header.fileSize - readBytes << " bytes from loaded FFN file: "
+    // << ffn_path);
     return true;
 }
 

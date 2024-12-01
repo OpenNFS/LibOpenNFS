@@ -28,7 +28,8 @@ bool StructureRefBlock::_SerializeIn(std::ifstream &ifstream) {
         // 4 Component PSX Vert data? TODO: Restructure to allow the 4th component to be read
         onfs_check(safe_read(ifstream, refCoordinates));
     } else {
-        LogDebug("Unknown Structure Reference type: %d Size: %d StructRef: %d", (int) recType, (int) recSize, (int) structureRef);
+        LogDebug("Unknown Structure Reference type: %d Size: %d StructRef: %d", (int)recType, (int)recSize,
+                 (int)structureRef);
         return true;
     }
 

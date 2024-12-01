@@ -10,6 +10,19 @@ namespace LibOpenNFS {
     constexpr uint32_t LOG_BUFFER_SIZE = 512;
     inline char loggingBuffer[LOG_BUFFER_SIZE];
 
+    inline std::string get_string(LogLevel const level) {
+        switch (level) {
+        case LogLevel::INFO:
+            return "INFO";
+        case LogLevel::WARNING:
+            return "WARNING";
+        case LogLevel::DEBUG:
+            return "DEBUG";
+        default:
+            return "";
+        }
+    }
+
     inline void _InternalLog(const LogLevel logLevel, const char *file, const int line, const char *func,
                              const char *fmt, ...) {
         va_list args;
@@ -33,7 +46,7 @@ namespace LibOpenNFS {
                         _func <<
                         ":" << _line << "]: " << loggingBuffer << std::endl;
             };
-            loggerFunctions[static_cast<size_t>(logLevel)] = fallbackLoggerFunction;
+            RegisterLogCallback(logLevel, fallbackLoggerFunction);
             // Then call it. On Subsequent invocations, we can just look it up.
             fallbackLoggerFunction(file, line, func, loggingBuffer);
         }

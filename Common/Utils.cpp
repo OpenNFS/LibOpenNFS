@@ -1,19 +1,19 @@
 #include "Utils.h"
 
-#include <glm/gtx/quaternion.hpp>
 #include <filesystem>
 #include <fstream>
+#include <glm/gtx/quaternion.hpp>
 #include <sstream>
 
 #include "Common/Logging.h"
 
 namespace LibOpenNFS::Utils {
-    glm::vec3 FixedToFloat(const glm::vec3 fixedPoint) {
+    glm::vec3 FixedToFloat(glm::vec3 const fixedPoint) {
         return fixedPoint / 65536.0f;
     }
 
     // Modified Arushan CRP decompressor. Removes LZ77 style decompression from CRPs
-    bool DecompressCRP(const std::string &compressedCrpPath, const std::string &decompressedCrpPath) {
+    bool DecompressCRP(std::string const &compressedCrpPath, std::string const &decompressedCrpPath) {
         LogInfo("Decompressing CRP File located at %s", compressedCrpPath.c_str());
 
         // Bail early if decompressed CRP present already
@@ -22,7 +22,7 @@ namespace LibOpenNFS::Utils {
             return true;
         }
 
-        const char *filename = compressedCrpPath.c_str();
+        char const *filename = compressedCrpPath.c_str();
 
         // Open file
         std::ifstream file;
@@ -40,12 +40,13 @@ namespace LibOpenNFS::Utils {
         unsigned char *data = nullptr;
         // CRP compression type
         unsigned int id = 0;
-        file.read((char *) &id, 4);
+        file.read((char *)&id, 4);
         // Uncompressed CRP
         if ((id & 0x0000FFFF) != 0xFB10) {
             file.close();
             LogInfo("CRP is already decompressed, skipping");
-            std::filesystem::copy_file(compressedCrpPath, decompressedCrpPath, std::filesystem::copy_options::overwrite_existing);
+            std::filesystem::copy_file(compressedCrpPath, decompressedCrpPath,
+                                       std::filesystem::copy_options::overwrite_existing);
             return true;
         }
         // Compressed CRP
@@ -53,11 +54,11 @@ namespace LibOpenNFS::Utils {
         file.seekg(2);
         unsigned int elhi, elmd, ello;
         elhi = elmd = ello = 0;
-        file.read((char *) &elhi, 1);
-        file.read((char *) &elmd, 1);
-        file.read((char *) &ello, 1);
+        file.read((char *)&elhi, 1);
+        file.read((char *)&elmd, 1);
+        file.read((char *)&ello, 1);
         length = (((elhi * 256) + elmd) * 256) + ello;
-        data   = new unsigned char[length];
+        data = new unsigned char[length];
         // Memory allocation
         ASSERT(data != NULL, "Unable to allocate buffer for decompressed CRP data! Possible invalid length read");
         // Initialization
@@ -65,14 +66,14 @@ namespace LibOpenNFS::Utils {
         unsigned int datapos, len, offset, inbyte, tmp1, tmp2, tmp3;
         unsigned char *srcpos, *dstpos;
         datapos = len = offset = inbyte = tmp1 = tmp2 = tmp3 = 0;
-        file.read((char *) &inbyte, 1);
+        file.read((char *)&inbyte, 1);
         // Decompress
         while ((!file.eof()) && (inbyte < 0xFC)) {
             if (!(inbyte & 0x80)) {
-                file.read((char *) &tmp1, 1);
+                file.read((char *)&tmp1, 1);
                 len = inbyte & 0x03;
                 if (len != 0) {
-                    file.read((char *) (data + datapos), len);
+                    file.read((char *)(data + datapos), len);
                     datapos += len;
                 }
                 len = ((inbyte & 0x1C) >> 2) + 3;
@@ -85,11 +86,11 @@ namespace LibOpenNFS::Utils {
                         *dstpos++ = *srcpos++;
                 }
             } else if (!(inbyte & 0x40)) {
-                file.read((char *) &tmp1, 1);
-                file.read((char *) &tmp2, 1);
+                file.read((char *)&tmp1, 1);
+                file.read((char *)&tmp2, 1);
                 len = (tmp1 >> 6) & 0x03;
                 if (len != 0) {
-                    file.read((char *) (data + datapos), len);
+                    file.read((char *)(data + datapos), len);
                     datapos += len;
                 }
                 len = (inbyte & 0x3F) + 4;
@@ -102,12 +103,12 @@ namespace LibOpenNFS::Utils {
                         *dstpos++ = *srcpos++;
                 }
             } else if (!(inbyte & 0x20)) {
-                file.read((char *) &tmp1, 1);
-                file.read((char *) &tmp2, 1);
-                file.read((char *) &tmp3, 1);
+                file.read((char *)&tmp1, 1);
+                file.read((char *)&tmp2, 1);
+                file.read((char *)&tmp3, 1);
                 len = inbyte & 0x03;
                 if (len != 0) {
-                    file.read((char *) (data + datapos), len);
+                    file.read((char *)(data + datapos), len);
                     datapos += len;
                 }
                 len = (((inbyte >> 2) & 0x03) * 256) + tmp3 + 5;
@@ -122,17 +123,17 @@ namespace LibOpenNFS::Utils {
             } else {
                 len = ((inbyte & 0x1F) * 4) + 4;
                 if (len != 0) {
-                    file.read((char *) (data + datapos), len);
+                    file.read((char *)(data + datapos), len);
                     datapos += len;
                 }
             }
             inbyte = tmp1 = tmp2 = tmp3 = 0;
-            file.read((char *) &inbyte, 1);
+            file.read((char *)&inbyte, 1);
         }
         if ((!file.eof()) && (datapos < length)) {
             len = inbyte & 0x03;
             if (len != 0) {
-                file.read((char *) (data + datapos), len);
+                file.read((char *)(data + datapos), len);
             }
         }
         // Clean up
@@ -141,8 +142,9 @@ namespace LibOpenNFS::Utils {
         // Write out uncompressed data
         std::ofstream ofile;
         ofile.open(decompressedCrpPath.c_str(), std::ios::binary);
-        ASSERT(ofile.is_open(), "Unable to open output CRP at " << decompressedCrpPath << " for write of decompressed data");
-        ofile.write((const char *) data, length);
+        ASSERT(ofile.is_open(),
+               "Unable to open output CRP at " << decompressedCrpPath << " for write of decompressed data");
+        ofile.write((char const *)data, length);
         ofile.close();
 
         delete[] data;
@@ -150,17 +152,17 @@ namespace LibOpenNFS::Utils {
         return true;
     }
 
-    glm::vec3 CalculateQuadNormal(const glm::vec3 p1, const glm::vec3 p2, const glm::vec3 p3, const glm::vec3 p4) {
-        const glm::vec3 triANormal {CalculateNormal(p1, p2, p3)};
-        const glm::vec3 triBNormal {CalculateNormal(p1, p3, p4)};
+    glm::vec3 CalculateQuadNormal(glm::vec3 const p1, glm::vec3 const p2, glm::vec3 const p3, glm::vec3 const p4) {
+        glm::vec3 const triANormal{CalculateNormal(p1, p2, p3)};
+        glm::vec3 const triBNormal{CalculateNormal(p1, p3, p4)};
         return glm::normalize(triANormal + triBNormal);
     }
 
-    glm::vec3 CalculateNormal(const glm::vec3 p1, const glm::vec3 p2, const glm::vec3 p3) {
+    glm::vec3 CalculateNormal(glm::vec3 const p1, glm::vec3 const p2, glm::vec3 const p3) {
         glm::vec3 vertexNormal(0, 0, 0);
 
-        const glm::vec3 U {p2 - p1};
-        const glm::vec3 V {p3 - p1};
+        glm::vec3 const U{p2 - p1};
+        glm::vec3 const V{p3 - p1};
 
         vertexNormal.x = (U.y * V.z) - (U.z * V.y);
         vertexNormal.y = (U.z * V.x) - (U.x * V.z);

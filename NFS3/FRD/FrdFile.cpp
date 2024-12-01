@@ -3,29 +3,32 @@
 #include "Common/Logging.h"
 
 namespace LibOpenNFS::NFS3 {
-    bool FrdFile::Load(const std::string &frdPath, FrdFile &frdFile) {
+    bool FrdFile::Load(std::string const &frdPath, FrdFile &frdFile) {
         LogInfo("Loading FRD File located at %s", frdPath.c_str());
         std::ifstream frd(frdPath, std::ios::in | std::ios::binary);
 
-        bool const loadStatus {frdFile._SerializeIn(frd)};
+        bool const loadStatus{frdFile._SerializeIn(frd)};
         frd.close();
 
         return loadStatus;
     }
 
-    void FrdFile::Save(const std::string &frdPath, FrdFile &frdFile) {
+    void FrdFile::Save(std::string const &frdPath, FrdFile &frdFile) {
         LogInfo("Saving FRD File to %s", frdPath.c_str());
         std::ofstream frd(frdPath, std::ios::out | std::ios::binary);
         frdFile._SerializeOut(frd);
     }
 
-    void FrdFile::MergeFRD(const std::string &frdPath, FrdFile &frdFileA, FrdFile &frdFileB) {
+    void FrdFile::MergeFRD(std::string const &frdPath, FrdFile &frdFileA, FrdFile &frdFileB) {
         // Mergearooney
         // TODO: Of course it couldn't be this simple :(
         frdFileA.nBlocks += frdFileB.nBlocks;
-        frdFileA.trackBlocks.insert(frdFileA.trackBlocks.end(), frdFileB.trackBlocks.begin(), frdFileB.trackBlocks.end());
-        frdFileA.polygonBlocks.insert(frdFileA.polygonBlocks.end(), frdFileB.polygonBlocks.begin(), frdFileB.polygonBlocks.end());
-        frdFileA.extraObjectBlocks.insert(frdFileA.extraObjectBlocks.end(), frdFileB.extraObjectBlocks.begin(), frdFileB.extraObjectBlocks.end());
+        frdFileA.trackBlocks.insert(frdFileA.trackBlocks.end(), frdFileB.trackBlocks.begin(),
+                                    frdFileB.trackBlocks.end());
+        frdFileA.polygonBlocks.insert(frdFileA.polygonBlocks.end(), frdFileB.polygonBlocks.begin(),
+                                      frdFileB.polygonBlocks.end());
+        frdFileA.extraObjectBlocks.insert(frdFileA.extraObjectBlocks.end(), frdFileB.extraObjectBlocks.begin(),
+                                          frdFileB.extraObjectBlocks.end());
 
         FrdFile::Save(frdPath, frdFileA);
     }
@@ -83,9 +86,9 @@ namespace LibOpenNFS::NFS3 {
 
     void FrdFile::_SerializeOut(std::ofstream &ofstream) {
         // Write FRD Header
-        ofstream.write((char *) &header, HEADER_LENGTH);
+        ofstream.write((char *)&header, HEADER_LENGTH);
         uint32_t nBlocksHeader = nBlocks - 1;
-        ofstream.write((char *) &nBlocksHeader, sizeof(uint32_t));
+        ofstream.write((char *)&nBlocksHeader, sizeof(uint32_t));
 
         // Track Data
         for (auto &trackBlock : trackBlocks) {
@@ -100,7 +103,7 @@ namespace LibOpenNFS::NFS3 {
             extraObjectBlock._SerializeOut(ofstream);
         }
         // Texture Table
-        ofstream.write((char *) &nTextures, sizeof(uint32_t));
+        ofstream.write((char *)&nTextures, sizeof(uint32_t));
         for (auto &textureBlock : textureBlocks) {
             textureBlock._SerializeOut(ofstream);
         }

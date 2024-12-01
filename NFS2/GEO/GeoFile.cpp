@@ -2,12 +2,11 @@
 
 #include "Common/Logging.h"
 
-//#include "../../../../src/Scene/Models/CarModel.h"
+// #include "../../../../src/Scene/Models/CarModel.h"
 
 namespace LibOpenNFS {
     namespace NFS2 {
-        template <typename Platform>
-        bool GeoFile<Platform>::Load(const std::string &geoPath, GeoFile &geoFile) {
+        template <typename Platform> bool GeoFile<Platform>::Load(std::string const &geoPath, GeoFile &geoFile) {
             LogInfo("Loading GEO File located at %s", geoPath.c_str());
             std::ifstream geo(geoPath, std::ios::in | std::ios::binary);
 
@@ -17,22 +16,21 @@ namespace LibOpenNFS {
             return loadStatus;
         }
 
-        template <typename Platform>
-        void GeoFile<Platform>::Save(const std::string &geoPath, GeoFile &geoFile) {
+        template <typename Platform> void GeoFile<Platform>::Save(std::string const &geoPath, GeoFile &geoFile) {
             LogInfo("Saving FCE File to %s", geoPath.c_str());
             std::ofstream geo(geoPath, std::ios::out | std::ios::binary);
             geoFile._SerializeOut(geo);
         }
 
-        template <>
-        bool GeoFile<PC>::_SerializeIn(std::ifstream &ifstream) {
-            // std::vector<CarModel> NFS2<PC>::LoadGEO(const std::string &geo_path, std::map<unsigned int, Texture> car_textures, std::map<std::string, uint32_t>
-            // remapped_texture_ids)
+        template <> bool GeoFile<PC>::_SerializeIn(std::ifstream &ifstream) {
+            // std::vector<CarModel> NFS2<PC>::LoadGEO(const std::string &geo_path, std::map<unsigned int, Texture>
+            // car_textures, std::map<std::string, uint32_t> remapped_texture_ids)
             float carScaleFactor = 2000.f;
             glm::quat rotationMatrix =
-              glm::normalize(glm::quat(glm::vec3(0, 0, 0))); // All Vertices are stored so that the model is rotated 90 degs on X. Remove this at Vert load time.
+                glm::normalize(glm::quat(glm::vec3(0, 0, 0))); // All Vertices are stored so that the model is rotated
+                                                               // 90 degs on X. Remove this at Vert load time.
 
-            //std::vector<CarModel> car_meshes;
+            // std::vector<CarModel> car_meshes;
 
             /*safe_read(ifstream, &header, sizeof(PC::HEADER));
 
@@ -54,7 +52,8 @@ namespace LibOpenNFS {
                         return car_meshes;
                     }
                 }
-                ASSERT(geoBlockHeader->pad0 == 0 && geoBlockHeader->pad1 == 1 && geoBlockHeader->pad2 == 1, "Corrupt GEO block header");
+                ASSERT(geoBlockHeader->pad0 == 0 && geoBlockHeader->pad1 == 1 && geoBlockHeader->pad2 == 1, "Corrupt GEO
+            block header");
 
                 std::vector<uint32_t> indices;
                 std::vector<glm::vec3> verts;
@@ -76,10 +75,9 @@ namespace LibOpenNFS {
                 // Polygon Table start is aligned on 4 Byte boundary
                 if (((end - start) % 4))
                 {
-                    LOG(DEBUG) << "Part " << part_Idx << " [" << PC_PART_NAMES[part_Idx] << "] Polygon Table Pre-Pad Contents: ";
-                    uint16_t *pad = new uint16_t[3];
-                    geo.read((char *) pad, sizeof(uint16_t) * 3);
-                    for (uint32_t i = 0; i < 3; ++i)
+                    LOG(DEBUG) << "Part " << part_Idx << " [" << PC_PART_NAMES[part_Idx] << "] Polygon Table Pre-Pad
+            Contents: "; uint16_t *pad = new uint16_t[3]; geo.read((char *) pad, sizeof(uint16_t) * 3); for (uint32_t i
+            = 0; i < 3; ++i)
                     {
                         LOG(DEBUG) << pad[i];
                     }
@@ -91,8 +89,8 @@ namespace LibOpenNFS {
 
                 for (uint32_t vert_Idx = 0; vert_Idx < geoBlockHeader->nVerts; ++vert_Idx)
                 {
-                    verts.emplace_back(rotationMatrix * glm::vec3(vertices[vert_Idx].x / carScaleFactor, vertices[vert_Idx].y / carScaleFactor, vertices[vert_Idx].z /
-            carScaleFactor));
+                    verts.emplace_back(rotationMatrix * glm::vec3(vertices[vert_Idx].x / carScaleFactor,
+            vertices[vert_Idx].y / carScaleFactor, vertices[vert_Idx].z / carScaleFactor));
                 }
 
                 for (uint32_t poly_Idx = 0; poly_Idx < geoBlockHeader->nPolygons; ++poly_Idx)
@@ -114,7 +112,8 @@ namespace LibOpenNFS {
                     uvs.emplace_back(1.0f * gl_texture.maxU, 1.0f * gl_texture.maxV);
                     uvs.emplace_back(0.0f * gl_texture.maxU, 1.0f * gl_texture.maxV);
 
-                    glm::vec3 normal = rotationMatrix * CalculateQuadNormal(PointToVec(vertices[polygons[poly_Idx].vertex[0]]),
+                    glm::vec3 normal = rotationMatrix *
+            CalculateQuadNormal(PointToVec(vertices[polygons[poly_Idx].vertex[0]]),
                                                                             PointToVec(vertices[polygons[poly_Idx].vertex[1]]),
                                                                             PointToVec(vertices[polygons[poly_Idx].vertex[2]]),
                                                                             PointToVec(vertices[polygons[poly_Idx].vertex[3]]));
@@ -140,9 +139,10 @@ namespace LibOpenNFS {
                     texture_indices.emplace_back(remapped_texture_ids[textureName]);
                 }
                 glm::vec3 center = glm::vec3(
-                  (geoBlockHeader->position[0] / 256.f) / carScaleFactor, (geoBlockHeader->position[1] / 256.f) / carScaleFactor, (geoBlockHeader->position[2] / 256.f) /
-            carScaleFactor); car_meshes.emplace_back(CarModel(PC_PART_NAMES[part_Idx], verts, uvs, texture_indices, norms, indices, center, specularDamper, specularReflectivity,
-            envReflectivity));
+                  (geoBlockHeader->position[0] / 256.f) / carScaleFactor, (geoBlockHeader->position[1] / 256.f) /
+            carScaleFactor, (geoBlockHeader->position[2] / 256.f) / carScaleFactor);
+            car_meshes.emplace_back(CarModel(PC_PART_NAMES[part_Idx], verts, uvs, texture_indices, norms, indices,
+            center, specularDamper, specularReflectivity, envReflectivity));
 
                 delete geoBlockHeader;
                 delete[] vertices;
@@ -151,10 +151,9 @@ namespace LibOpenNFS {
             return false;
         }
 
-        template <>
-        bool GeoFile<PS1>::_SerializeIn(std::ifstream &ifstream) {
-            // std::vector<CarModel> NFS2<PS1>::LoadGEO(const std::string &geo_path, std::map<unsigned int, Texture> car_textures, std::map<std::string, uint32_t>
-            // remapped_texture_ids)
+        template <> bool GeoFile<PS1>::_SerializeIn(std::ifstream &ifstream) {
+            // std::vector<CarModel> NFS2<PS1>::LoadGEO(const std::string &geo_path, std::map<unsigned int, Texture>
+            // car_textures, std::map<std::string, uint32_t> remapped_texture_ids)
             /*glm::quat rotationMatrix = glm::normalize(glm::quat(glm::vec3(0, 0, 0)));
             float carScaleFactor     = 2000.f;
 
@@ -188,7 +187,8 @@ namespace LibOpenNFS {
                     }
                 }
 
-                if ((geoBlockHeader->unknown[0] != 0) || (geoBlockHeader->unknown[1] != 1) || (geoBlockHeader->unknown[2] != 1))
+                if ((geoBlockHeader->unknown[0] != 0) || (geoBlockHeader->unknown[1] != 1) ||
+            (geoBlockHeader->unknown[2] != 1))
                 {
                     LOG(WARNING) << "Invalid geometry header. This file is special (or corrupt)";
                     delete geoBlockHeader;
@@ -214,8 +214,8 @@ namespace LibOpenNFS {
                 geo.read((char *) vertices, (geoBlockHeader->nVerts) * sizeof(PS1::GEO::BLOCK_3D));
                 LOG(DEBUG) << "VertTblEndOffset:   " << geo.tellg() << " Size: " << geo.tellg() - start << std::endl;
 
-                // If nVerts is ODD, we need to pad. Let's dump the contents of the pad though, in case there's data here
-                if (geoBlockHeader->nVerts % 2)
+                // If nVerts is ODD, we need to pad. Let's dump the contents of the pad though, in case there's data
+            here if (geoBlockHeader->nVerts % 2)
                 {
                     auto *pad = new uint16_t[3];
                     geo.read((char *) pad, sizeof(uint16_t) * 3);
@@ -286,8 +286,8 @@ namespace LibOpenNFS {
 
                 for (uint32_t vert_Idx = 0; vert_Idx < geoBlockHeader->nVerts; ++vert_Idx)
                 {
-                    verts.emplace_back(rotationMatrix * glm::vec3(vertices[vert_Idx].x / carScaleFactor, vertices[vert_Idx].y / carScaleFactor, vertices[vert_Idx].z /
-            carScaleFactor));
+                    verts.emplace_back(rotationMatrix * glm::vec3(vertices[vert_Idx].x / carScaleFactor,
+            vertices[vert_Idx].y / carScaleFactor, vertices[vert_Idx].z / carScaleFactor));
                 }
 
                 for (uint32_t poly_Idx = 0; poly_Idx < geoBlockHeader->nPolygons; ++poly_Idx)
@@ -302,7 +302,8 @@ namespace LibOpenNFS {
                     texMapStuff.emplace_back(polygons[poly_Idx].texName[0]);
                     texMapStuff.emplace_back(polygons[poly_Idx].texName[0]);
 
-                    // TODO: There's another set of indices at index [2], that form barely valid polygons. Middle set [1] are always numbers that
+                    // TODO: There's another set of indices at index [2], that form barely valid polygons. Middle set
+            [1] are always numbers that
                     // match, 0000, 1111, 2222, 3333.
                     indices.emplace_back(polygons[poly_Idx].vertex[0][0]);
                     indices.emplace_back(polygons[poly_Idx].vertex[0][1]);
@@ -312,10 +313,11 @@ namespace LibOpenNFS {
                     indices.emplace_back(polygons[poly_Idx].vertex[0][3]);
 
                     // TODO: Use Polygon TexMap type to fix texture mapping, use UV factory in trk utils
-                    std::vector<glm::vec2> transformedUVs = GenerateUVs(NFS_3_PS1, CAR, polygons->texMap[0], gl_texture);
-                    uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
+                    std::vector<glm::vec2> transformedUVs = GenerateUVs(NFS_3_PS1, CAR, polygons->texMap[0],
+            gl_texture); uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
-                    glm::vec3 normal = rotationMatrix * CalculateQuadNormal(PointToVec(vertices[polygons[poly_Idx].vertex[0][0]]),
+                    glm::vec3 normal = rotationMatrix *
+            CalculateQuadNormal(PointToVec(vertices[polygons[poly_Idx].vertex[0][0]]),
                                                                             PointToVec(vertices[polygons[poly_Idx].vertex[0][1]]),
                                                                             PointToVec(vertices[polygons[poly_Idx].vertex[0][2]]),
                                                                             PointToVec(vertices[polygons[poly_Idx].vertex[0][3]]));
@@ -344,7 +346,8 @@ namespace LibOpenNFS {
                                              (geoBlockHeader->position[1] / 256.0f) / carScaleFactor,
                                              (geoBlockHeader->position[2] / 256.0f) / carScaleFactor);
                 car_meshes.emplace_back(
-                  CarModel(PS1_PART_NAMES[part_Idx], verts, uvs, texture_indices, texMapStuff, norms, indices, center, specularDamper, specularReflectivity, envReflectivity));
+                  CarModel(PS1_PART_NAMES[part_Idx], verts, uvs, texture_indices, texMapStuff, norms, indices, center,
+            specularDamper, specularReflectivity, envReflectivity));
 
                 // Dump GeoBlock data for correlating with geometry/LOD's/Special Cases
                 LOG(DEBUG) << "nVerts:    " << geoBlockHeader->nVerts << std::endl;
@@ -405,8 +408,7 @@ namespace LibOpenNFS {
             return false;
         }
 
-        template <typename Platform>
-        void GeoFile<Platform>::_SerializeOut(std::ofstream &ofstream) {
+        template <typename Platform> void GeoFile<Platform>::_SerializeOut(std::ofstream &ofstream) {
             ASSERT(false, "GEO output serialization is not currently implemented");
         }
 

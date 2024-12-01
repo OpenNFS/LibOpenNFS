@@ -3,22 +3,22 @@
 #include "Common/Logging.h"
 #include "Common/TextureUtils.h"
 
-// TODO: Need to perform proper deserialisation in this file, and then use a helper in ImageLoader that calls into this class
-// #include "../../../Util/ImageLoader.h"
+// TODO: Need to perform proper deserialisation in this file, and then use a helper in ImageLoader that calls into this
+// class #include "../../../Util/ImageLoader.h"
 
 using namespace LibOpenNFS::NFS2;
 
-bool PshFile::Load(const std::string &pshPath, PshFile &pshFile) {
+bool PshFile::Load(std::string const &pshPath, PshFile &pshFile) {
     LogInfo("Loading PSH File located at %s", pshPath.c_str());
     std::ifstream psh(pshPath, std::ios::in | std::ios::binary);
 
-    bool const loadStatus {pshFile._SerializeIn(psh)};
+    bool const loadStatus{pshFile._SerializeIn(psh)};
     psh.close();
 
     return loadStatus;
 }
 
-void PshFile::Save(const std::string &pshPath, PshFile &pshFile) {
+void PshFile::Save(std::string const &pshPath, PshFile &pshFile) {
     LogInfo("Saving PSH File to %s", pshPath.c_str());
     std::ofstream psh(pshPath, std::ios::out | std::ios::binary);
     pshFile._SerializeOut(psh);
@@ -31,7 +31,8 @@ bool PshFile::_SerializeIn(std::ifstream &ifstream) {
     LogInfo("%d images inside PSH", header.nDirectories);
 
     // Header should contain SHPP
-    if (memcmp(header.header, "SHPP", sizeof(header.header)) != 0 && memcmp(header.chk, "GIMX", sizeof(header.chk)) != 0) {
+    if (memcmp(header.header, "SHPP", sizeof(header.header)) != 0 &&
+        memcmp(header.chk, "GIMX", sizeof(header.chk)) != 0) {
         LogWarning("Invalid PSH Header(s)");
         return false;
     }
@@ -43,7 +44,7 @@ bool PshFile::_SerializeIn(std::ifstream &ifstream) {
     return true;
 }
 
-bool PshFile::Extract(const std::string &outputPath, PshFile &pshFile) {
+bool PshFile::Extract(std::string const &outputPath, PshFile &pshFile) {
     LogInfo("Extracting PSH file to %s", outputPath.c_str());
 
     /*if (std::filesystem::exists(outputPath)) {
@@ -66,7 +67,8 @@ bool PshFile::Extract(const std::string &outputPath, PshFile &pshFile) {
     // LOG(INFO) << pshHeader->nDirectories << " images inside PSH";
 
     // Header should contain TRAC
-    if (memcmp(pshHeader->header, "SHPP", sizeof(pshHeader->header)) != 0 && memcmp(pshHeader->chk, "GIMX", sizeof(pshHeader->chk)) != 0) {
+    if (memcmp(pshHeader->header, "SHPP", sizeof(pshHeader->header)) != 0 && memcmp(pshHeader->chk, "GIMX",
+    sizeof(pshHeader->chk)) != 0) {
         // LOG(WARNING) << "Invalid PSH Header(s)";
         delete pshHeader;
         return false;
@@ -77,7 +79,8 @@ bool PshFile::Extract(const std::string &outputPath, PshFile &pshFile) {
     psh.read(((char *) directoryEntries), pshHeader->nDirectories * sizeof(DIR_ENTRY));
 
     for (uint32_t image_Idx = 0; image_Idx < pshHeader->nDirectories; ++image_Idx) {
-        // LOG(INFO) << "Extracting GIMX " << image_Idx << ": " << directoryEntries[image_Idx].imageName[0] << directoryEntries[image_Idx].imageName[1]
+        // LOG(INFO) << "Extracting GIMX " << image_Idx << ": " << directoryEntries[image_Idx].imageName[0] <<
+    directoryEntries[image_Idx].imageName[1]
         //           << directoryEntries[image_Idx].imageName[2] << directoryEntries[image_Idx].imageName[3] << ".BMP";
         psh.seekg(directoryEntries[image_Idx].imageOffset, std::ios_base::beg);
         auto *imageHeader = new IMAGE_HEADER();
@@ -143,7 +146,8 @@ bool PshFile::Extract(const std::string &outputPath, PshFile &pshFile) {
             auto *paletteHeader = new PALETTE_HEADER();
             psh.read((char *) paletteHeader, sizeof(PALETTE_HEADER));
             if (paletteHeader->paletteHeight != 1) {
-                // There is padding, search for a '1' in the paletteHeader as this is constant as the height of all paletteHeaders,
+                // There is padding, search for a '1' in the paletteHeader as this is constant as the height of all
+    paletteHeaders,
                 // then jump backwards by how offset 'height' is into paletteHeader to get proper
                 psh.seekg(-(signed) sizeof(PALETTE_HEADER), std::ios_base::cur);
                 if (paletteHeader->unknown == 1) { // 8 bytes early
@@ -160,7 +164,8 @@ bool PshFile::Extract(const std::string &outputPath, PshFile &pshFile) {
                     psh.seekg(8, std::ios_base::cur);
                 } else {
                     ASSERT(false, "Couldn't find palette header for file " << psh_path);
-                    // TODO: Well damn. It's padded a lot further out. Do a uint16 '1' search, then for a '16' or '256' imm following
+                    // TODO: Well damn. It's padded a lot further out. Do a uint16 '1' search, then for a '16' or '256'
+    imm following
                 }
                 psh.read((char *) paletteHeader, sizeof(PALETTE_HEADER));
             }
@@ -178,8 +183,9 @@ bool PshFile::Extract(const std::string &outputPath, PshFile &pshFile) {
             if ((bitDepth == 0) || (bitDepth == 1)) {
                 for (int y = 0; y < imageHeader->height; y++) {
                     for (int x = 0; x < imageHeader->width; x++) {
-                        uint32_t pixel                       = LibOpenNFS::TextureUtils::abgr1555ToARGB8888(paletteColours[indexes[(x + y * imageHeader->width)]]);
-                        pixels[(x + y * imageHeader->width)] = pixel;
+                        uint32_t pixel                       =
+    LibOpenNFS::TextureUtils::abgr1555ToARGB8888(paletteColours[indexes[(x + y * imageHeader->width)]]); pixels[(x + y *
+    imageHeader->width)] = pixel;
                     }
                 }
             }
@@ -188,7 +194,8 @@ bool PshFile::Extract(const std::string &outputPath, PshFile &pshFile) {
         }
         std::stringstream output_bmp;
         // output_bmp << output_path << setfill('0') << setw(4) << image_Idx << ".BMP";
-        output_bmp << output_path << directoryEntries[image_Idx].imageName[0] << directoryEntries[image_Idx].imageName[1] << directoryEntries[image_Idx].imageName[2]
+        output_bmp << output_path << directoryEntries[image_Idx].imageName[0] <<
+    directoryEntries[image_Idx].imageName[1] << directoryEntries[image_Idx].imageName[2]
                    << directoryEntries[image_Idx].imageName[3] << ".BMP";
         SaveImage(output_bmp.str().c_str(), pixels, imageHeader->width, imageHeader->height);
         delete[] pixels;

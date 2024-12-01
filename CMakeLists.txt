@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.15)
 
 project(LibOpenNFS VERSION 0.0.2 LANGUAGES CXX)
 
-set(LIB_OPENNFS_SOURCES
+file(GLOB CRP_LIB_SOURCES
+        lib/LibOpenNFS/lib/CrpLib/*.h
+        lib/LibOpenNFS/lib/CrpLib/*.cpp)
+
+set(LIBOPENNFS_SOURCES
         LibOpenNFS.h
         Common/Utils.cpp
         Common/TextureUtils.cpp
@@ -45,7 +49,7 @@ set(LIB_OPENNFS_SOURCES
         Shared/VivFile.cpp)
 
 add_library(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE ${LIB_OPENNFS_SOURCES})
+target_sources(${PROJECT_NAME} PRIVATE ${LIBOPENNFS_SOURCES} ${CRP_LIB_SOURCES})
 
 #[[GLM Configuration]]
 add_subdirectory(lib/glm)

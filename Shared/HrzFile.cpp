@@ -4,24 +4,24 @@
 #include "Common/TextureUtils.h"
 
 namespace LibOpenNFS::Shared {
-    bool HrzFile::Load(const std::string &hrzPath, HrzFile &hrzFile) {
+    bool HrzFile::Load(std::string const &hrzPath, HrzFile &hrzFile) {
         LogInfo("Loading HRZ File located at %s", hrzPath.c_str());
         std::ifstream hrz(hrzPath, std::ios::in | std::ios::binary);
 
-        bool const loadStatus {hrzFile._SerializeIn(hrz)};
+        bool const loadStatus{hrzFile._SerializeIn(hrz)};
         hrz.close();
 
         return loadStatus;
     }
 
-    void HrzFile::Save(const std::string &hrzPath, HrzFile &hrzFile) {
+    void HrzFile::Save(std::string const &hrzPath, HrzFile &hrzFile) {
         LogInfo("Saving HRZ File to %s", hrzPath.c_str());
         std::ofstream hrz(hrzPath, std::ios::out | std::ios::binary);
         hrzFile._SerializeOut(hrz);
     }
 
     bool HrzFile::_SerializeIn(std::ifstream &ifstream) {
-        bool foundSkyTop    = false;
+        bool foundSkyTop = false;
         bool foundSkyBottom = false;
 
         std::string str, strSkyTopColour, strSkyBottomColour;
@@ -29,12 +29,12 @@ namespace LibOpenNFS::Shared {
         while (std::getline(ifstream, str)) {
             if (str.find("/* r,g,b value at top of Gourad shaded SKY area */") != std::string::npos) {
                 std::getline(ifstream, strSkyTopColour);
-                foundSkyTop  = true;
+                foundSkyTop = true;
                 skyTopColour = TextureUtils::ParseRGBString(strSkyTopColour);
             }
             if (str.find("/* r,g,b values for base of Gourad shaded SKY area */") != std::string::npos) {
                 std::getline(ifstream, strSkyBottomColour);
-                foundSkyBottom  = true;
+                foundSkyBottom = true;
                 skyBottomColour = TextureUtils::ParseRGBString(strSkyBottomColour);
             }
         }
@@ -45,4 +45,4 @@ namespace LibOpenNFS::Shared {
     void HrzFile::_SerializeOut(std::ofstream &ofstream) {
         ASSERT(false, "HRZ Output serialization is not implemented yet");
     }
-} // namespace LibOpenNFS
+} // namespace LibOpenNFS::Shared

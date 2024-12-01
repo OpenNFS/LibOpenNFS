@@ -1,13 +1,13 @@
 #include "VivFile.h"
 
 #include <cstring>
-#include <sstream>
 #include <filesystem>
+#include <sstream>
 
 #include "Common/Logging.h"
 
 namespace LibOpenNFS::Shared {
-    bool VivFile::Load(const std::string &vivPath, VivFile &vivFile) {
+    bool VivFile::Load(std::string const &vivPath, VivFile &vivFile) {
         LogInfo("Loading VIV File located at %s", vivPath.c_str());
         std::ifstream viv(vivPath, std::ios::in | std::ios::binary);
 
@@ -17,31 +17,27 @@ namespace LibOpenNFS::Shared {
         return loadStatus;
     }
 
-    void VivFile::Save(const std::string &vivPath, VivFile &vivFile) {
+    void VivFile::Save(std::string const &vivPath, VivFile &vivFile) {
         LogInfo("Saving CAN File to %s", vivPath.c_str());
         std::ofstream viv(vivPath, std::ios::out | std::ios::binary);
         vivFile._SerializeOut(viv);
     }
 
-    bool VivFile::Extract(const std::string &outPath, VivFile &vivFile) {
-        if (std::filesystem::exists(outPath)) {
-            LogInfo("VIV has already been extracted, skipping");
-            return true;
-        }
+    bool VivFile::Extract(std::string const &outPath, VivFile &vivFile) {
         std::filesystem::create_directories(outPath);
 
         for (uint8_t fileIdx = 0; fileIdx < vivFile.nFiles; ++fileIdx) {
             VivEntry &curFile{vivFile.files.at(fileIdx)};
 
             std::stringstream out_file_path;
-            out_file_path << outPath << curFile.filename;
+            out_file_path << outPath << std::filesystem::path::preferred_separator << curFile.filename;
 
             std::ofstream out(out_file_path.str(), std::ios::out | std::ios::binary);
             if (!out.is_open()) {
                 LogWarning("Error while creating output file %s", out_file_path.str().c_str());
                 return false;
             }
-            out.write((char *) curFile.data.data(), curFile.data.size());
+            out.write((char *)curFile.data.data(), curFile.data.size());
             out.close();
         }
         return true;
@@ -79,7 +75,7 @@ namespace LibOpenNFS::Shared {
 
             VivEntry &curFile{files.at(fileIdx)};
             int pos = 0;
-            char c  = ' ';
+            char c = ' ';
             ifstream.read(&c, sizeof(char));
             while (c != '\0') {
                 curFile.filename[pos] = tolower(c);
@@ -91,8 +87,8 @@ namespace LibOpenNFS::Shared {
             currentPos = ifstream.tellg();
             ifstream.seekg(filePos, std::ios_base::beg);
             curFile.data.resize(fileSize);
-            ifstream.read((char *) curFile.data.data(), fileSize);
-            LogInfo("File %s was written successfully", curFile.filename);
+            ifstream.read((char *)curFile.data.data(), fileSize);
+            LogInfo("File %s was loaded successfully", curFile.filename);
         }
 
         return true;

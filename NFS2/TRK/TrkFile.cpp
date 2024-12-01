@@ -7,26 +7,24 @@
 using namespace LibOpenNFS::NFS2;
 
 template <typename Platform>
-bool TrkFile<Platform>::Load(const std::string &trkPath, TrkFile &trkFile, NFSVersion version) {
+bool TrkFile<Platform>::Load(std::string const &trkPath, TrkFile &trkFile, NFSVersion version) {
     LogInfo("Loading TRK File located at %s", trkPath.c_str());
     std::ifstream trk(trkPath, std::ios::in | std::ios::binary);
     trkFile.version = version;
 
-    bool const loadStatus {trkFile._SerializeIn(trk)};
+    bool const loadStatus{trkFile._SerializeIn(trk)};
     trk.close();
 
     return loadStatus;
 }
 
-template <typename Platform>
-void TrkFile<Platform>::Save(const std::string &trkPath, TrkFile &trkFile) {
+template <typename Platform> void TrkFile<Platform>::Save(std::string const &trkPath, TrkFile &trkFile) {
     LogInfo("Saving TRK File to %s", trkPath.c_str());
     std::ofstream trk(trkPath, std::ios::out | std::ios::binary);
     trkFile._SerializeOut(trk);
 }
 
-template <typename Platform>
-bool TrkFile<Platform>::_SerializeIn(std::ifstream &ifstream) {
+template <typename Platform> bool TrkFile<Platform>::_SerializeIn(std::ifstream &ifstream) {
     // Check we're in a valid TRK file
     onfs_check(safe_read(ifstream, header, HEADER_LENGTH));
 
@@ -62,8 +60,7 @@ bool TrkFile<Platform>::_SerializeIn(std::ifstream &ifstream) {
     return true;
 }
 
-template <typename Platform>
-void TrkFile<Platform>::_SerializeOut(std::ofstream &ofstream) {
+template <typename Platform> void TrkFile<Platform>::_SerializeOut(std::ofstream &ofstream) {
     ASSERT(false, "TRK output serialization is not currently implemented");
 }
 
