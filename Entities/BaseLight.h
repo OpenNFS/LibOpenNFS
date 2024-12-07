@@ -10,6 +10,7 @@ namespace LibOpenNFS {
     class BaseLight : public TrackEntity {
     public:
         BaseLight(uint32_t entityID, uint32_t flags, LightType type, glm::vec3 position, glm::vec4 colour);
+        ~BaseLight() override = default;
         LightType type;
         glm::vec3 position;
         glm::vec4 colour;

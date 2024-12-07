@@ -22,16 +22,16 @@ namespace LibOpenNFS {
         case EntityType::LANE:
         case EntityType::GLOBAL:
         case EntityType::CAR:
-            collideable = false;
+            collidable = false;
             dynamic = false;
             break;
         case EntityType::ROAD:
-            collideable = true;
+            collidable = true;
             dynamic = false;
             break;
         case EntityType::OBJ_POLY:
         case EntityType::XOBJ:
-            collideable = true;
+            collidable = true;
             dynamic = false;
             /*switch ((flags >> 4) & 0x7) {
             case 1: // Hometown shack godray
@@ -61,7 +61,7 @@ namespace LibOpenNFS {
             }*/
             break;
         default:
-            collideable = false;
+            collidable = false;
             dynamic = false;
             // ASSERT(false, "Entity parameters are unset for %s", get_string(entityType).c_str());
             break;

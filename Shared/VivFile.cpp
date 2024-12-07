@@ -81,7 +81,7 @@ namespace LibOpenNFS::Shared {
             currentPos = ifstream.tellg();
             ifstream.seekg(filePos, std::ios_base::beg);
             curFile.data.resize(fileSize);
-            ifstream.read((char *)curFile.data.data(), fileSize);
+            ifstream.read(reinterpret_cast<char *>(curFile.data.data()), fileSize);
             LogInfo("File %s was loaded successfully", curFile.filename);
         }
 

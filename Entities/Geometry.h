@@ -14,6 +14,7 @@ namespace LibOpenNFS {
         Geometry() = default;
         Geometry(std::string name, const std::vector<glm::vec3> &vertices, const std::vector<glm::vec2> &uvs, const std::vector<glm::vec3> &normals,
                  const std::vector<uint32_t> &vertexIndices, bool removeVertexIndexing, const glm::vec3 &centerPosition);
+        virtual ~Geometry() = default;
         std::string m_name;
         std::vector<glm::vec3> m_vertices;
         std::vector<glm::vec3> m_normals;
