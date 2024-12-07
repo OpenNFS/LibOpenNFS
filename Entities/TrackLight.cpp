@@ -2,7 +2,7 @@
 
 namespace LibOpenNFS {
     TrackLight::TrackLight(uint32_t const entityID, glm::vec3 const position, uint32_t const nfsType)
-        : BaseLight(entityID, 0u, LightType::TRACK_LIGHT, position, glm::vec4()) {
+        : BaseLight(entityID, 0u, LightType::TRACK_LIGHT, position, glm::vec4()){
         // Use Data from NFSHS NFS3 Tracks TR.INI
         switch (nfsType) {
         case 0:

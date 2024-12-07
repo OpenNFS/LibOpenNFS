@@ -17,7 +17,6 @@ namespace LibOpenNFS {
     void TrackEntity::_SetCollisionParameters() {
         switch (type) {
         case EntityType::VROAD:
-        case EntityType::LIGHT:
         case EntityType::SOUND:
         case EntityType::LANE:
         case EntityType::GLOBAL:
@@ -29,6 +28,7 @@ namespace LibOpenNFS {
             collidable = true;
             dynamic = false;
             break;
+        case EntityType::LIGHT: // Light picking
         case EntityType::OBJ_POLY:
         case EntityType::XOBJ:
             collidable = true;
