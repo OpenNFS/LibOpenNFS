@@ -4,6 +4,15 @@ namespace LibOpenNFS {
     TrackEntity::TrackEntity(uint32_t const entityID,
                              EntityType const entityType,
                              TrackGeometry geometry,
+                             std::vector<AnimData> const &animData,
+                             uint32_t const flags)
+        : type(entityType), geometry(std::move(geometry)), entityID(entityID), flags(flags), hasGeometry(true), animData(animData) {
+        this->_SetCollisionParameters();
+    }
+
+    TrackEntity::TrackEntity(uint32_t const entityID,
+                             EntityType const entityType,
+                             TrackGeometry geometry,
                              uint32_t const flags)
         : type(entityType), geometry(std::move(geometry)), entityID(entityID), flags(flags), hasGeometry(true) {
         this->_SetCollisionParameters();

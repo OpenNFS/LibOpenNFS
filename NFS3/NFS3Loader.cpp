@@ -336,8 +336,13 @@ namespace LibOpenNFS::NFS3 {
                     glm::vec3 extraObjectCenter{extraObjectData.ptRef * NFS3_SCALE_FACTOR};
                     auto extraObjectModel{TrackGeometry(extraObjectVerts, normals, uvs, textureIndices, vertexIndices,
                                                         extraObjectShadingData, extraObjectCenter)};
-                    auto extraObjectEntity {TrackEntity(l, EntityType::XOBJ, extraObjectModel, accumulatedObjectFlags)};
-                    trackBlock.objects.emplace_back(extraObjectEntity);
+                    if (extraObjectData.crosstype == 3) {
+                        auto extraObjectEntity {TrackEntity(l, EntityType::XOBJ, extraObjectModel, extraObjectData.animData, accumulatedObjectFlags)};
+                        trackBlock.objects.emplace_back(extraObjectEntity);
+                    } else {
+                        auto extraObjectEntity {TrackEntity(l, EntityType::XOBJ, extraObjectModel, accumulatedObjectFlags)};
+                        trackBlock.objects.emplace_back(extraObjectEntity);
+                    }
                 }
             }
 

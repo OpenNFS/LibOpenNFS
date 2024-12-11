@@ -5,6 +5,8 @@
 
 #include "TrackGeometry.h"
 
+#include <NFS3/Common.h>
+
 namespace LibOpenNFS {
     enum class EntityType {
         XOBJ,
@@ -29,6 +31,7 @@ namespace LibOpenNFS {
 
     class TrackEntity {
       public:
+        TrackEntity(uint32_t entityID, EntityType entityType, TrackGeometry geometry, std::vector<AnimData> const &animData, uint32_t flags = 0u);
         TrackEntity(uint32_t entityID, EntityType entityType, TrackGeometry geometry, uint32_t flags = 0u);
         TrackEntity(uint32_t entityID, EntityType entityType, uint32_t flags = 0u);
         virtual ~TrackEntity() = default;
@@ -40,6 +43,9 @@ namespace LibOpenNFS {
         bool hasGeometry{false};
         bool collidable{false};
         bool dynamic{false};
+
+        uint16_t nAnimLength, AnimDelay; // JimDiabolo : The bigger the AnimDelay, that slower is the movement
+        std::vector<AnimData> animData;
 
       private:
         void _SetCollisionParameters();
