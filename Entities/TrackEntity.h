@@ -31,8 +31,9 @@ namespace LibOpenNFS {
 
     class TrackEntity {
       public:
-        TrackEntity(uint32_t entityID, EntityType entityType, TrackGeometry geometry, std::vector<AnimData> const &animData, uint32_t flags = 0u);
-        TrackEntity(uint32_t entityID, EntityType entityType, TrackGeometry geometry, uint32_t flags = 0u);
+        TrackEntity(
+            uint32_t entityID, EntityType entityType, const TrackGeometry& geometry, std::vector<AnimData> const &animData, uint32_t flags = 0u);
+        TrackEntity(uint32_t entityID, EntityType entityType, TrackGeometry const &geometry, uint32_t flags = 0u);
         TrackEntity(uint32_t entityID, EntityType entityType, uint32_t flags = 0u);
         virtual ~TrackEntity() = default;
 

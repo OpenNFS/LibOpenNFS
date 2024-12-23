@@ -27,8 +27,7 @@ namespace LibOpenNFS::NFS3 {
             LogInfo("VIV has already been extracted to %s, skipping", carOutPath.c_str());
         } else {
             ASSERT(Shared::VivFile::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
-            ASSERT(Shared::VivFile::Extract(carOutPath, vivFile),
-                   "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
+            ASSERT(Shared::VivFile::Extract(carOutPath, vivFile), "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
         }
         ASSERT(FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
         if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nPriColours)) {
@@ -98,8 +97,7 @@ namespace LibOpenNFS::NFS3 {
         // Grab colours
         for (uint8_t colourIdx = 0; colourIdx < fceFile.nPriColours; ++colourIdx) {
             auto [H, S, B, T] = fceFile.primaryColours[colourIdx];
-            Car::Colour originalPrimaryColour(fedataFile.primaryColourNames[colourIdx],
-                                              TextureUtils::HSLToRGB(glm::vec4(H, S, B, T)));
+            Car::Colour originalPrimaryColour(fedataFile.primaryColourNames[colourIdx], TextureUtils::HSLToRGB(glm::vec4(H, S, B, T)));
             carMetadata.colours.emplace_back(originalPrimaryColour);
         }
 
@@ -165,20 +163,17 @@ namespace LibOpenNFS::NFS3 {
             max_height = frdTexBlock.height > max_height ? frdTexBlock.height : max_height;
 
             if (frdTexBlock.isLane) {
-                fileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex + 9
-                              << ".BMP";
-                alphaFileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4)
-                                   << frdTexBlock.qfsIndex + 9 << "-a.BMP";
+                fileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex + 9 << ".BMP";
+                alphaFileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex + 9 << "-a.BMP";
             } else {
                 fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
                               << frdTexBlock.qfsIndex << ".BMP";
-                alphaFileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0')
-                                   << std::setw(4) << frdTexBlock.qfsIndex << "-a.BMP";
+                alphaFileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
+                                   << frdTexBlock.qfsIndex << "-a.BMP";
             }
 
-            textureAssetMap[frdTexBlock.qfsIndex] =
-                TrackTextureAsset(frdTexBlock.qfsIndex, frdTexBlock.width, frdTexBlock.height, fileReference.str(),
-                                  alphaFileReference.str());
+            textureAssetMap[frdTexBlock.qfsIndex] = TrackTextureAsset(frdTexBlock.qfsIndex, frdTexBlock.width, frdTexBlock.height,
+                                                                      fileReference.str(), alphaFileReference.str());
         }
 
         // Now that maximum width/height is known, set the Max U/V for the texture
@@ -222,13 +217,11 @@ namespace LibOpenNFS::NFS3 {
 
             // Light and sound sources
             for (uint32_t lightNum = 0; lightNum < rawTrackBlock.nLightsrc; ++lightNum) {
-                glm::vec3 lightCenter{Utils::FixedToFloat(rawTrackBlock.lightsrc[lightNum].refpoint) *
-                                      NFS3_SCALE_FACTOR};
+                glm::vec3 lightCenter{Utils::FixedToFloat(rawTrackBlock.lightsrc[lightNum].refpoint) * NFS3_SCALE_FACTOR};
                 trackBlock.lights.emplace_back(lightNum, lightCenter, rawTrackBlock.lightsrc[lightNum].type);
             }
             for (uint32_t soundNum = 0; soundNum < rawTrackBlock.nSoundsrc; ++soundNum) {
-                glm::vec3 soundCenter{Utils::FixedToFloat(rawTrackBlock.soundsrc[soundNum].refpoint) *
-                                      NFS3_SCALE_FACTOR};
+                glm::vec3 soundCenter{Utils::FixedToFloat(rawTrackBlock.soundsrc[soundNum].refpoint) * NFS3_SCALE_FACTOR};
                 trackBlock.sounds.emplace_back(soundNum, soundCenter, rawTrackBlock.soundsrc[soundNum].type);
             }
 
@@ -240,7 +233,7 @@ namespace LibOpenNFS::NFS3 {
 
             // 4 OBJ Poly blocks
             for (uint32_t j = 0; j < 4; ++j) {
-                ObjectPolyBlock polygonBlock {trackPolygonBlock.obj[j]};
+                ObjectPolyBlock polygonBlock{trackPolygonBlock.obj[j]};
 
                 if (polygonBlock.n1 > 0) {
                     // Iterate through objects in objpoly block up to num objects
@@ -253,7 +246,7 @@ namespace LibOpenNFS::NFS3 {
                         uint32_t accumulatedObjectFlags{0u};
 
                         // Get Polygons in object
-                        std::vector<PolygonData> objectPolygons {polygonBlock.poly[objectIdx]};
+                        std::vector<PolygonData> objectPolygons{polygonBlock.poly[objectIdx]};
 
                         for (uint32_t polyIdx = 0; polyIdx < polygonBlock.numpoly[objectIdx]; ++polyIdx) {
                             // Texture for this polygon and it's loaded OpenGL equivalent
@@ -261,16 +254,14 @@ namespace LibOpenNFS::NFS3 {
                             // Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture
                             // flags
                             TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygonTexture.qfsIndex)};
-                            std::vector<glm::vec2> transformedUVs{
-                                trackTextureAsset.ScaleUVs(polygonTexture.GetUVs(), false, true)};
+                            std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(polygonTexture.GetUVs(), false, true)};
                             uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
                             // Calculate the normal, as the provided data is a little suspect
-                            glm::vec3 normal{
-                                Utils::CalculateQuadNormal(rawTrackBlock.vert[objectPolygons[polyIdx].vertex[0]],
-                                                           rawTrackBlock.vert[objectPolygons[polyIdx].vertex[1]],
-                                                           rawTrackBlock.vert[objectPolygons[polyIdx].vertex[2]],
-                                                           rawTrackBlock.vert[objectPolygons[polyIdx].vertex[3]])};
+                            glm::vec3 normal{Utils::CalculateQuadNormal(rawTrackBlock.vert[objectPolygons[polyIdx].vertex[0]],
+                                                                        rawTrackBlock.vert[objectPolygons[polyIdx].vertex[1]],
+                                                                        rawTrackBlock.vert[objectPolygons[polyIdx].vertex[2]],
+                                                                        rawTrackBlock.vert[objectPolygons[polyIdx].vertex[3]])};
 
                             // Two triangles per raw quad, hence 6 vertices. Normal data and texture index required
                             // per-vertex.
@@ -282,10 +273,10 @@ namespace LibOpenNFS::NFS3 {
 
                             accumulatedObjectFlags |= objectPolygons[polyIdx].flags;
                         }
-                        TrackGeometry trackBlockModel(trackBlockVerts, normals, uvs, textureIndices, vertexIndices,
-                                                      trackBlockShadingData, rawTrackBlockCenter);
-                        trackBlock.objects.emplace_back((j + 1) * (objectIdx + 1), EntityType::OBJ_POLY,
-                                                        trackBlockModel, accumulatedObjectFlags);
+                        TrackGeometry trackBlockModel(trackBlockVerts, normals, uvs, textureIndices, vertexIndices, trackBlockShadingData,
+                                                      rawTrackBlockCenter);
+                        trackBlock.objects.emplace_back((j + 1) * (objectIdx + 1), EntityType::OBJ_POLY, trackBlockModel,
+                                                        accumulatedObjectFlags);
                     }
                 }
             }
@@ -303,25 +294,23 @@ namespace LibOpenNFS::NFS3 {
                     uint32_t accumulatedObjectFlags{0u};
 
                     // Get the Extra object data for this trackblock object from the global xobj table
-                    ExtraObjectData extraObjectData {frdFile.extraObjectBlocks[l].obj[j]};
+                    ExtraObjectData extraObjectData{frdFile.extraObjectBlocks[l].obj[j]};
 
                     for (uint32_t vertIdx = 0; vertIdx < extraObjectData.nVertices; vertIdx++) {
                         extraObjectVerts.emplace_back(extraObjectData.vert[vertIdx] * NFS3_SCALE_FACTOR);
-                        extraObjectShadingData.emplace_back(
-                            TextureUtils::ShadingDataToVec4(extraObjectData.vertShading[vertIdx]));
+                        extraObjectShadingData.emplace_back(TextureUtils::ShadingDataToVec4(extraObjectData.vertShading[vertIdx]));
                     }
 
                     for (uint32_t k = 0; k < extraObjectData.nPolygons; k++) {
                         TexBlock blockTexture{frdFile.textureBlocks[extraObjectData.polyData[k].textureId]};
                         TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(blockTexture.qfsIndex)};
-                        std::vector<glm::vec2> transformedUVs {trackTextureAsset.ScaleUVs(blockTexture.GetUVs(), true, true)};
+                        std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(blockTexture.GetUVs(), true, true)};
                         uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
-                        glm::vec3 normal =
-                            Utils::CalculateQuadNormal(extraObjectVerts[extraObjectData.polyData[k].vertex[0]],
-                                                       extraObjectVerts[extraObjectData.polyData[k].vertex[1]],
-                                                       extraObjectVerts[extraObjectData.polyData[k].vertex[2]],
-                                                       extraObjectVerts[extraObjectData.polyData[k].vertex[3]]);
+                        glm::vec3 normal = Utils::CalculateQuadNormal(extraObjectVerts[extraObjectData.polyData[k].vertex[0]],
+                                                                      extraObjectVerts[extraObjectData.polyData[k].vertex[1]],
+                                                                      extraObjectVerts[extraObjectData.polyData[k].vertex[2]],
+                                                                      extraObjectVerts[extraObjectData.polyData[k].vertex[3]]);
 
                         // Two triangles per raw quad, hence 6 vertices. Normal data and texture index required
                         // per-vertex.
@@ -337,10 +326,11 @@ namespace LibOpenNFS::NFS3 {
                     auto extraObjectModel{TrackGeometry(extraObjectVerts, normals, uvs, textureIndices, vertexIndices,
                                                         extraObjectShadingData, extraObjectCenter)};
                     if (extraObjectData.crosstype == 3) {
-                        auto extraObjectEntity {TrackEntity(l, EntityType::XOBJ, extraObjectModel, extraObjectData.animData, accumulatedObjectFlags)};
+                        auto extraObjectEntity{
+                            TrackEntity(l, EntityType::XOBJ, extraObjectModel, extraObjectData.animData, accumulatedObjectFlags)};
                         trackBlock.objects.emplace_back(extraObjectEntity);
                     } else {
-                        auto extraObjectEntity {TrackEntity(l, EntityType::XOBJ, extraObjectModel, accumulatedObjectFlags)};
+                        auto extraObjectEntity{TrackEntity(l, EntityType::XOBJ, extraObjectModel, accumulatedObjectFlags)};
                         trackBlock.objects.emplace_back(extraObjectEntity);
                     }
                 }
@@ -353,7 +343,7 @@ namespace LibOpenNFS::NFS3 {
             std::vector<uint32_t> textureIndices;
             std::vector<glm::vec2> uvs;
             std::vector<glm::vec3> normals;
-            uint32_t accumulatedObjectFlags {0u};
+            uint32_t accumulatedObjectFlags{0u};
 
             for (uint32_t vertIdx = 0; vertIdx < rawTrackBlock.nVertices; ++vertIdx) {
                 roadVertices.emplace_back((rawTrackBlock.vert[vertIdx] * NFS3_SCALE_FACTOR) - rawTrackBlockCenter);
@@ -367,19 +357,17 @@ namespace LibOpenNFS::NFS3 {
                 }
 
                 // Get the polygon data for this road section
-                std::vector<PolygonData> chunkPolygonData {trackPolygonBlock.poly[lodChunkIdx]};
+                std::vector<PolygonData> chunkPolygonData{trackPolygonBlock.poly[lodChunkIdx]};
 
                 for (uint32_t polyIdx = 0; polyIdx < trackPolygonBlock.sz[lodChunkIdx]; polyIdx++) {
                     TexBlock polygonTexture{frdFile.textureBlocks[chunkPolygonData[polyIdx].textureId]};
                     TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygonTexture.qfsIndex)};
-                    std::vector<glm::vec2> transformedUVs {trackTextureAsset.ScaleUVs(polygonTexture.GetUVs(), false, true)};
+                    std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(polygonTexture.GetUVs(), false, true)};
                     uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
-                    glm::vec3 normal =
-                        Utils::CalculateQuadNormal(rawTrackBlock.vert[chunkPolygonData[polyIdx].vertex[0]],
-                                                   rawTrackBlock.vert[chunkPolygonData[polyIdx].vertex[1]],
-                                                   rawTrackBlock.vert[chunkPolygonData[polyIdx].vertex[2]],
-                                                   rawTrackBlock.vert[chunkPolygonData[polyIdx].vertex[3]]);
+                    glm::vec3 normal = Utils::CalculateQuadNormal(
+                        rawTrackBlock.vert[chunkPolygonData[polyIdx].vertex[0]], rawTrackBlock.vert[chunkPolygonData[polyIdx].vertex[1]],
+                        rawTrackBlock.vert[chunkPolygonData[polyIdx].vertex[2]], rawTrackBlock.vert[chunkPolygonData[polyIdx].vertex[3]]);
 
                     // Two triangles per raw quad, hence 6 vertices. Normal data and texture index required per-vertex.
                     for (auto &quadToTriVertNumber : quadToTriVertNumbers) {
@@ -390,8 +378,8 @@ namespace LibOpenNFS::NFS3 {
 
                     accumulatedObjectFlags |= chunkPolygonData[polyIdx].flags;
                 }
-                auto roadModel{TrackGeometry(roadVertices, normals, uvs, textureIndices, vertexIndices,
-                                               roadShadingData, rawTrackBlockCenter)};
+                auto roadModel{
+                    TrackGeometry(roadVertices, normals, uvs, textureIndices, vertexIndices, roadShadingData, rawTrackBlockCenter)};
                 if (lodChunkIdx == 6) {
                     trackBlock.lanes.emplace_back(-1, EntityType::LANE, roadModel, accumulatedObjectFlags);
                 } else {
@@ -410,7 +398,7 @@ namespace LibOpenNFS::NFS3 {
             ColVRoad vroad{colFile.vroad[vroadIdx]};
 
             // Transform NFS3/4 coords into ONFS 3d space
-            glm::vec3 position {Utils::FixedToFloat(vroad.refPt) * NFS3_SCALE_FACTOR};
+            glm::vec3 position{Utils::FixedToFloat(vroad.refPt) * NFS3_SCALE_FACTOR};
             position.y += 0.2f;
 
             // Get VROAD right vector
@@ -419,18 +407,15 @@ namespace LibOpenNFS::NFS3 {
             auto normal{glm::vec3(vroad.normal)};
 
             glm::vec3 leftWall{((vroad.leftWall / 65536.0f) * NFS3_SCALE_FACTOR) * right};
-            glm::vec3 rightWall {((vroad.rightWall / 65536.0f) * NFS3_SCALE_FACTOR) * right};
+            glm::vec3 rightWall{((vroad.rightWall / 65536.0f) * NFS3_SCALE_FACTOR) * right};
 
-            virtualRoad.emplace_back(position, glm::vec3(0, 0, 0), normal, forward, right, leftWall, rightWall,
-                                     vroad.unknown);
+            virtualRoad.emplace_back(position, glm::vec3(0, 0, 0), normal, forward, right, leftWall, rightWall, vroad.unknown);
         }
 
         return virtualRoad;
     }
 
-    std::vector<TrackEntity> Loader::_ParseCOLModels(ColFile const &colFile,
-                                                     Track const &track,
-                                                     std::vector<TexBlock> &texBlocks) {
+    std::vector<TrackEntity> Loader::_ParseCOLModels(ColFile const &colFile, Track const &track, std::vector<TexBlock> &texBlocks) {
         LogInfo("Parsing COL file into ONFS GL structures");
         std::vector<TrackEntity> colEntities;
 
@@ -442,7 +427,7 @@ namespace LibOpenNFS::NFS3 {
             std::vector<glm::vec4> shading_data;
             std::vector<glm::vec3> norms;
 
-            ColStruct3D s {colFile.struct3D[colFile.object[i].struct3D]};
+            ColStruct3D s{colFile.struct3D[colFile.object[i].struct3D]};
 
             for (uint32_t vertIdx = 0; vertIdx < s.nVert; ++vertIdx) {
                 verts.emplace_back(s.vertex[vertIdx].pt * NFS3_SCALE_FACTOR);
@@ -451,15 +436,14 @@ namespace LibOpenNFS::NFS3 {
             for (uint32_t polyIdx = 0; polyIdx < s.nPoly; ++polyIdx) {
                 // Remap the COL TextureID's using the COL texture block (XBID2)
                 ColTextureInfo colTexture{colFile.texture[s.polygon[polyIdx].texture]};
-                TexBlock frdTexture {texBlocks.at(colTexture.id)};
+                TexBlock frdTexture{texBlocks.at(colTexture.id)};
                 // Retrieve the GL texture for it so can scale UVs into texture array
                 TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(colTexture.id)};
-                std::vector<glm::vec2> transformedUVs {trackTextureAsset.ScaleUVs(frdTexture.GetUVs(), false, true)};
+                std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(frdTexture.GetUVs(), false, true)};
                 uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
-                glm::vec3 normal{
-                    Utils::CalculateQuadNormal(verts[s.polygon[polyIdx].v[0]], verts[s.polygon[polyIdx].v[1]],
-                                               verts[s.polygon[polyIdx].v[2]], verts[s.polygon[polyIdx].v[3]])};
+                glm::vec3 normal{Utils::CalculateQuadNormal(verts[s.polygon[polyIdx].v[0]], verts[s.polygon[polyIdx].v[1]],
+                                                            verts[s.polygon[polyIdx].v[2]], verts[s.polygon[polyIdx].v[3]])};
 
                 // Two triangles per raw quad, hence 6 vertices. Normal data and texture index required per-vertex.
                 for (auto &quadToTriVertNumber : quadToTriVertNumbers) {
@@ -468,10 +452,9 @@ namespace LibOpenNFS::NFS3 {
                     texture_indices.emplace_back(trackTextureAsset.id);
                 }
             }
-            glm::vec3 position {glm::vec3(colFile.object[i].ptRef) * NFS3_SCALE_FACTOR};
+            glm::vec3 position{glm::vec3(colFile.object[i].ptRef) * NFS3_SCALE_FACTOR};
             colEntities.emplace_back(i, EntityType::GLOBAL,
-                                     TrackGeometry(verts, norms, uvs, texture_indices, indices, shading_data, position),
-                                     0);
+                                     TrackGeometry(verts, norms, uvs, texture_indices, indices, shading_data, position), 0);
         }
 
         return colEntities;

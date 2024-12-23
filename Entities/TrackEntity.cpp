@@ -3,18 +3,15 @@
 namespace LibOpenNFS {
     TrackEntity::TrackEntity(uint32_t const entityID,
                              EntityType const entityType,
-                             TrackGeometry geometry,
+                             TrackGeometry const &geometry,
                              std::vector<AnimData> const &animData,
                              uint32_t const flags)
-        : type(entityType), geometry(std::move(geometry)), entityID(entityID), flags(flags), hasGeometry(true), animData(animData) {
+        : type(entityType), geometry(geometry), entityID(entityID), flags(flags), hasGeometry(true), animData(animData) {
         this->_SetCollisionParameters();
     }
 
-    TrackEntity::TrackEntity(uint32_t const entityID,
-                             EntityType const entityType,
-                             TrackGeometry geometry,
-                             uint32_t const flags)
-        : type(entityType), geometry(std::move(geometry)), entityID(entityID), flags(flags), hasGeometry(true) {
+    TrackEntity::TrackEntity(uint32_t const entityID, EntityType const entityType, TrackGeometry const &geometry, uint32_t const flags)
+        : type(entityType), geometry(geometry), entityID(entityID), flags(flags), hasGeometry(true) {
         this->_SetCollisionParameters();
     }
 
@@ -40,7 +37,7 @@ namespace LibOpenNFS {
         case EntityType::LIGHT: // Light picking
         case EntityType::OBJ_POLY:
         case EntityType::XOBJ:
-            collidable = true;
+            collidable = flags & (1 << 5);
             dynamic = false;
             /*switch ((flags >> 4) & 0x7) {
             case 1: // Hometown shack godray
