@@ -96,8 +96,9 @@ namespace LibOpenNFS::NFS3 {
 
         // Grab colours
         for (uint8_t colourIdx = 0; colourIdx < fceFile.nPriColours; ++colourIdx) {
-            auto [H, S, B, T] = fceFile.primaryColours[colourIdx];
-            Car::Colour originalPrimaryColour(fedataFile.primaryColourNames[colourIdx], TextureUtils::HSLToRGB(glm::vec4(H, S, B, T)));
+            auto [Hp, Sp, Bp, Tp] = fceFile.primaryColours[colourIdx];
+            auto [Hs, Ss, Bs, Ts] = fceFile.secondaryColours[colourIdx];
+            Car::Colour originalPrimaryColour(fedataFile.primaryColourNames[colourIdx], TextureUtils::HSLToRGB(glm::vec4(Hp, Sp, Bp, Tp)), TextureUtils::HSLToRGB(glm::vec4(Hs, Ss, Bs, Ts)));
             carMetadata.colours.emplace_back(originalPrimaryColour);
         }
 

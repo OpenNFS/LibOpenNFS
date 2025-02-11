@@ -23,9 +23,11 @@ namespace LibOpenNFS {
         public:
             std::string colourName;
             glm::vec3 colour;
-            Colour(const std::string& colourName, const glm::vec3 colour) {
+            glm::vec3 colourSecondary;
+            Colour(const std::string& colourName, const glm::vec3 colour, const glm::vec3 colourSecondary = {0.0, 0.0, 0.0}) {
                 this->colourName = colourName;
                 this->colour     = colour;
+                this->colourSecondary = colourSecondary;
             }
         };
 
