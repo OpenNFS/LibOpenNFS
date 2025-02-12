@@ -14,7 +14,7 @@ namespace LibOpenNFS {
     class TextureUtils {
     public:
         static uint32_t abgr1555ToARGB8888(uint16_t abgr_1555);
-        static glm::vec3 HSLToRGB(glm::vec4 hsl);
+        static glm::vec4 HSLToRGB(glm::vec4 hsl);
         static glm::vec3 ParseRGBString(const std::string &rgb_string);
         // Break Packed uint32_t RGBA per vertex colour data for baked lighting of RGB into 4 normalised floats and store into vec4
         static glm::vec4 ShadingDataToVec4(uint32_t packed_rgba);

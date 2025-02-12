@@ -20,11 +20,13 @@ namespace LibOpenNFS {
 
     // Convert hsv floats ([0-1],[0-1],[0-1]) to rgb floats ([0-1],[0-1],[0-1]), from Foley & van Dam p593
     // also http://en.wikipedia.org/wiki/HSL_and_HSV
-    glm::vec3 TextureUtils::HSLToRGB(glm::vec4 hsl) {
+    glm::vec4 TextureUtils::HSLToRGB(glm::vec4 hsl) {
         float h = hsl.x / 255.f;
         float s = hsl.y / 255.f;
         float v = hsl.z / 255.f;
-        glm::vec3 rgb;
+        float a = hsl.a / 255.f;
+        glm::vec4 rgb;
+        rgb.a = a;
 
         if (s == 0.0f) {
             // gray
