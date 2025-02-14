@@ -14,13 +14,14 @@
 namespace LibOpenNFS {
     class Track {
 public:
-    Track(NFSVersion _nfsVersion, std::string const& _name, std::string const& _basePath);
+    Track(NFSVersion _nfsVersion, std::string const& _name, std::string const& _basePath, std::string const& _tag = "");
     Track() = default;
 
     // Metadata
     NFSVersion nfsVersion{};
     std::string name;
     std::string basePath;
+    std::string tag;
     uint32_t nBlocks{0};
     std::vector<Shared::CameraAnimPoint> cameraAnimation;
     std::vector<TrackVRoad> virtualRoad;

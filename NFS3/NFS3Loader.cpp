@@ -49,7 +49,7 @@ namespace LibOpenNFS::NFS3 {
         if (pos != std::string::npos) {
             trackNameStripped.replace(pos, strip.size(), "");
         }
-        Track track(NFSVersion::NFS_3, trackName, trackBasePath);
+        Track track(NFSVersion::NFS_3, trackNameStripped, trackBasePath, trackName);
 
         frdPath = trackBasePath + "/" + trackNameStripped + ".frd";
         colPath = trackBasePath + "/" + trackNameStripped + ".col";
@@ -146,11 +146,6 @@ namespace LibOpenNFS::NFS3 {
                                                                  std::string const &trackOutPath) {
         std::map<uint32_t, TrackTextureAsset> textureAssetMap;
         size_t max_width{0}, max_height{0};
-        std::string strip = "k0", trackNameStripped = track.name;
-        size_t pos = track.name.find(strip);
-        if (pos != std::string::npos) {
-            trackNameStripped.replace(pos, strip.size(), "");
-        }
 
         // Load QFS texture information into ONFS texture objects
         for (auto &frdTexBlock : frdFile.textureBlocks) {
@@ -172,9 +167,9 @@ namespace LibOpenNFS::NFS3 {
                 fileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex + 9 << ".BMP";
                 alphaFileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex + 9 << "-a.BMP";
             } else {
-                fileReference << trackOutPath << "/" << trackNameStripped << "/textures/" << std::setfill('0') << std::setw(4)
+                fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
                               << frdTexBlock.qfsIndex << ".BMP";
-                alphaFileReference << trackOutPath << "/" << trackNameStripped << "/textures/" << std::setfill('0') << std::setw(4)
+                alphaFileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
                                    << frdTexBlock.qfsIndex << "-a.BMP";
             }
 
