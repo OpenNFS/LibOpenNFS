@@ -1,17 +1,9 @@
 #pragma once
 
-#include <sstream>
-#include <string>
-#include <bitset>
-#include <boost/filesystem.hpp>
-#include <boost/lambda/bind.hpp>
-#include "../../Common/TrackUtils.h"
-#include "../../../../src/Physics/Car.h"
-#include "../../../../src/Config.h"
-#include "../../../../src/Util/ImageLoader.h"
-#include "../../../../src/Util/Utils.h"
-#include "Models/TrackBlock.h"
-#include "../../../nfs_data.h"
+#include "Common/TextureUtils.h"
+#include "Entities/Car.h"
+#include "FCE/FceFile.h"
+#include "FEDATA/FedataFile.h"
 
 struct FLOATPT {
     float x, z, y;

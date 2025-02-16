@@ -1,19 +1,23 @@
 #include "NFS4Loader.h"
 
-#include "Texture.h"
+#include "FCE/FceFile.h"
+#include <Common/Logging.h>
+#include <Common/Utils.h>
+#include <Shared/VivFile.h>
 
-using namespace Utils;
-using namespace TrackUtils;
+#include <sstream>
 
-// CAR
-std::shared_ptr<Car> NFS4::LoadCar(const std::string &car_base_path, NFSVer version) {
-    std::filesystem::path p(car_base_path);
-    std::string car_name = p.filename().replace_extension("").string();
+namespace LibOpenNFS::NFS4 {
+    Car Loader::LoadCar(std::string const &carBasePath, std::string const &carOutPath, NFSVersion version) {
+        LogInfo("Loading NFS4 car from %s into %s", carBasePath.c_str(), carOutPath.c_str());
 
-    std::stringstream viv_path, car_out_path, fce_path, fsh_path;
-    viv_path << car_base_path;
-    fce_path << CAR_PATH << ToString(version) << "/" << car_name;
-    car_out_path << CAR_PATH << ToString(version) << "/" << car_name << "/";
+        std::filesystem::path p(carBasePath);
+        std::string carName = p.filename().replace_extension("").string();
+
+        std::stringstream vivPath, fcePath, fshPath, fedataPath;
+        vivPath << carBasePath;
+        fcePath << carOutPath;
+        fedataPath << carOutPath << "/fedata.eng";
 
         if (version == NFSVersion::NFS_4) {
             vivPath << "/car.viv";

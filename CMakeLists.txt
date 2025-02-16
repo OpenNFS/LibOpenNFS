@@ -44,6 +44,9 @@ set(LIBOPENNFS_SOURCES
         NFS3/FRD/TexBlock.cpp
         NFS3/FRD/TrkBlock.cpp
         NFS3/SPEEDS/SpeedsFile.cpp
+        NFS4/PC/NFS4Loader.cpp
+        NFS4/PC/FCE/FceFile.cpp
+        NFS4/PC/FEDATA/FedataFile.cpp
         Shared/CanFile.cpp
         Shared/HrzFile.cpp
         Shared/VivFile.cpp)
