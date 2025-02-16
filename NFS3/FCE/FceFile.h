@@ -2,9 +2,8 @@
 
 #include "../../Common/IRawData.h"
 
-
 namespace LibOpenNFS::NFS3 {
-    class FceFile : IRawData {
+    class FceFile final : IRawData {
     public:
         struct Colour {
             uint32_t H, S, B, T;
@@ -25,9 +24,7 @@ namespace LibOpenNFS::NFS3 {
         };
 
         FceFile() = default;
-
         static bool Load(const std::string &fcePath, FceFile &fceFile);
-
         static void Save(const std::string &fcePath, FceFile &fceFile);
 
         uint32_t unknown;
@@ -60,7 +57,6 @@ namespace LibOpenNFS::NFS3 {
 
     private:
         bool _SerializeIn(std::ifstream &ifstream) override;
-
         void _SerializeOut(std::ofstream &ofstream) override;
     };
 } // namespace LibOpenNFS::NFS3

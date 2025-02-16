@@ -257,103 +257,18 @@ struct COLFILE {
     uint32_t *hs_extra;      // for the extra HS data in COLVROAD
 };
 
-struct FCE {
-    struct TVECTOR {
-        float x, y, z;
+namespace LibOpenNFS::NFS4 {
+    glm::vec3 const NFS4_SCALE_FACTOR(-0.1, 0.1, 0.1f);
+    class Loader {
+      public:
+        static Car LoadCar(std::string const &carBasePath, std::string const &carOutPath, NFSVersion version);
+        // static TRACK LoadTrack(const std::string &track_base_path);
+
+      private:
+        static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile, NFSVersion version);
+        // static bool LoadFRD(const std::string &frd_path, const std::string &track_name, const std::shared_ptr<TRACK> &track);
+        // static std::vector<TrackBlock> ParseTRKModels(const std::shared_ptr<TRACK> &track);
+        // static Texture LoadTexture(TEXTUREBLOCK track_texture, const std::string &track_name);
     };
 
-    struct TRIANGLE {
-        uint32_t texPage;
-        uint32_t vertex[3];  // Local indexes, add part first Vert index from "partFirstVertIndices"
-        uint16_t padding[6]; // 00FF
-        uint32_t polygonFlags;
-        float uvTable[6]; // U1 U2 U3, V1 V2 V3
-    };
-
-    struct NFS4 {
-        struct COLOUR {
-            uint8_t H, S, B, T;
-        };
-
-        // Valid values for components:
-        //    K : "H" (Headlights); "T" (Taillights); "B" (Brakelight); "R" (Reverse light); "P" (Direction indicator); "S" (Siren);
-        //    C : "W" (White); "R" (Red); "B" (Blue); "O" (Orange); "Y" (Yellow)
-        //    B : "Y" (Yes); "N" (No)
-        //    F : "O" (Flashing at moment 1); "E" (Flashing at moment 2); "N" (No flashing)
-        //    I : Number between 0 and 9 with 0 being broken (normal max 5)
-        //   Next only used with flashing lights:
-        //    T : Number between 1 and 9 with 9 being longest time and 0 being constant (normal max 5)
-        //    D : Number between 0 and 9 with 9 being longest delay and 0 no delay (normal max 2)
-        struct DUMMY {
-            char data[64];
-            // char kind, colour, breakable, flashing, intensity, time, delay;
-        };
-
-        struct HEADER {
-            uint32_t header; // Value always seems to be 14 10 10 00
-            uint32_t unknown;
-            uint32_t nTriangles;
-            uint32_t nVertices;
-            uint32_t nArts;
-
-            uint32_t vertTblOffset;
-            uint32_t normTblOffset;
-            uint32_t triTblOffset;
-
-            uint32_t tempStoreOffsets[3]; // -- ALL offset from 0x2038
-            uint32_t undamagedVertsOffset;
-            uint32_t undamagedNormsOffset;
-            uint32_t damagedVertsOffset;
-            uint32_t damagedNormsOffset;
-            uint32_t unknownAreaOffset;
-            uint32_t driverMovementOffset;
-            uint32_t unknownOffsets[2];
-
-            float modelHalfSize[3]; // X, Y, Z
-
-            uint32_t nDummies; // 0..16
-            FLOATPT dummyCoords[16];
-
-            uint32_t nParts;
-            FLOATPT partCoords[64];
-
-            uint32_t partFirstVertIndices[64];
-            uint32_t partNumVertices[64];
-            uint32_t partFirstTriIndices[64];
-            uint32_t partNumTriangles[64];
-
-            uint32_t nColours;
-            COLOUR primaryColours[16];
-            COLOUR interiorColours[16];
-            COLOUR secondaryColours[16];
-            COLOUR driverHairColours[16];
-
-            uint8_t unknownTable[260]; // Probably part related, with 4 byte table header?
-
-            DUMMY dummyObjectInfo[16];
-
-            char partNames[64][64];
-
-            uint8_t unknownTable2[528];
-        };
-    };
-};
-
-struct FEDATA {
-    struct NFS4 {
-        static const int COLOUR_TABLE_OFFSET      = 0x043C;
-        static const int MENU_NAME_FILEPOS_OFFSET = 0x03C8;
-    };
-};
-
-class NFS4 {
-public:
-    static std::shared_ptr<Car> LoadCar(const std::string &car_base_path, NFSVer version); // Car
-    static std::shared_ptr<TRACK> LoadTrack(const std::string &track_base_path);           // TrackModel
-
-private:
-    static CarData LoadFCE(const std::string &fce_path, NFSVer version);
-    static bool LoadFRD(const std::string &frd_path, const std::string &track_name, const std::shared_ptr<TRACK> &track);
-    static std::vector<TrackBlock> ParseTRKModels(const std::shared_ptr<TRACK> &track);
-    static Texture LoadTexture(TEXTUREBLOCK track_texture, const std::string &track_name);
-};
+}; // namespace LibOpenNFS::NFS4

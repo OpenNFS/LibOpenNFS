@@ -5,6 +5,7 @@
 #include <Entities/TrackEntity.h>
 #include <Entities/TrackGeometry.h>
 #include <Entities/TrackSound.h>
+
 #include <filesystem>
 
 namespace LibOpenNFS::NFS3 {
