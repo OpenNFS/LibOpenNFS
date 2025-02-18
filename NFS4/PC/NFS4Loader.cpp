@@ -83,10 +83,10 @@ namespace LibOpenNFS::NFS4 {
 
         track.nBlocks = frdFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
-        //track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
-        //track.trackBlocks = _ParseTRKModels(frdFile, track);
-        //track.globalObjects = _ParseCOLModels(colFile, track, frdFile.textureBlocks);
-        //track.virtualRoad = _ParseVirtualRoad(colFile);
+        // track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
+        // track.trackBlocks = _ParseTRKModels(frdFile, track);
+        // track.globalObjects = _ParseCOLModels(colFile, track, frdFile.textureBlocks);
+        // track.virtualRoad = _ParseVirtualRoad(colFile);
 
         LogInfo("Track loaded successfully");
 
@@ -149,19 +149,19 @@ namespace LibOpenNFS::NFS4 {
                 indices.emplace_back(part.triangles[tri_Idx].vertex[1]);
                 indices.emplace_back(part.triangles[tri_Idx].vertex[2]);
                 if (fceFile.isTraffic) {
-                    uvs.emplace_back(glm::vec2(part.triangles[tri_Idx].uvTable[0], part.triangles[tri_Idx].uvTable[3]));
-                    uvs.emplace_back(glm::vec2(part.triangles[tri_Idx].uvTable[1], part.triangles[tri_Idx].uvTable[4]));
-                    uvs.emplace_back(glm::vec2(part.triangles[tri_Idx].uvTable[2], part.triangles[tri_Idx].uvTable[5]));
+                    uvs.emplace_back(part.triangles[tri_Idx].uvTable[0], part.triangles[tri_Idx].uvTable[3]);
+                    uvs.emplace_back(part.triangles[tri_Idx].uvTable[1], part.triangles[tri_Idx].uvTable[4]);
+                    uvs.emplace_back(part.triangles[tri_Idx].uvTable[2], part.triangles[tri_Idx].uvTable[5]);
                 } else {
-                    uvs.emplace_back(glm::vec2(part.triangles[tri_Idx].uvTable[0], version == NFSVersion::MCO
-                                                                                       ? 1.0f - part.triangles[tri_Idx].uvTable[3]
-                                                                                       : part.triangles[tri_Idx].uvTable[3]));
-                    uvs.emplace_back(glm::vec2(part.triangles[tri_Idx].uvTable[1], version == NFSVersion::MCO
-                                                                                       ? 1.0f - part.triangles[tri_Idx].uvTable[4]
-                                                                                       : part.triangles[tri_Idx].uvTable[4]));
-                    uvs.emplace_back(glm::vec2(part.triangles[tri_Idx].uvTable[2], version == NFSVersion::MCO
-                                                                                       ? 1.0f - part.triangles[tri_Idx].uvTable[5]
-                                                                                       : part.triangles[tri_Idx].uvTable[5]));
+                    uvs.emplace_back(part.triangles[tri_Idx].uvTable[0], version == NFSVersion::MCO
+                                                                             ? 1.0f - part.triangles[tri_Idx].uvTable[3]
+                                                                             : part.triangles[tri_Idx].uvTable[3]);
+                    uvs.emplace_back(part.triangles[tri_Idx].uvTable[1], version == NFSVersion::MCO
+                                                                             ? 1.0f - part.triangles[tri_Idx].uvTable[4]
+                                                                             : part.triangles[tri_Idx].uvTable[4]);
+                    uvs.emplace_back(part.triangles[tri_Idx].uvTable[2], version == NFSVersion::MCO
+                                                                             ? 1.0f - part.triangles[tri_Idx].uvTable[5]
+                                                                             : part.triangles[tri_Idx].uvTable[5]);
                 }
             }
             carMetadata.meshes.emplace_back(part_name, vertices, uvs, normals, indices, polygonFlags, center);

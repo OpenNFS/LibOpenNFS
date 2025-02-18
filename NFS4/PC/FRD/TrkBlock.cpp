@@ -9,23 +9,23 @@ TrkBlock::TrkBlock(std::ifstream &frd) {
 bool TrkBlock::_SerializeIn(std::ifstream &frd) {
     // 7 track polygon numbers
     uint32_t sz[7];
-    safe_read(frd, sz);
+    (void)safe_read(frd, sz);
 
     // 4 object polygon numbers
     uint32_t n1[4];
-    safe_read(frd, n1);
+    (void)safe_read(frd, n1);
 
     // pointer space
     uint8_t junk[44];
-    safe_read(frd, junk);
+    (void)safe_read(frd, junk);
 
     // 6 nVertices
     uint32_t nVerticesa[6];
-    safe_read(frd, nVerticesa);
+    (void)safe_read(frd, nVerticesa);
 
     // pointer space
     uint8_t junk2[8];
-    safe_read(frd, junk2);
+    (void)safe_read(frd, junk2);
 
     // ptCentre, ptBounding == 60 bytes
     onfs_check(safe_read(frd, ptCentre, sizeof(glm::vec3)));

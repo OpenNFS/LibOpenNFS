@@ -30,7 +30,7 @@ namespace LibOpenNFS::Shared {
             VivEntry &curFile{vivFile.files.at(fileIdx)};
 
             std::stringstream out_file_path;
-            out_file_path << outPath << std::filesystem::path::preferred_separator << curFile.filename;
+            out_file_path << outPath << "/" << curFile.filename;
 
             std::ofstream out(out_file_path.str(), std::ios::out | std::ios::binary);
             if (!out.is_open()) {

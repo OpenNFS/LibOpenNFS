@@ -64,21 +64,21 @@ namespace LibOpenNFS::NFS3 {
 
         // Track Data
         for (uint32_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx) {
-            trackBlocks.push_back(TrkBlock(ifstream));
+            trackBlocks.emplace_back(ifstream);
         }
         // Geometry
         for (uint32_t blockIdx = 0; blockIdx < nBlocks; ++blockIdx) {
-            polygonBlocks.push_back(PolyBlock(ifstream, trackBlocks[blockIdx].nPolygons));
+            polygonBlocks.emplace_back(ifstream, trackBlocks[blockIdx].nPolygons);
         }
         // Extra Track Geometry
         for (uint32_t blockIdx = 0; blockIdx <= 4 * nBlocks; ++blockIdx) {
-            extraObjectBlocks.push_back(ExtraObjectBlock(ifstream));
+            extraObjectBlocks.emplace_back(ifstream);
         }
         // Texture Table
         onfs_check(safe_read(ifstream, nTextures));
         textureBlocks.reserve(nTextures);
         for (uint32_t tex_Idx = 0; tex_Idx < nTextures; tex_Idx++) {
-            textureBlocks.push_back(TexBlock(ifstream));
+            textureBlocks.emplace_back(ifstream);
         }
 
         return true;
