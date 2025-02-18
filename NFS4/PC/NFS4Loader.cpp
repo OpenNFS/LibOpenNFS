@@ -71,7 +71,7 @@ namespace LibOpenNFS::NFS4 {
         Track track(NFSVersion::NFS_4, trackNameStripped, trackBasePath, trackName);
 
         frdPath = trackBasePath + "/" + "tr.frd";
-        canPath = trackBasePath + "/" + trackNameStripped + "tr00a.can";
+        canPath = trackBasePath + "/" + trackNameStripped + "/tr00.can";
 
         FrdFile frdFile;
         Shared::CanFile canFile;
