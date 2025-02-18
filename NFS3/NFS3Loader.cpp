@@ -64,16 +64,16 @@ namespace LibOpenNFS::NFS3 {
         Shared::HrzFile hrzFile;
         SpeedsFile speedFile;
 
-        ASSERT(FrdFile::Load(frdPath, frdFile), "Could not load FRD file: " << frdPath);
         // Load FRD file to get track block specific data
-        ASSERT(ColFile::Load(colPath, colFile), "Could not load COL file: " << colPath);
+        ASSERT(FrdFile::Load(frdPath, frdFile), "Could not load FRD file: " << frdPath);
         // Load Catalogue file to get global (non trkblock specific) data
-        ASSERT(Shared::CanFile::Load(canPath, canFile), "Could not load CAN file (camera animation): " << canPath);
+        ASSERT(ColFile::Load(colPath, colFile), "Could not load COL file: " << colPath);
         // Load camera intro/outro animation data
-        ASSERT(Shared::HrzFile::Load(hrzPath, hrzFile), "Could not load HRZ file (skybox/lighting):" << hrzPath);
+        ASSERT(Shared::CanFile::Load(canPath, canFile), "Could not load CAN file (camera animation): " << canPath);
         // Load HRZ Data
-        ASSERT(SpeedsFile::Load(binPath, speedFile), "Could not load speedsf.bin file (AI vroad speeds:" << binPath);
+        ASSERT(Shared::HrzFile::Load(hrzPath, hrzFile), "Could not load HRZ file (skybox/lighting):" << hrzPath);
         // Load AI speed data
+        ASSERT(SpeedsFile::Load(binPath, speedFile), "Could not load speedsf.bin file (AI vroad speeds:" << binPath);
 
         track.nBlocks = frdFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
@@ -99,7 +99,8 @@ namespace LibOpenNFS::NFS3 {
         for (uint8_t colourIdx = 0; colourIdx < fceFile.nPriColours; ++colourIdx) {
             auto [Hp, Sp, Bp, Tp] = fceFile.primaryColours[colourIdx];
             auto [Hs, Ss, Bs, Ts] = fceFile.secondaryColours[colourIdx];
-            Car::Colour originalPrimaryColour(fedataFile.primaryColourNames[colourIdx], TextureUtils::HSLToRGB(glm::vec4(Hp, Sp, Bp, Tp)), TextureUtils::HSLToRGB(glm::vec4(Hs, Ss, Bs, Ts)));
+            Car::Colour originalPrimaryColour(fedataFile.primaryColourNames[colourIdx], TextureUtils::HSLToRGB(glm::vec4(Hp, Sp, Bp, Tp)),
+                                              TextureUtils::HSLToRGB(glm::vec4(Hs, Ss, Bs, Ts)));
             carMetadata.colours.emplace_back(originalPrimaryColour);
         }
 
