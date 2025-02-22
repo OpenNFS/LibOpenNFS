@@ -12,14 +12,14 @@ namespace LibOpenNFS::NFS4 {
     class Loader {
       public:
         static Car LoadCar(std::string const &carBasePath, std::string const &carOutPath, NFSVersion version);
-        static Track LoadTrack(const std::string &trackBasePath, const std::string &trackOutPath);
+        static Track LoadTrack(std::string const &trackBasePath, std::string const &trackOutPath);
 
       private:
         static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile, NFSVersion version);
-        //static std::map<uint32_t, TrackTextureAsset> _ParseTextures(const FrdFile &frdFile, const Track &track, const std::string &trackOutPath);
-        //static std::vector<TrackBlock> _ParseTRKModels(const FrdFile &frdFile, const Track &track);
-        //static std::vector<TrackVRoad> _ParseVirtualRoad(const ColFile &colFile);
-        //static std::vector<TrackEntity> _ParseCOLModels(const ColFile &colFile, const Track &track, std::vector<TexBlock> &texBlocks);
+        static std::map<uint32_t, TrackTextureAsset> _ParseTextures(FrdFile const &frdFile, Track const &track,
+                                                                    std::string const &trackOutPath);
+        static std::vector<TrackBlock> _ParseFRDModels(const FrdFile &frdFile, const Track &track);
+        static std::vector<TrackVRoad> _ParseVirtualRoad(FrdFile const &frdFile);
     };
 
 }; // namespace LibOpenNFS::NFS4

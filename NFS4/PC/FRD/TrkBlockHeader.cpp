@@ -32,10 +32,11 @@ namespace LibOpenNFS::NFS4 {
         onfs_check(safe_read(frd, nPolyobj));
         onfs_check(safe_read(frd, nSoundsrc));
         onfs_check(safe_read(frd, nLightsrc));
-        onfs_check(safe_read(frd, hs_neighbors, 32));
+        onfs_check(safe_read(frd, neighbors, 32));
         return true;
     }
 
     void TrkBlockHeader::_SerializeOut(std::ofstream &frd) {
+        ASSERT(false, "TrkBlockHeader output serialization is not currently implemented");
     }
 } // namespace LibOpenNFS::NFS4

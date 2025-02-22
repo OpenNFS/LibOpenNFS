@@ -53,6 +53,9 @@ set(LIBOPENNFS_SOURCES
         NFS4/PC/FRD/TrkBlockHeader.cpp
         NFS4/PC/FRD/TrkBlock.cpp
         NFS4/PC/FRD/XObjChunk.cpp
+        NFS4/PC/FRD/BaseObjectBlock.cpp
+        NFS4/PC/FRD/AnimBlock.cpp
+        NFS4/PC/FRD/SpecialBlock.cpp
         Shared/CanFile.cpp
         Shared/HrzFile.cpp
         Shared/VivFile.cpp)

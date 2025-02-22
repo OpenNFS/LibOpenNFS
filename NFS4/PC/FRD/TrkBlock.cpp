@@ -15,25 +15,32 @@ namespace LibOpenNFS::NFS4 {
         onfs_check(safe_read(frd, polyVroadData));
         xobj.resize(header.nXobj.num);
         onfs_check(safe_read(frd, xobj));
-        xobj2.resize(20 * header.nPolyobj.num);
-        onfs_check(safe_read(frd, xobj2));
+        xobj2.resize(header.nPolyobj.num);
+        for (size_t i = 0; i < header.nPolyobj.num; ++i) {
+            auto &_xobj2 = xobj2.at(i);
+            onfs_check(safe_read(frd, _xobj2.unknown));
+            onfs_check(safe_read(frd, _xobj2.type));
+            onfs_check(safe_read(frd, _xobj2.id));
+            onfs_check(safe_read(frd, _xobj2.pt));
+            onfs_check(safe_read(frd, _xobj2.crossindex));
+            onfs_check(safe_read(frd, _xobj2.unknown2));
+        }
         soundsrc.resize(header.nSoundsrc.num);
         onfs_check(safe_read(frd, soundsrc));
-        soundsrc.resize(header.nLightsrc.num);
+        lightsrc.resize(header.nLightsrc.num);
         onfs_check(safe_read(frd, lightsrc));
-
-        for (auto const numPolys : header.sz) {
-            polygonData.resize(numPolys);
-            onfs_check(safe_read(frd, polygonData));
+        for (uint32_t i = 0; i < 11; ++i) {
+            polygonData.at(i).resize(header.sz[i]);
+            onfs_check(safe_read(frd, polygonData.at(i)));
         }
-
         for (auto &[num, unknown] : header.nobj) {
-            xobjs.emplace_back(num, frd);
+             xobjs.emplace_back(num, frd);
         }
 
         return true;
     }
 
     void TrkBlock::_SerializeOut(std::ofstream &frd) {
+        ASSERT(false, "TrkBlock output serialization is not currently implemented");
     }
 } // namespace LibOpenNFS::NFS4

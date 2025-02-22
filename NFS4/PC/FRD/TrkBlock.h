@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Common/IRawData.h"
+#include "../Common.h"
 #include "TrkBlockHeader.h"
 #include "XObjChunk.h"
 
@@ -37,7 +38,15 @@ namespace LibOpenNFS::NFS4 {
         glm::ivec3 pt;
         uint8_t crossindex;
         uint8_t unknown2[3];
+        enum Type {
+            POLYGON_OBJECT = 0x01,
+            ROAD_OBJECT1 = 0x02,
+            ROAD_OBJECT2 = 0x03,
+            ROAD_OBJECT3 = 0x04,
+            SPECIAL = 0x06,
+        };
     };
+
 
     struct SoundSource {
         glm::ivec3 refpoint;
@@ -49,14 +58,6 @@ namespace LibOpenNFS::NFS4 {
         uint32_t type;
     };
 
-    struct POLYGONDATA {
-        uint16_t vertex[4];
-        uint16_t texture;
-        uint16_t texflags; // only used in road lane polygonblock ?
-        uint8_t animFlags; // 00 normally, 20 at end of row, 10 two-sided (HS  // used for animated textures //AnimInfo (Length : Period
-        // AS LSB 3:HSB 5))
-    };
-
     class TrkBlock final : public IRawData {
       public:
         TrkBlock() = default;
@@ -66,14 +67,14 @@ namespace LibOpenNFS::NFS4 {
         TrkBlockHeader header;
         std::vector<glm::vec3> vertices;
         std::vector<uint32_t> shadingVertices;
-        std::vector<POLYVROADDATA> polyVroadData; // polygon vroad references & flags
+        std::vector<POLYVROADDATA> polyVroadData; // p
         std::vector<RefExtraObject> xobj;
         std::vector<RefExtraObject2> xobj2;
         std::vector<SoundSource> soundsrc;
         std::vector<LightSource> lightsrc;
-        std::vector<POLYGONDATA> polygonData;
+        std::array<std::vector<Polygon>, 11> polygonData;
         std::vector<XObjChunk> xobjs;
-        std::vector<PositionData> posData; // positions auint32_t track
+        std::vector<PositionData> posData;
 
       protected:
         bool _SerializeIn(std::ifstream &frd) override;

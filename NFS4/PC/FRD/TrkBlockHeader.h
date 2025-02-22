@@ -19,8 +19,8 @@ namespace LibOpenNFS::NFS4 {
         explicit TrkBlockHeader(std::ifstream &frd);
         void _SerializeOut(std::ofstream &frd) override;
 
-        uint32_t unknown1[11];
         uint32_t sz[11];
+        uint32_t unknown1[11];
         uint32_t nVertices;                           // total stored
         uint32_t nHiResVert, nLoResVert, nMedResVert; // #poly[...]+#polyobj
         uint32_t nVerticesDup, nObjectVert;
@@ -37,7 +37,7 @@ namespace LibOpenNFS::NFS4 {
         NumObjs nPolyobj;
         NumObjs nSoundsrc;
         NumObjs nLightsrc;
-        uint32_t hs_neighbors[8];
+        uint32_t neighbors[8];
 
       protected:
         bool _SerializeIn(std::ifstream &frd) override;

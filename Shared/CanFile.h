@@ -7,10 +7,7 @@ namespace LibOpenNFS::Shared
 struct CameraAnimPoint
 {
     glm::ivec3 pt;
-    int16_t od1, od2, od3, od4; // OD2 seems to be something more than just
-                                // rotation, like zoom or some shit
-                                // OD3 seems to set perspective
-                                // OD4 similar to OD1, induces wavyness but animation remains
+    int16_t od1, od2, od3, od4; // Quaternion
 };
 
 class CanFile : IRawData

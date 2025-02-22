@@ -9,7 +9,7 @@
 namespace LibOpenNFS::NFS4 {
     static constexpr uint8_t HEADER_LENGTH{28};
 
-    typedef struct POLYGONDATA *LPPOLYGONDATA;
+    typedef struct Polygon *LPPOLYGONDATA;
 
     struct OBJPOLYBLOCK // a POLYOBJ chunk
     {
@@ -24,7 +24,7 @@ namespace LibOpenNFS::NFS4 {
     struct POLYGONBLOCK {
         uint32_t sz[7];
         // 7 blocks == low res / 0 / med. res / 0 / high res / 0 / ??central
-        std::array<std::vector<POLYGONDATA>, 7> poly;
+        std::array<std::vector<Polygon>, 7> poly;
         OBJPOLYBLOCK obj[4]; // the POLYOBJ chunks
         // if not present, then all objects in the chunk are XOBJs
         // the 1st chunk is described anyway in the TRKBLOCK
@@ -53,7 +53,7 @@ namespace LibOpenNFS::NFS4 {
         std::vector<glm::vec3> vert; // the vertices
         std::vector<uint32_t> shadingData;
         uint32_t nPolygons;
-        std::vector<POLYGONDATA> polyData; // polygon data
+        std::vector<Polygon> polyData; // polygon data
     };
 
     struct XOBJBLOCK {
@@ -87,6 +87,8 @@ namespace LibOpenNFS::NFS4 {
         std::vector<VRoadBlock> vroadBlocks;
         std::vector<TrkBlockHeader> trackBlockHeaders;
         std::vector<TrkBlock> trackBlocks;
+        uint32_t nGlobalObjects[2];
+        std::vector<XObjChunk> globalObjects;
 
       private:
         bool _SerializeIn(std::ifstream &ifstream) override;

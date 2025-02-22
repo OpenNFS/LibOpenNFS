@@ -83,10 +83,10 @@ namespace LibOpenNFS::NFS4 {
 
         track.nBlocks = frdFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
-        // track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
-        // track.trackBlocks = _ParseTRKModels(frdFile, track);
+        track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
+        //track.trackBlocks = _ParseFRDModels(frdFile, track);
         // track.globalObjects = _ParseCOLModels(colFile, track, frdFile.textureBlocks);
-        // track.virtualRoad = _ParseVirtualRoad(colFile);
+        track.virtualRoad = _ParseVirtualRoad(frdFile);
 
         LogInfo("Track loaded successfully");
 
@@ -445,34 +445,84 @@ namespace LibOpenNFS::NFS4 {
          }
 
          return track_blocks;
-     }
-
-     Texture NFS4::LoadTexture(TEXTUREBLOCK track_texture, const std::string &track_name) {
-         std::stringstream filename;
-         std::stringstream filename_alpha;
-
-         if (track_texture.islane) {
-             filename << "../resources/sfx/" << std::setfill('0') << std::setw(4) << (track_texture.texture - 2048) + 9 << ".BMP";
-             filename_alpha << "../resources/sfx/" << std::setfill('0') << std::setw(4) << (track_texture.texture - 2048) + 9 << "-a.BMP";
-         } else {
-             filename << TRACK_PATH << ToString(NFS_4) << "/" << track_name << "/textures/" << std::setfill('0') << std::setw(4) <<
-     track_texture.texture << ".BMP"; filename_alpha << TRACK_PATH << ToString(NFS_4) << "/" << track_name << "/textures/" <<
-     std::setfill('0') << std::setw(4) << track_texture.texture << "-a.BMP";
-         }
-
-         // Width and height data isn't set properly in FRD loader so deduce from bmp
-         GLubyte *data;
-         GLsizei width;
-         GLsizei height;
-
-         if (!ImageLoader::LoadBmpCustomAlpha(filename.str().c_str(), &data, &width, &height, 0)) {
-             std::cerr << "Texture " << filename.str() << " or " << filename_alpha.str() << " did not load succesfully!" << std::endl;
-             // If the texture is missing, load a "MISSING" texture of identical size.
-             ASSERT(ImageLoader::LoadBmpWithAlpha("../resources/misc/missing.bmp", "../resources/misc/missing-a.bmp", &data, &width,
-     &height), "Even the 'missing' texture is missing!"); return Texture((unsigned int) track_texture.texture, data, static_cast<unsigned
-     int>(track_texture.width), static_cast<unsigned int>(track_texture.height));
-         }
-
-         return Texture((unsigned int) track_texture.texture, data, static_cast<unsigned int>(width), static_cast<unsigned int>(height));
      }*/
+
+    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile,
+                                                                 Track const &track,
+                                                                 std::string const &trackOutPath) {
+        std::map<uint32_t, TrackTextureAsset> textureAssetMap;
+        size_t max_width{0}, max_height{0};
+
+        // Load QFS texture information into ONFS texture objects
+        //for (auto &frdTexBlock : frdFile.textureBlocks) {
+        //    // Some TexBlocks don't appear to be genuine, though their QfsIndex seems sane. Skip over them, as their
+        //    // height is disproportionate to the rest (approaching UINT16_MAX vs <= 256). This upsets Texture Array
+        //    // scaling.
+        //    if (frdTexBlock.unknown1 == 0xFF000000 && frdTexBlock.unknown2 == 0xFF000000) {
+        //        continue;
+        //    }
+        //    std::stringstream fileReference;
+        //    std::stringstream alphaFileReference;
+//
+        //    // Find the maximum width and height, so we can avoid overestimating with blanket values (256x256) and
+        //    // thereby scale UV's uneccesarily
+        //    max_width = frdTexBlock.width > max_width ? frdTexBlock.width : max_width;
+        //    max_height = frdTexBlock.height > max_height ? frdTexBlock.height : max_height;
+//
+        //    if (frdTexBlock.isLane) {
+        //        fileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex + 9 << ".BMP";
+        //        alphaFileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex + 9 << "-a.BMP";
+        //    } else {
+        //        fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
+        //                      << frdTexBlock.qfsIndex << ".BMP";
+        //        alphaFileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
+        //                           << frdTexBlock.qfsIndex << "-a.BMP";
+        //    }
+//
+        //    //if (track_texture.islane) {
+        //    //    filename << "../resources/sfx/" << std::setfill('0') << std::setw(4) << (track_texture.texture - 2048) + 9 << ".BMP";
+        //    //    filename_alpha << "../resources/sfx/" << std::setfill('0') << std::setw(4) << (track_texture.texture - 2048) + 9 << "-a.BMP";
+        //    //} else {
+        //    //    filename << TRACK_PATH << ToString(NFS_4) << "/" << track_name << "/textures/" << std::setfill('0') << std::setw(4) <<
+        //    //        track_texture.texture << ".BMP"; filename_alpha << TRACK_PATH << ToString(NFS_4) << "/" << track_name << "/textures/" <<
+        //    //        std::setfill('0') << std::setw(4) << track_texture.texture << "-a.BMP";
+        //    //}
+//
+        //    textureAssetMap[frdTexBlock.qfsIndex] = TrackTextureAsset(frdTexBlock.qfsIndex, frdTexBlock.width, frdTexBlock.height,
+        //                                                              fileReference.str(), alphaFileReference.str());
+        //}
+
+        // Now that maximum width/height is known, set the Max U/V for the texture
+        for (auto &[id, textureAsset] : textureAssetMap) {
+            // Attempt to remove potential for sampling texture from transparent area
+            textureAsset.maxU = (static_cast<float>(textureAsset.width) / static_cast<float>(max_width)) - 0.005f;
+            textureAsset.maxV = (static_cast<float>(textureAsset.height) / static_cast<float>(max_height)) - 0.005f;
+        }
+
+        return textureAssetMap;
+    }
+
+     std::vector<TrackVRoad> Loader::_ParseVirtualRoad(FrdFile const &frdFile) {
+         std::vector<TrackVRoad> virtualRoad;
+
+         for (uint16_t vroadIdx = 0; vroadIdx < frdFile.numVRoad; ++vroadIdx) {
+             VRoadBlock vroad{frdFile.vroadBlocks.at(vroadIdx)};
+
+             // Transform NFS3/4 coords into ONFS 3d space
+             glm::vec3 position{Utils::FixedToFloat(vroad.refPt) * NFS4_SCALE_FACTOR};
+             position.y += 0.2f;
+
+             // Get VROAD right vector
+             auto right{glm::vec3(vroad.right) / 128.f};
+             auto forward{glm::vec3(vroad.forward)};
+             auto normal{glm::vec3(vroad.normal)};
+
+             glm::vec3 leftWall{((vroad.leftWall / 65536.0f) * NFS4_SCALE_FACTOR) * right};
+             glm::vec3 rightWall{((vroad.rightWall / 65536.0f) * NFS4_SCALE_FACTOR) * right};
+
+             virtualRoad.emplace_back(position, glm::vec3(0, 0, 0), normal, forward, right, leftWall, rightWall, vroad.unknown2[0]);
+         }
+
+         return virtualRoad;
+     }
 } // namespace LibOpenNFS::NFS4

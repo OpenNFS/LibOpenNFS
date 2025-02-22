@@ -37,22 +37,15 @@ namespace LibOpenNFS::NFS4 {
         for (uint32_t blockIdx = 0; blockIdx < nBlocks; blockIdx++) {
             trackBlocks.emplace_back(trackBlockHeaders.at(blockIdx), ifstream);
         }
+        for (uint32_t globalIdx = 0; globalIdx < 2; ++globalIdx) {
+            onfs_check(safe_read(ifstream, nGlobalObjects[globalIdx]));
+            globalObjects.emplace_back(nGlobalObjects[globalIdx], ifstream);
+        }
 
         return true;
     }
 
     void FrdFile::_SerializeOut(std::ofstream &ofstream) {
-        // Write FRD Header
-        ofstream.write((char *)&header, HEADER_LENGTH);
-        uint32_t nBlocksHeader = nBlocks - 1;
-        ofstream.write((char *)&nBlocksHeader, sizeof(uint32_t));
-
-        // Track Data
-        for (auto &trackBlock : trackBlocks) {
-            trackBlock._SerializeOut(ofstream);
-        }
-        // ofstream.write((char *) &ONFS_SIGNATURE, sizeof(uint32_t));
-
-        ofstream.close();
+        ASSERT(false, "FrdFile output serialization is not currently implemented");
     }
 } // namespace LibOpenNFS::NFS4
