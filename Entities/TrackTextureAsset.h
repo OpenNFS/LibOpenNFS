@@ -13,7 +13,7 @@ namespace LibOpenNFS {
     public:
         TrackTextureAsset() = default;
         explicit TrackTextureAsset(uint32_t id, uint32_t width, uint32_t height, std::string const& fileReference, std::string const& alphaFileReference);
-        std::vector<glm::vec2> ScaleUVs(std::vector<glm::vec2> const &uvs, bool inverseU, bool inverseV, uint8_t nRotate = 0) const;
+        std::vector<glm::vec2> ScaleUVs(std::vector<glm::vec2> const &uvs, bool inverseU, bool inverseV, uint8_t nRotate = 0, bool mirrorX=false, bool mirrorY=false) const;
         std::vector<glm::vec2> GenerateUVs(EntityType meshType, uint32_t textureFlags);
 
         std::string fileReference;

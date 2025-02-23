@@ -24,8 +24,8 @@ namespace LibOpenNFS::NFS4 {
         onfs_check(safe_read(frd, nbdData));
         onfs_check(safe_read(frd, nobj));
         onfs_check(safe_read(frd, nPolygons));
-        onfs_check(safe_read(frd, hs_ptMin));
-        onfs_check(safe_read(frd, hs_ptMax));
+        onfs_check(safe_read(frd, ptMin));
+        onfs_check(safe_read(frd, ptMax));
         onfs_check(safe_read(frd, unknown3));
         onfs_check(safe_read(frd, nPositions));
         onfs_check(safe_read(frd, nXobj));

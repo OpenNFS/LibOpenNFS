@@ -67,7 +67,7 @@ namespace LibOpenNFS::NFS4 {
         TrkBlockHeader header;
         std::vector<glm::vec3> vertices;
         std::vector<uint32_t> shadingVertices;
-        std::vector<POLYVROADDATA> polyVroadData; // p
+        std::vector<POLYVROADDATA> polyVroadData;
         std::vector<RefExtraObject> xobj;
         std::vector<RefExtraObject2> xobj2;
         std::vector<SoundSource> soundsrc;

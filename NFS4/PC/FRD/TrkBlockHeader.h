@@ -9,8 +9,8 @@ namespace LibOpenNFS::NFS4 {
     };
 
     struct NumObjs {
-      uint32_t num;
-      uint32_t unknown;
+        uint32_t num;
+        uint32_t unknown;
     };
 
     class TrkBlockHeader : public IRawData {
@@ -30,7 +30,7 @@ namespace LibOpenNFS::NFS4 {
         NEIGHBORDATA nbdData[300]; // neighboring blocks
         NumObjs nobj[4];
         uint32_t nPolygons;
-        glm::vec3 hs_ptMin, hs_ptMax;
+        glm::vec3 ptMin, ptMax;
         uint32_t unknown3;
         uint32_t nPositions;
         NumObjs nXobj;

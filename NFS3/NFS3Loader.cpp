@@ -78,7 +78,7 @@ namespace LibOpenNFS::NFS3 {
         track.nBlocks = frdFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
         track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
-        track.trackBlocks = _ParseTRKModels(frdFile, track);
+        track.trackBlocks = _ParseFRDModels(frdFile, track);
         track.globalObjects = _ParseCOLModels(colFile, track, frdFile.textureBlocks);
         track.virtualRoad = _ParseVirtualRoad(colFile);
 
@@ -189,7 +189,7 @@ namespace LibOpenNFS::NFS3 {
         return textureAssetMap;
     }
 
-    std::vector<TrackBlock> Loader::_ParseTRKModels(FrdFile const &frdFile, Track const &track) {
+    std::vector<TrackBlock> Loader::_ParseFRDModels(FrdFile const &frdFile, Track const &track) {
         LogInfo("Parsing TRK file into ONFS GL structures");
         std::vector<TrackBlock> trackBlocks;
         trackBlocks.reserve(frdFile.nBlocks);
@@ -206,7 +206,7 @@ namespace LibOpenNFS::NFS3 {
             std::vector<glm::vec4> trackBlockShadingData;
 
             // Get neighbouring block IDs
-            for (auto &neighbourBlockData : frdFile.trackBlocks[trackblockIdx].nbdData) {
+            for (auto &neighbourBlockData : rawTrackBlock.nbdData) {
                 if (neighbourBlockData.blk == -1) {
                     break;
                 }

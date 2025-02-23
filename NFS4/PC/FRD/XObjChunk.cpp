@@ -3,7 +3,6 @@
 #include "SpecialBlock.h"
 
 namespace LibOpenNFS::NFS4 {
-
     XObjChunk::XObjChunk(uint32_t const _nObjects, std::ifstream &frd) : nObjects(_nObjects) {
         ASSERT(this->XObjChunk::_SerializeIn(frd), "Failed to serialize XObjChunk from file stream");
     }

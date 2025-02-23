@@ -6,8 +6,6 @@
 
 namespace LibOpenNFS::NFS4 {
     class XObjChunk : public IRawData {
-
-
       public:
         XObjChunk() = default;
         explicit XObjChunk(uint32_t _nObjects, std::ifstream &frd);
