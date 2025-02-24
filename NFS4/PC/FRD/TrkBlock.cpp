@@ -17,13 +17,13 @@ namespace LibOpenNFS::NFS4 {
         onfs_check(safe_read(frd, xobj));
         xobj2.resize(header.nPolyobj.num);
         for (size_t i = 0; i < header.nPolyobj.num; ++i) {
-            auto &_xobj2 = xobj2.at(i);
-            onfs_check(safe_read(frd, _xobj2.unknown));
-            onfs_check(safe_read(frd, _xobj2.type));
-            onfs_check(safe_read(frd, _xobj2.id));
-            onfs_check(safe_read(frd, _xobj2.pt));
-            onfs_check(safe_read(frd, _xobj2.crossindex));
-            onfs_check(safe_read(frd, _xobj2.unknown2));
+            auto &[unknown, type, id, pt, crossindex, unknown2] = xobj2.at(i);
+            onfs_check(safe_read(frd, unknown));
+            onfs_check(safe_read(frd, type));
+            onfs_check(safe_read(frd, id));
+            onfs_check(safe_read(frd, pt));
+            onfs_check(safe_read(frd, crossindex));
+            onfs_check(safe_read(frd, unknown2));
         }
         soundsrc.resize(header.nSoundsrc.num);
         onfs_check(safe_read(frd, soundsrc));

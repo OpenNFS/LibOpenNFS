@@ -83,9 +83,8 @@ namespace LibOpenNFS::NFS4 {
 
         track.nBlocks = frdFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
-        //track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
+        track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
         track.trackBlocks = _ParseFRDModels(frdFile, track);
-        // track.globalObjects = _ParseCOLModels(colFile, track, frdFile.textureBlocks);
         track.virtualRoad = _ParseVirtualRoad(frdFile);
 
         LogInfo("Track loaded successfully");
@@ -95,7 +94,6 @@ namespace LibOpenNFS::NFS4 {
 
     Car::MetaData Loader::_ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile, NFSVersion version) {
         LogInfo("Parsing FCE File into ONFS Structures");
-        // All Vertices are stored so that the model is rotated 90 degs on X, 180 on Z. Remove this at Vert load time.
         Car::MetaData carMetadata;
 
         // Go get car metadata from FEDATA
@@ -232,14 +230,17 @@ namespace LibOpenNFS::NFS4 {
 
                             // Store into the track texture map if referenced by a polygon
                             if (!track.trackTextureAssets.contains(polygon.texture_id())) {
-                                track.trackTextureAssets[polygon.texture_id()] = TrackTextureAsset(polygon.texture_id(), UINT32_MAX, UINT32_MAX, "", "");
+                                track.trackTextureAssets[polygon.texture_id()] =
+                                    TrackTextureAsset(polygon.texture_id(), UINT32_MAX, UINT32_MAX, "", "");
                             }
 
                             /// Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture
                             // flags
                             TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygon.texture_id())};
-                            std::vector<glm::vec2> uvs {{1, 1}, {0, 1}, {0, 0}, {1, 0}};
-                            std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(uvs, polygon.invert(), true, polygon.rotate())};
+                            std::vector<glm::vec2> uvs{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f},
+                                                        {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
+                            std::vector<glm::vec2> transformedUVs{
+                                trackTextureAsset.ScaleUVs(uvs, polygon.invert(), true, polygon.rotate())};
                             uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
                             // Calculate the normal, as the provided data is a little suspect
@@ -270,8 +271,7 @@ namespace LibOpenNFS::NFS4 {
         return trackBlocks;
     }
 
-    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile,
-                                                                 Track &track,
+    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile, Track &track,
                                                                  std::string const &trackOutPath) {
         std::map<uint32_t, TrackTextureAsset> textureAssetMap;
         size_t max_width{0}, max_height{0};
@@ -290,10 +290,10 @@ namespace LibOpenNFS::NFS4 {
                 fileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << textureId + 9 << ".BMP";
                 alphaFileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << textureId + 9 << "-a.BMP";
             } else {
-                fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
-                              << textureId << ".BMP";
-                alphaFileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
-                                   << textureId << "-a.BMP";
+                fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4) << textureId
+                              << ".BMP";
+                alphaFileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4) << textureId
+                                   << "-a.BMP";
             }
 
             textureAsset.fileReference = fileReference.str();
