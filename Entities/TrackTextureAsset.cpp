@@ -39,15 +39,13 @@ namespace LibOpenNFS {
         // NFS4
         if (mirrorY) {
             std::swap(temp_uvs[1].y, temp_uvs[2].y);
-            std::swap(temp_uvs[2].y, temp_uvs[1].y);
             std::swap(temp_uvs[0].y, temp_uvs[3].y);
-            std::swap(temp_uvs[3].y, temp_uvs[0].y);
+            std::swap(temp_uvs[4].x, temp_uvs[5].x);
         }
         if (mirrorX) {
             std::swap(temp_uvs[0].x, temp_uvs[1].x);
-            std::swap(temp_uvs[1].x, temp_uvs[0].x);
             std::swap(temp_uvs[2].x, temp_uvs[3].x);
-            std::swap(temp_uvs[3].x, temp_uvs[2].x);
+            std::swap(temp_uvs[4].x, temp_uvs[5].x);
         }
 
         for (auto &uv : temp_uvs) {
