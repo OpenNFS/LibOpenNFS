@@ -425,4 +425,4 @@ namespace LibOpenNFS::NFS3 {
     void CarpFile::_SerializeOut(std::ofstream &ofstream) {
         ASSERT(false, "carp.txt Output serialization is not implemented yet");
     }
-} // namespace LibOpenNFS::Shared
+} // namespace LibOpenNFS::NFS3

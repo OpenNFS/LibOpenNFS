@@ -181,4 +181,4 @@ class CarpFile : IRawData
         bool _SerializeIn(std::ifstream &ifstream) override;
         void _SerializeOut(std::ofstream &ofstream) override;
 };
-} // namespace LibOpenNFS
+} // namespace LibOpenNFS::NFS3
