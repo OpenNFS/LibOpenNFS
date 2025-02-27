@@ -1,5 +1,7 @@
 #include "CarpFile.h"
 
+#include <sstream>
+
 #include "Common/Logging.h"
 #include "Common/TextureUtils.h"
 
@@ -52,15 +54,85 @@ namespace LibOpenNFS::NFS3 {
                     gearShiftDelay = (uint8_t) std::atoi(data.c_str());
                     break;
                 case CarpEntry::SHIFT_BLIP_IN_RPM:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            shiftBlipInRpm.push_back((uint16_t) std::atoi(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::BRAKE_BLIP_IN_RPM:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            brakeBlipInRpm.push_back((uint16_t) std::atoi(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::VELOCITY_TO_RPM_RATIO_MANUAL:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            velocityToRpmRatioManual.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::VELOCITY_TO_RPM_RATIO_AUTOMATIC:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            velocityToRpmRatioAutomatic.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::GEAR_RATIOS_MANUAL:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            gearRatiosManual.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::GEAR_RATIOS_AUTOMATIC:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            gearRatiosAutomatic.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::GEAR_EFFICIENCY_MANUAL:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            gearEfficiencyManual.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::GEAR_EFFICIENCY_AUTOMATIC:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            gearEfficiencyAutomatic.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::TORQUE_CURVE:
-                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            torqueCurve.push_back(std::atof(value.c_str()));
+                        }
+                    }
                     break;
                 case CarpEntry::FINAL_GEAR_MANUAL:
                     finalGearManual = std::atof(data.c_str());
@@ -93,10 +165,40 @@ namespace LibOpenNFS::NFS3 {
                     frontBiasBrakeRatio  = std::atof(data.c_str());
                     break;
                 case CarpEntry::GAS_INCREASING_CURVE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            gasIncreasingCurve.push_back((uint8_t) std::atoi(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::GAS_DECREASING_CURVE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            gasDecreasingCurve.push_back((uint8_t) std::atoi(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::BRAKE_INCREASING_CURVE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            brakeIncreasingCurve.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::BRAKE_DECREASING_CURVE:
-                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            brakeDecreasingCurve.push_back(std::atof(value.c_str()));
+                        }
+                    }
                     break;
                 case CarpEntry::WHEEL_BASE:
                     wheelBase = std::atof(data.c_str());
@@ -132,10 +234,22 @@ namespace LibOpenNFS::NFS3 {
                     turningCircleRadius = std::atof(data.c_str());
                     break;
                 case CarpEntry::TIRE_SPECS_FRONT:
-                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            tireSpecsFront.push_back((uint16_t) std::atoi(value.c_str()));
+                        }
+                    }
                     break;
                 case CarpEntry::TIRE_SPECS_REAR:
-                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            tireSpecsRear.push_back((uint16_t) std::atoi(value.c_str()));
+                        }
+                    }
                     break;
                 case CarpEntry::TIRE_WEAR:
                     tireWear = std::atof(data.c_str());
@@ -228,14 +342,76 @@ namespace LibOpenNFS::NFS3 {
                     tireFactor = std::atof(data.c_str());
                     break;
                 case CarpEntry::AI_ACC0_ACCELERATION_TABLE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            aiAcc0AccelerationTable.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::AI_ACC1_ACCELERATION_TABLE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            aiAcc1AccelerationTable.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::AI_ACC2_ACCELERATION_TABLE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            aiAcc2AccelerationTable.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::AI_ACC3_ACCELERATION_TABLE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            aiAcc3AccelerationTable.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::AI_ACC4_ACCELERATION_TABLE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            aiAcc4AccelerationTable.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::AI_ACC5_ACCELERATION_TABLE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            aiAcc5AccelerationTable.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::AI_ACC6_ACCELERATION_TABLE:
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            aiAcc6AccelerationTable.push_back(std::atof(value.c_str()));
+                        }
+                    }
+                    break;
                 case CarpEntry::AI_ACC7_ACCELERATION_TABLE:
-                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
+                    {
+                        std::string value;
+                        std::stringstream stream(data);
+                        while(std::getline(stream, value, ',')) {
+                            aiAcc7AccelerationTable.push_back(std::atof(value.c_str()));
+                        }
+                    }
                     break;
                 default:
                     LogWarning("Could not process %i", (int) entry);
