@@ -26,6 +26,7 @@ namespace LibOpenNFS::NFS3 {
         while (std::getline(ifstream, str)) {
             CarpEntry entry = (CarpEntry) std::atoi(str.substr(str.rfind('(') + 1, str.rfind(')') -1 ).c_str());  // The entry number is between () in the string
             std::getline(ifstream, data);
+            data = data.substr(0, data.rfind("\n"));
             data = data.substr(0, data.rfind("\r"));
             switch (entry)
             {
