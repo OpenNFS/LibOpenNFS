@@ -156,6 +156,9 @@ namespace LibOpenNFS::NFS3 {
         Car::PhysicsData physicsData;
 
         physicsData.mass = carpFile.mass;
+        physicsData.maxSpeed = carpFile.topSpeedCap * 3.6f;  // topSpeedCap is in m/s
+        physicsData.suspensionStiffness = carpFile.suspensionStiffness * 750.f;
+        physicsData.maxBreakingForce = carpFile.maximumBrakingDeceleration * 3.6f;
 
         return physicsData;
     }
