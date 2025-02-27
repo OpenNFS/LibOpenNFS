@@ -70,7 +70,8 @@ namespace LibOpenNFS {
 
         enum class ModelIndex : uint8_t { LEFT_FRONT_WHEEL = 0, RIGHT_FRONT_WHEEL, LEFT_REAR_WHEEL, RIGHT_REAR_WHEEL, CAR_BODY };
 
-        explicit Car(const MetaData& carData, NFSVersion nfsVersion, const std::string& carID) : metadata(carData), tag(nfsVersion), id(carID){};
+        explicit Car(const MetaData& carData, NFSVersion nfsVersion, const std::string& carID) : metadata(carData), tag(nfsVersion), id(carID), physicsData(PhysicsData()){};
+        explicit Car(const MetaData& carData, NFSVersion nfsVersion, const std::string& carID, const PhysicsData& physicsData) : metadata(carData), tag(nfsVersion), id(carID), physicsData(physicsData){};
         Car(const MetaData& carData, NFSVersion nfsVersion, const std::string& carID, bool _multi_textured) : Car(carData, nfsVersion, carID) {
             isMultitextured = _multi_textured;
         };
