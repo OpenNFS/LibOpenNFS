@@ -51,22 +51,15 @@ namespace LibOpenNFS::NFS3 {
                     gearShiftDelay = (uint8_t) std::atoi(data.c_str());
                     break;
                 case CarpEntry::SHIFT_BLIP_IN_RPM:
-                    break;
                 case CarpEntry::BRAKE_BLIP_IN_RPM:
-                    break;
                 case CarpEntry::VELOCITY_TO_RPM_RATIO_MANUAL:
-                    break;
                 case CarpEntry::VELOCITY_TO_RPM_RATIO_AUTOMATIC:
-                    break;
                 case CarpEntry::GEAR_RATIOS_MANUAL:
-                    break;
                 case CarpEntry::GEAR_RATIOS_AUTOMATIC:
-                    break;
                 case CarpEntry::GEAR_EFFICIENCY_MANUAL:
-                    break;
                 case CarpEntry::GEAR_EFFICIENCY_AUTOMATIC:
-                    break;
                 case CarpEntry::TORQUE_CURVE:
+                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
                     break;
                 case CarpEntry::FINAL_GEAR_MANUAL:
                     finalGearManual = std::atof(data.c_str());
@@ -90,7 +83,7 @@ namespace LibOpenNFS::NFS3 {
                     frontDriveRatio = std::atof(data.c_str());
                     break;
                 case CarpEntry::USES_ANTILOCK_BRAKE_SYSTEM:
-                    usesAntilockBrakeSystem = (data == "1")
+                    usesAntilockBrakeSystem = (data == "1");
                     break;
                 case CarpEntry::MAXIMUM_BRAKING_DECELERATION:
                     maximumBrakingDeceleration  = std::atof(data.c_str());
@@ -102,6 +95,7 @@ namespace LibOpenNFS::NFS3 {
                 case CarpEntry::GAS_DECREASING_CURVE:
                 case CarpEntry::BRAKE_INCREASING_CURVE:
                 case CarpEntry::BRAKE_DECREASING_CURVE:
+                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
                     break;
                 case CarpEntry::WHEEL_BASE:
                     wheelBase = std::atof(data.c_str());
@@ -110,7 +104,7 @@ namespace LibOpenNFS::NFS3 {
                     frontGripBias = std::atof(data.c_str());
                     break;
                 case CarpEntry::POWER_STEERING:
-                    powerSteering = (data == "1")
+                    powerSteering = (data == "1");
                     break;
                 case CarpEntry::MINIMUM_STEERING_ACCELERATION:
                     minimumSteeringAcceleration = std::atof(data.c_str());
@@ -137,8 +131,10 @@ namespace LibOpenNFS::NFS3 {
                     turningCircleRadius = std::atof(data.c_str());
                     break;
                 case CarpEntry::TIRE_SPECS_FRONT:
+                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
                     break;
                 case CarpEntry::TIRE_SPECS_REAR:
+                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
                     break;
                 case CarpEntry::TIRE_WEAR:
                     tireWear = std::atof(data.c_str());
@@ -238,9 +234,10 @@ namespace LibOpenNFS::NFS3 {
                 case CarpEntry::AI_ACC5_ACCELERATION_TABLE:
                 case CarpEntry::AI_ACC6_ACCELERATION_TABLE:
                 case CarpEntry::AI_ACC7_ACCELERATION_TABLE:
+                    LogWarning("Implementation for loading %i from carp.txt is missing", (int) entry);
                     break;
                 default:
-                    LogInfo("Could not process %i", (int) entry);
+                    LogWarning("Could not process %i", (int) entry);
                     break;
             }
         }
