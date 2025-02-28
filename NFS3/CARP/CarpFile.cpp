@@ -26,10 +26,18 @@ namespace LibOpenNFS::NFS3 {
         std::string str, data;
 
         while (std::getline(ifstream, str)) {
+            if (str.rfind('(') == std::string::npos ||  str.rfind(')') == std::string::npos ) {
+                LogWarning("Could not find number in line %s", str.c_str());
+                continue;
+            }
             CarpEntry entry = (CarpEntry) std::atoi(str.substr(str.rfind('(') + 1, str.rfind(')') -1 ).c_str());  // The entry number is between () in the string
             std::getline(ifstream, data);
-            data = data.substr(0, data.rfind("\n"));
-            data = data.substr(0, data.rfind("\r"));
+            if (data.ends_with("\n")) {
+                data = data.substr(0, data.rfind("\n"));
+            }
+            if (data.ends_with("\r")) {
+                data = data.substr(0, data.rfind("\r"));
+            }
             switch (entry)
             {
                 case CarpEntry::SERIAL_NUMBER:
