@@ -187,7 +187,7 @@ namespace LibOpenNFS::NFS2 {
             }
             std::string textureFilename{texturePath.filename().string()};
             auto const textureId{std::atoi(textureFilename.substr(0, textureFilename.size() - 4).c_str())};
-            auto const [width, height] = TextureUtils::GetBitmapDimensions(texturePath);
+            auto const [width, height] = TextureUtils::GetBitmapDimensions(texturePath.string());
 
             // Find the maximum width and height, so we can avoid overestimating with blanket values (256x256) and
             // thereby scale UV's unnecessarily
@@ -195,7 +195,7 @@ namespace LibOpenNFS::NFS2 {
             max_height = height > max_height ? height : max_height;
 
             // Load QFS texture information into ONFS texture objects
-            textureAssetMap[textureId] = TrackTextureAsset(textureId, width, height, texturePath, "");
+            textureAssetMap[textureId] = TrackTextureAsset(textureId, width, height, texturePath.string(), "");
         }
 
         // Now that maximum width/height is known, set the Max U/V for the texture
