@@ -15,14 +15,18 @@ namespace LibOpenNFS::NFS3 {
         std::filesystem::path p(carBasePath);
         std::string carName = p.filename().string();
 
-        std::stringstream vivPath, fcePath, fedataPath;
+        std::stringstream vivPath, fcePath, fedataPath, carpPath;
         vivPath << carBasePath << "/car.viv";
         fcePath << carOutPath << "/car.fce";
         fedataPath << carOutPath << "/fedata.eng";
+        carpPath << carOutPath << "/carp.txt";
 
         Shared::VivFile vivFile;
         FceFile fceFile;
         FedataFile fedataFile;
+        CarpFile carpFile;
+
+        Car::PhysicsData carPhysicsData;
 
         if (std::filesystem::exists(carOutPath)) {
             LogInfo("VIV has already been extracted to %s, skipping", carOutPath.c_str());
@@ -34,10 +38,15 @@ namespace LibOpenNFS::NFS3 {
         if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nPriColours)) {
             LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
         }
+        if (CarpFile::Load(carpPath.str(), carpFile)) {
+            carPhysicsData = _ParsePhysicsData(carpFile);
+        } else {
+            LogWarning("Could not load carp.txt file: %s", carpPath.str().c_str());
+        }
 
         Car::MetaData carData = _ParseAssetData(fceFile, fedataFile);
 
-        return Car(carData, NFSVersion::NFS_3, carName);
+        return Car(carData, NFSVersion::NFS_3, carName, carPhysicsData);
     }
 
     Track Loader::LoadTrack(std::string const &trackBasePath, std::string const &trackOutPath) {
@@ -143,7 +152,18 @@ namespace LibOpenNFS::NFS3 {
         return carMetadata;
     }
 
-    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile,
+    Car::PhysicsData Loader::_ParsePhysicsData(CarpFile const & carpFile) {
+        Car::PhysicsData physicsData;
+
+        physicsData.mass = carpFile.mass;
+        physicsData.maxSpeed = carpFile.topSpeedCap * 3.6f;  // topSpeedCap is in m/s
+        physicsData.suspensionStiffness = carpFile.suspensionStiffness * 750.f;
+        physicsData.maxBreakingForce = carpFile.maximumBrakingDeceleration * 3.6f;
+
+        return physicsData;
+    }
+
+std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile,
                                                                  Track const &track,
                                                                  std::string const &trackOutPath) {
         std::map<uint32_t, TrackTextureAsset> textureAssetMap;

@@ -9,6 +9,7 @@
 #include "FCE/FceFile.h"
 #include "FEDATA/FedataFile.h"
 #include "FRD/FrdFile.h"
+#include "CARP/CarpFile.h"
 #include "COL/ColFile.h"
 #include "SPEEDS/SpeedsFile.h"
 #include "Shared/CanFile.h"
@@ -30,6 +31,7 @@ namespace LibOpenNFS::NFS3 {
 
     private:
         static Car::MetaData _ParseAssetData(const FceFile &fceFile, const FedataFile &fedataFile);
+        static Car::PhysicsData _ParsePhysicsData(CarpFile const &carpFile);
         static std::map<uint32_t, TrackTextureAsset> _ParseTextures(const FrdFile &frdFile, const Track &track, const std::string &trackOutPath);
         static std::vector<TrackBlock> _ParseFRDModels(const FrdFile &frdFile, const Track &track);
         static std::vector<TrackVRoad> _ParseVirtualRoad(const ColFile &colFile);
