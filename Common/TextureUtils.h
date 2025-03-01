@@ -20,6 +20,7 @@ namespace LibOpenNFS {
         static glm::vec4 ShadingDataToVec4(uint32_t packed_rgba);
         static bool ExtractQFS(const std::string &qfs_input, const std::string &output_dir);
         static bool ExtractTrackTextures(const std::string &trackPath, const ::std::string &trackName, NFSVersion nfsVer, const std::string &outPath);
+        static std::tuple<uint32_t, uint32_t> GetBitmapDimensions(std::string const& texturePath);
     };
 
 } // namespace LibOpenNFS

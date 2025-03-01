@@ -33,7 +33,7 @@ namespace LibOpenNFS::NFS4 {
         [[nodiscard]] bool is_lane() const {
             return (texflags & 0x0800) != 0;
         }
-        [[nodiscard]] uint8_t texture_id() const {
+        [[nodiscard]] uint32_t texture_id() const {
             return (texture & 0x07FF);
         }
     };

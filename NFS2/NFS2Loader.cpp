@@ -110,22 +110,9 @@ namespace LibOpenNFS::NFS2 {
         ASSERT(ColFile<PC>::Load(colPath, colFile, track.nfsVersion),
                "Could not load COL file: " << colPath); // Load Catalogue file to get global (non block specific) data
 
-        // Load up the textures
-        auto textureExtraObjectBlock = colFile.GetExtraObjectBlock(ExtraBlockID::TEXTURE_BLOCK_ID);
-        for (uint32_t texIdx = 0; texIdx < textureExtraObjectBlock.nTextures; texIdx++) {
-            TEXTURE_BLOCK textureBlock = textureExtraObjectBlock.polyToQfsTexTable[texIdx];
-            std::stringstream fileReference;
-            fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
-                          << textureBlock.texNumber << ".BMP";
-            // TODO: Add the alignment metadata into the Texture Class
-            // NFS2 doesn't encode much asset data in the texture block. We'll need to populate them when we open the
-            // textures.
-            track.trackTextureAssets[textureExtraObjectBlock.polyToQfsTexTable[texIdx].texNumber] =
-                TrackTextureAsset(textureBlock.texNumber, UINT32_MAX, UINT32_MAX, fileReference.str(), "");
-        }
-
         track.nBlocks = trkFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
+        track.trackTextureAssets = _ParseTextures(track, trackOutPath);
         track.trackBlocks = _ParseTRKModels(trkFile, colFile, track);
         track.globalObjects = _ParseCOLModels(colFile, track);
         track.virtualRoad = _ParseVirtualRoad(colFile);
@@ -157,16 +144,9 @@ namespace LibOpenNFS::NFS2 {
         ASSERT(ColFile<PS1>::Load(colPath, colFile, nfsVersion),
                "Could not load COL file: " << colPath); // Load Catalogue file to get global (non block specific) data
 
-        // Load up the textures
-        auto textureBlock = colFile.GetExtraObjectBlock(ExtraBlockID::TEXTURE_BLOCK_ID);
-        for (uint32_t texIdx = 0; texIdx < textureBlock.nTextures; texIdx++) {
-            // TODO: Store the rest of the texture data into the asset class
-            track.trackTextureAssets[textureBlock.polyToQfsTexTable[texIdx].texNumber] =
-                TrackTextureAsset(textureBlock.polyToQfsTexTable[texIdx].texNumber, UINT32_MAX, UINT32_MAX, "", "");
-        }
-
         // track.textureArrayID = Texture::MakeTextureArray(track->textureMap, false);
         track.nBlocks = trkFile.nBlocks;
+        track.trackTextureAssets = _ParseTextures(track, trackOutPath);
         track.trackBlocks = _ParseTRKModels(trkFile, colFile, track);
         track.globalObjects = _ParseCOLModels(colFile, track);
         track.virtualRoad = _ParseVirtualRoad(colFile);
@@ -179,6 +159,53 @@ namespace LibOpenNFS::NFS2 {
     template <typename Platform> Car::MetaData Loader<Platform>::_ParseGEOModels(GeoFile<Platform> const &geoFile) {
         ASSERT(false, "Unimplemented");
         return Car::MetaData();
+    }
+
+    template <typename Platform>
+    std::map<uint32_t, TrackTextureAsset> Loader<Platform>::_ParseTextures(Track const &track, std::string const &trackOutPath) {
+        using namespace std::filesystem;
+
+        // TODO: Hack :( OpenNFS needs to scale the UVs by the proportion of the textures size to the max sized texture on the track,
+        // due to the usage of a texture array in the renderer. NFS2 doesn't encode the size of the texture inside the FRD file, hence
+        // we need to grab the dimensions from the QFS file. As we rely on fshtool for QFS unpacking and don't have a dedicated QFS parser
+        // we will 'dumbly' reuse the extraction utility function, and then parse the associated bitmap headers for width and height, ahead
+        // of geometry parsing. This lets us scale the UVs directly at model creation time. This has the unfortunate affect of saddling
+        // LibOpenNFS users with this redundant process, hence we'll IFDEF it to be active only for OpenNFS's usage.
+        std::string const fullTrackOutPath {trackOutPath + track.name};
+        ASSERT(TextureUtils::ExtractTrackTextures(track.basePath, track.name, track.nfsVersion, fullTrackOutPath),
+               "Could not extract texture pack");
+
+        // TODO: Grab these from the QFS directly instead of extracting...
+        std::map<uint32_t, TrackTextureAsset> textureAssetMap;
+        size_t max_width{0}, max_height{0};
+        std::string const textureOutPath{trackOutPath + track.name + "/textures/"};
+
+        for (recursive_directory_iterator iter(textureOutPath), end; iter != end; ++iter) {
+            path texturePath{iter->path()};
+            if (texturePath.extension().string() != ".BMP") {
+                continue;
+            }
+            std::string textureFilename{texturePath.filename().string()};
+            auto const textureId{std::atoi(textureFilename.substr(0, textureFilename.size() - 4).c_str())};
+            auto const [width, height] = TextureUtils::GetBitmapDimensions(texturePath);
+
+            // Find the maximum width and height, so we can avoid overestimating with blanket values (256x256) and
+            // thereby scale UV's unnecessarily
+            max_width = width > max_width ? width : max_width;
+            max_height = height > max_height ? height : max_height;
+
+            // Load QFS texture information into ONFS texture objects
+            textureAssetMap[textureId] = TrackTextureAsset(textureId, width, height, texturePath, "");
+        }
+
+        // Now that maximum width/height is known, set the Max U/V for the texture
+        for (auto &[id, textureAsset] : textureAssetMap) {
+            // Attempt to remove potential for sampling texture from transparent area
+            textureAsset.maxU = (static_cast<float>(textureAsset.width) / static_cast<float>(max_width)) - 0.005f;
+            textureAsset.maxV = (static_cast<float>(textureAsset.height) / static_cast<float>(max_height)) - 0.005f;
+        }
+
+        return textureAssetMap;
     }
 
     // One might question why a TRK parsing function requires the COL file too. Simples, we need XBID 2 for Texture
