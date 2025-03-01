@@ -4,6 +4,9 @@
 
 #include "Common/Logging.h"
 
+#include <NFS2/PSH/PshFile.h>
+#include <fstream>
+
 namespace LibOpenNFS {
     uint32_t TextureUtils::abgr1555ToARGB8888(uint16_t const abgr_1555) {
         auto const red{static_cast<uint8_t>(round((abgr_1555 & 0x1F) / 31.0F * 255.0F))};
@@ -140,11 +143,6 @@ namespace LibOpenNFS {
                                             ::std::string const &trackName,
                                             NFSVersion nfsVer,
                                             std::string const &outPath) {
-        if (std::filesystem::exists(outPath)) {
-            return true;
-        }
-        std::filesystem::create_directories(outPath);
-
         std::stringstream nfsTexArchivePath;
         std::string fullTrackPath = trackPath + "/" + trackName;
 
@@ -181,8 +179,9 @@ namespace LibOpenNFS {
         switch (nfsVer) {
         case NFSVersion::NFS_2_PS1:
         case NFSVersion::NFS_3_PS1:
-            return true;
-            // return ImageLoader::ExtractPSH(nfsTexArchivePath.str(), onfsTrackAssetTextureDir);
+            // TODO: PSH's are FSH's, so fshtool is capable of handling this. But I need to write out to a BMP, not just a global bin palette
+            // so reuse old OpenNFS 0.3 PSH extraction logic for now
+            return NFS2::PshFile::Extract(nfsTexArchivePath.str(), onfsTrackAssetTextureDir);
         case NFSVersion::NFS_3: {
             std::stringstream nfsSkyTexArchivePath;
             nfsSkyTexArchivePath << fullTrackPath.substr(0, fullTrackPath.find_last_of('/')) << "/sky.fsh";
@@ -197,5 +196,43 @@ namespace LibOpenNFS {
         }
 
         return ExtractQFS(nfsTexArchivePath.str(), onfsTrackAssetTextureDir);
+    }
+
+    std::tuple<uint32_t, uint32_t> TextureUtils::GetBitmapDimensions(std::string const& texturePath) {
+#pragma pack(push, 2)
+        struct BITMAPFILEHEADER {
+            uint16_t bfType;
+            uint32_t bfSize;
+            uint16_t bfReserved1;
+            uint16_t bfReserved2;
+            uint32_t bfOffBits;
+        };
+
+        struct BITMAPINFOHEADER {
+            uint32_t biSize;
+            int32_t biWidth;
+            int32_t biHeight;
+            uint16_t biPlanes;
+            uint16_t biBitCount;
+            uint32_t biCompression;
+            uint32_t biSizeImage;
+            int32_t biXPelsPerMeter;
+            int32_t biYPelsPerMeter;
+            uint32_t biClrUsed;
+            uint32_t biClrImportant;
+        };
+#pragma pack(pop)
+
+        std::ifstream bmp(texturePath, std::ios::binary);
+        if (!bmp.is_open()) {
+            return {0,0};
+        }
+        BITMAPFILEHEADER bmpFileHeader{};
+        bmp.read(reinterpret_cast<char *>(&bmpFileHeader), sizeof(BITMAPFILEHEADER));
+        BITMAPINFOHEADER bmpInfoHeader{};
+        bmp.read(reinterpret_cast<char *>(&bmpInfoHeader), sizeof(BITMAPINFOHEADER));
+        bmp.close();
+
+        return {bmpInfoHeader.biWidth, bmpInfoHeader.biHeight};
     }
 } // namespace LibOpenNFS

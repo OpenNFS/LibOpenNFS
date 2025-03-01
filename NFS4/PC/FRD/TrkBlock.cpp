@@ -34,7 +34,7 @@ namespace LibOpenNFS::NFS4 {
             onfs_check(safe_read(frd, polygonData.at(i)));
         }
         for (auto &[num, unknown] : header.nobj) {
-             xobjs.emplace_back(num, frd);
+             extraObjects.emplace_back(num, frd);
         }
 
         return true;

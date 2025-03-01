@@ -20,11 +20,9 @@ namespace LibOpenNFS::NFS2 {
 
     private:
         static Car::MetaData _ParseGEOModels(const GeoFile<Platform> &geoFile);
-        static std::vector<LibOpenNFS::TrackBlock>
-        _ParseTRKModels(const TrkFile<Platform> &trkFile, ColFile<Platform> &colFile, const Track &track);
-
+        static std::map<uint32_t, TrackTextureAsset> _ParseTextures(Track const &track, std::string const &trackOutPath);
+        static std::vector<LibOpenNFS::TrackBlock> _ParseTRKModels(const TrkFile<Platform> &trkFile, ColFile<Platform> &colFile, const Track &track);
         static std::vector<TrackVRoad> _ParseVirtualRoad(ColFile<Platform> &colFile);
-
         static std::vector<TrackEntity> _ParseCOLModels(ColFile<Platform> &colFile, const Track &track);
     };
 } // namespace LibOpenNFS::NFS2

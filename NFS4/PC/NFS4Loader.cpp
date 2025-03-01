@@ -83,7 +83,7 @@ namespace LibOpenNFS::NFS4 {
 
         track.nBlocks = frdFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
-        track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
+        track.trackTextureAssets = _ParseTextures(track, trackOutPath);
         track.trackBlocks = _ParseFRDModels(frdFile, track);
         track.virtualRoad = _ParseVirtualRoad(frdFile);
 
@@ -168,6 +168,52 @@ namespace LibOpenNFS::NFS4 {
         return carMetadata;
     }
 
+    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(Track const &track, std::string const &trackOutPath) {
+        using namespace std::filesystem;
+
+        // TODO: Hack :( OpenNFS needs to scale the UVs by the proportion of the textures size to the max sized texture on the track,
+        // due to the usage of a texture array in the renderer. NFS4 doesn't encode the size of the texture inside the FRD file, hence
+        // we need to grab the dimensions from the QFS file. As we rely on fshtool for QFS unpacking and don't have a dedicated QFS parser
+        // we will 'dumbly' reuse the extraction utility function, and then parse the associated bitmap headers for width and height, ahead
+        // of geometry parsing. This lets us scale the UVs directly at model creation time. This has the unfortunate affect of saddling
+        // LibOpenNFS users with this redundant process, hence we'll IFDEF it to be active only for OpenNFS's usage.
+        std::string const fullTrackOutPath{trackOutPath + track.name};
+        ASSERT(TextureUtils::ExtractTrackTextures(track.basePath, track.name, track.nfsVersion, fullTrackOutPath),
+               "Could not extract texture pack");
+
+        // TODO: Grab these from the QFS directly instead of extracting...
+        std::map<uint32_t, TrackTextureAsset> textureAssetMap;
+        size_t max_width{0}, max_height{0};
+        std::string const textureOutPath{trackOutPath + track.name + "/textures/"};
+
+        for (recursive_directory_iterator iter(textureOutPath), end; iter != end; ++iter) {
+            path texturePath{iter->path()};
+            if (texturePath.extension().string() != ".BMP") {
+                continue;
+            }
+            std::string textureFilename{texturePath.filename().string()};
+            auto const textureId{std::atoi(textureFilename.substr(0, textureFilename.size() - 4).c_str())};
+            auto const [width, height] = TextureUtils::GetBitmapDimensions(texturePath);
+
+            // Find the maximum width and height, so we can avoid overestimating with blanket values (256x256) and
+            // thereby scale UV's unnecessarily
+            max_width = width > max_width ? width : max_width;
+            max_height = height > max_height ? height : max_height;
+
+            // Load QFS texture information into ONFS texture objects
+            textureAssetMap[textureId] = TrackTextureAsset(textureId, width, height, texturePath, "");
+        }
+
+        // Now that maximum width/height is known, set the Max U/V for the texture
+        for (auto &[id, textureAsset] : textureAssetMap) {
+            // Attempt to remove potential for sampling texture from transparent area
+            textureAsset.maxU = (static_cast<float>(textureAsset.width) / static_cast<float>(max_width)) - 0.005f;
+            textureAsset.maxV = (static_cast<float>(textureAsset.height) / static_cast<float>(max_height)) - 0.005f;
+        }
+
+        return textureAssetMap;
+    }
+
     std::vector<TrackBlock> Loader::_ParseFRDModels(FrdFile const &frdFile, Track &track) {
         LogInfo("Parsing FRD file into ONFS GL structures");
         std::vector<TrackBlock> trackBlocks;
@@ -191,8 +237,7 @@ namespace LibOpenNFS::NFS4 {
 
             // Build the base OpenNFS trackblock, to hold all the geometry and virtual road data, lights, sounds etc.
             // for this portion of track
-            TrackBlock trackBlock(trackblockIdx, rawTrackBlockCenter, rawTrackBlock.header.unknown3, rawTrackBlock.header.nPositions,
-                                  trackBlockNeighbourIds);
+            TrackBlock trackBlock(trackblockIdx, rawTrackBlockCenter, 0, rawTrackBlock.header.nPositions, trackBlockNeighbourIds);
 
             // Light and sound sources
             for (uint32_t lightNum = 0; lightNum < rawTrackBlock.header.nLightsrc.num; ++lightNum) {
@@ -210,105 +255,158 @@ namespace LibOpenNFS::NFS4 {
                 trackBlockShadingData.emplace_back(TextureUtils::ShadingDataToVec4(rawTrackBlock.shadingVertices[vertIdx]));
             }
 
-            // 4 OBJ Poly blocks
-            for (uint32_t j = 0; j < 11; ++j) {
-                if (rawTrackBlock.header.nobj[j].num > 0) {
-                    // Iterate through objects in objpoly block up to num objects
-                    for (uint32_t objectIdx = 0; objectIdx < rawTrackBlock.header.nobj[j].num; ++objectIdx) {
-                        // Mesh Data
-                        std::vector<uint32_t> vertexIndices;
-                        std::vector<uint32_t> textureIndices;
-                        std::vector<glm::vec2> uvs;
-                        std::vector<glm::vec3> normals;
-                        uint32_t accumulatedObjectFlags{0u};
+            // High-Poly Data is in block 4
+            /*for (auto const &polygon : rawTrackBlock.polygonData.at(4)) {
+                // Mesh Data
+                std::vector<uint32_t> vertexIndices;
+                std::vector<uint32_t> textureIndices;
+                std::vector<glm::vec3> normals;
+                uint32_t accumulatedObjectFlags{0u};
 
-                        // Get Polygons in object
-                        std::vector<Polygon> objectPolygons{rawTrackBlock.polygonData.at(j)[objectIdx]};
+                // Store into the track texture map if referenced by a polygon
+                if (!track.trackTextureAssets.contains(polygon.texture_id())) {
+                    track.trackTextureAssets[polygon.texture_id()] =
+                        TrackTextureAsset(polygon.texture_id(), UINT32_MAX, UINT32_MAX, "", "");
+                }
 
-                        for (auto &objectPolygon : objectPolygons) {
-                            auto const &polygon{objectPolygon};
+                /// Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture
+                // flags
+                TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygon.texture_id())};
+                std::vector<glm::vec2> uvs{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
+                std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(uvs, polygon.invert(), true, polygon.rotate())};
+                uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
-                            // Store into the track texture map if referenced by a polygon
-                            if (!track.trackTextureAssets.contains(polygon.texture_id())) {
-                                track.trackTextureAssets[polygon.texture_id()] =
-                                    TrackTextureAsset(polygon.texture_id(), UINT32_MAX, UINT32_MAX, "", "");
-                            }
+                // Calculate the normal, as the provided data is a little suspect
+                glm::vec3 normal{
+                    Utils::CalculateQuadNormal(rawTrackBlock.vertices[polygon.vertex[0]], rawTrackBlock.vertices[polygon.vertex[1]],
+                                               rawTrackBlock.vertices[polygon.vertex[2]], rawTrackBlock.vertices[polygon.vertex[3]])};
 
-                            /// Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture
-                            // flags
-                            TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygon.texture_id())};
-                            std::vector<glm::vec2> uvs{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f},
-                                                        {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
-                            std::vector<glm::vec2> transformedUVs{
-                                trackTextureAsset.ScaleUVs(uvs, polygon.invert(), true, polygon.rotate())};
-                            uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
+                // Two triangles per raw quad, hence 6 vertices. Normal data and texture index required per-vertex.
+                for (auto &quadToTriVertNumber : quadToTriVertNumbers) {
+                    normals.emplace_back(normal);
+                    vertexIndices.emplace_back(polygon.vertex[quadToTriVertNumber]);
+                    textureIndices.emplace_back(polygon.texture_id());
+                }
 
-                            // Calculate the normal, as the provided data is a little suspect
-                            glm::vec3 normal{Utils::CalculateQuadNormal(
-                                rawTrackBlock.vertices[objectPolygon.vertex[0]], rawTrackBlock.vertices[objectPolygon.vertex[1]],
-                                rawTrackBlock.vertices[objectPolygon.vertex[2]], rawTrackBlock.vertices[objectPolygon.vertex[3]])};
+                accumulatedObjectFlags |= polygon.texflags;
 
-                            // Two triangles per raw quad, hence 6 vertices. Normal data and texture index required
-                            // per-vertex.
-                            for (auto &quadToTriVertNumber : quadToTriVertNumbers) {
-                                normals.emplace_back(normal);
-                                vertexIndices.emplace_back(objectPolygon.vertex[quadToTriVertNumber]);
-                                textureIndices.emplace_back(polygon.texture_id());
-                            }
+                TrackGeometry trackBlockModel(trackBlockVerts, normals, uvs, textureIndices, vertexIndices, trackBlockShadingData,
+                                              rawTrackBlockCenter);
+                trackBlock.track.emplace_back(0, EntityType::OBJ_POLY, trackBlockModel, accumulatedObjectFlags);
+            }*/
 
-                            accumulatedObjectFlags |= polygon.texflags;
+            /*for (auto &extraObject : rawTrackBlock.extraObjects) {
+                // Iterate through objects in objpoly block up to num objects
+                for (uint32_t objectIdx = 0; objectIdx < extraObject.nObjects; ++objectIdx) {
+                    auto const &object{extraObject.objectBlocks.at(objectIdx)};
+                    auto const &objectHeader{extraObject.objectHeaders.at(objectIdx)};
+
+                    // Mesh Data
+                    std::vector<uint32_t> vertexIndices;
+                    std::vector<uint32_t> textureIndices;
+                    std::vector<glm::vec2> uvs;
+                    std::vector<glm::vec3> normals;
+                    uint32_t accumulatedObjectFlags{0u};
+
+                    // Get Polygons in object
+                    LogInfo("Parsing TrackBlock: %d Object: %d NumPolys: %d", trackblockIdx, objectIdx, object.polygons.size());
+
+                    for (size_t polyIdx = 0; polyIdx < objectHeader.nPolygons; ++polyIdx) {
+                        auto const &polygon{object.polygons.at(polyIdx)};
+
+                        // Store into the track texture map if referenced by a polygon
+                        if (!track.trackTextureAssets.contains(polygon.texture_id())) {
+                            track.trackTextureAssets[polygon.texture_id()] =
+                                TrackTextureAsset(polygon.texture_id(), UINT32_MAX, UINT32_MAX, "", "");
                         }
-                        TrackGeometry trackBlockModel(trackBlockVerts, normals, uvs, textureIndices, vertexIndices, trackBlockShadingData,
-                                                      rawTrackBlockCenter);
-                        trackBlock.objects.emplace_back((j + 1) * (objectIdx + 1), EntityType::OBJ_POLY, trackBlockModel,
-                                                        accumulatedObjectFlags);
+
+                        /// Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture
+                        // flags
+                        TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygon.texture_id())};
+                        std::vector<glm::vec2> uvs{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
+                        std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(uvs, polygon.invert(), true, polygon.rotate())};
+                        uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
+
+                        // Calculate the normal, as the provided data is a little suspect
+                        glm::vec3 normal{Utils::CalculateQuadNormal(
+                            rawTrackBlock.vertices[polygon.vertex[0]], rawTrackBlock.vertices[polygon.vertex[1]],
+                            rawTrackBlock.vertices[polygon.vertex[2]], rawTrackBlock.vertices[polygon.vertex[3]])};
+
+                        // Two triangles per raw quad, hence 6 vertices. Normal data and texture index required per-vertex.
+                        for (auto &quadToTriVertNumber : quadToTriVertNumbers) {
+                            normals.emplace_back(normal);
+                            vertexIndices.emplace_back(polygon.vertex[quadToTriVertNumber]);
+                            textureIndices.emplace_back(polygon.texture_id());
+                        }
+
+                        accumulatedObjectFlags |= polygon.texflags;
                     }
+                    TrackGeometry trackBlockModel(trackBlockVerts, normals, uvs, textureIndices, vertexIndices, trackBlockShadingData,
+                                                  rawTrackBlockCenter);
+                    trackBlock.objects.emplace_back(objectIdx, EntityType::XOBJ, trackBlockModel, accumulatedObjectFlags);
+                }
+            }*/
+
+            // Road Mesh data
+            std::vector<glm::vec3> roadVertices;
+            std::vector<glm::vec4> roadShadingData;
+            std::vector<uint32_t> vertexIndices;
+            std::vector<uint32_t> textureIndices;
+            std::vector<glm::vec2> uvs;
+            std::vector<glm::vec3> normals;
+            uint32_t accumulatedObjectFlags{0u};
+
+            for (uint32_t vertIdx = 0; vertIdx < rawTrackBlock.header.nVertices; ++vertIdx) {
+                roadVertices.emplace_back((rawTrackBlock.vertices[vertIdx] * NFS4_SCALE_FACTOR) - rawTrackBlockCenter);
+                roadShadingData.emplace_back(TextureUtils::ShadingDataToVec4(rawTrackBlock.shadingVertices[vertIdx]));
+            }
+            // Get indices from Chunk 4 and 5 for High Res polys, Chunk 6 for Road Lanes
+            for (uint32_t lodChunkIdx = 4; lodChunkIdx <= 6; lodChunkIdx++) {
+                // If there are no lane markers in the lane chunk, skip
+                if ((lodChunkIdx == 6) && (rawTrackBlock.header.nVertices <= rawTrackBlock.header.nHiResVert)) {
+                    continue;
+                }
+
+                // Get the polygon data for this road section
+                auto const &chunkPolygonData{rawTrackBlock.polygonData.at(lodChunkIdx)};
+
+                for (uint32_t polyIdx = 0; polyIdx < rawTrackBlock.header.sz[lodChunkIdx]; polyIdx++) {
+                    auto const &polygon{chunkPolygonData[polyIdx]};
+                    // Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture flags
+                    if (!track.trackTextureAssets.contains(polygon.texture_id())) {
+                        track.trackTextureAssets[polygon.texture_id()] = TrackTextureAsset(polygon.texture_id(), 64, 64, "", "");
+                    }
+                    TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygon.texture_id())};
+                    std::vector<glm::vec2> uv_temp{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
+                    std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(uv_temp, polygon.invert(), true, polygon.rotate())};
+                    uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
+
+                    glm::vec3 normal =
+                        Utils::CalculateQuadNormal(rawTrackBlock.vertices[polygon.vertex[0]], rawTrackBlock.vertices[polygon.vertex[1]],
+                                                   rawTrackBlock.vertices[polygon.vertex[2]], rawTrackBlock.vertices[polygon.vertex[3]]);
+
+                    // Two triangles per raw quad, hence 6 vertices. Normal data and texture index required per-vertex.
+                    for (auto &quadToTriVertNumber : quadToTriVertNumbers) {
+                        normals.emplace_back(normal);
+                        vertexIndices.emplace_back(polygon.vertex[quadToTriVertNumber]);
+                        textureIndices.emplace_back(polygon.texture_id());
+                    }
+
+                    accumulatedObjectFlags |= polygon.texflags;
+                }
+                auto roadModel{
+                    TrackGeometry(roadVertices, normals, uvs, textureIndices, vertexIndices, roadShadingData, rawTrackBlockCenter)};
+                if (lodChunkIdx == 6) {
+                    trackBlock.lanes.emplace_back(-1, EntityType::LANE, roadModel, accumulatedObjectFlags);
+                } else {
+                    trackBlock.track.emplace_back(-1, EntityType::ROAD, roadModel, accumulatedObjectFlags);
                 }
             }
+
             trackBlocks.push_back(trackBlock);
         }
 
         return trackBlocks;
-    }
-
-    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile, Track &track,
-                                                                 std::string const &trackOutPath) {
-        std::map<uint32_t, TrackTextureAsset> textureAssetMap;
-        size_t max_width{0}, max_height{0};
-
-        // Load QFS texture information into ONFS texture objects
-        for (auto &[textureId, textureAsset] : track.trackTextureAssets) {
-            std::stringstream fileReference;
-            std::stringstream alphaFileReference;
-
-            // Find the maximum width and height, so we can avoid overestimating with blanket values (256x256) and
-            // thereby scale UV's uneccesarily
-            max_width = textureAsset.width > max_width ? textureAsset.width : max_width;
-            max_height = textureAsset.height > max_height ? textureAsset.height : max_height;
-
-            if (textureAsset.id >> 11) {
-                fileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << textureId + 9 << ".BMP";
-                alphaFileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << textureId + 9 << "-a.BMP";
-            } else {
-                fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4) << textureId
-                              << ".BMP";
-                alphaFileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4) << textureId
-                                   << "-a.BMP";
-            }
-
-            textureAsset.fileReference = fileReference.str();
-            textureAsset.alphaFileReference = alphaFileReference.str();
-            // TODO: Need to grab width and height of these references for texture scaling
-        }
-
-        // Now that maximum width/height is known, set the Max U/V for the texture
-        for (auto &[id, textureAsset] : textureAssetMap) {
-            // Attempt to remove potential for sampling texture from transparent area
-            textureAsset.maxU = (static_cast<float>(textureAsset.width) / static_cast<float>(max_width)) - 0.005f;
-            textureAsset.maxV = (static_cast<float>(textureAsset.height) / static_cast<float>(max_height)) - 0.005f;
-        }
-
-        return textureAssetMap;
     }
 
     std::vector<TrackVRoad> Loader::_ParseVirtualRoad(FrdFile const &frdFile) {
@@ -318,18 +416,12 @@ namespace LibOpenNFS::NFS4 {
             VRoadBlock vroad{frdFile.vroadBlocks.at(vroadIdx)};
 
             // Transform NFS3/4 coords into ONFS 3d space
-            glm::vec3 position{Utils::FixedToFloat(vroad.refPt) * NFS4_SCALE_FACTOR};
+            glm::vec3 position{vroad.refPt * NFS4_SCALE_FACTOR};
             position.y += 0.2f;
+            glm::vec3 leftWall{(vroad.leftWall * NFS4_SCALE_FACTOR) * vroad.right};
+            glm::vec3 rightWall{(vroad.rightWall * NFS4_SCALE_FACTOR) * vroad.right};
 
-            // Get VROAD right vector
-            auto right{glm::vec3(vroad.right) / 128.f};
-            auto forward{glm::vec3(vroad.forward)};
-            auto normal{glm::vec3(vroad.normal)};
-
-            glm::vec3 leftWall{((vroad.leftWall / 65536.0f) * NFS4_SCALE_FACTOR) * right};
-            glm::vec3 rightWall{((vroad.rightWall / 65536.0f) * NFS4_SCALE_FACTOR) * right};
-
-            virtualRoad.emplace_back(position, glm::vec3(0, 0, 0), normal, forward, right, leftWall, rightWall, vroad.unknown2[0]);
+            virtualRoad.emplace_back(position, glm::vec3(0, 0, 0), vroad.normal, vroad.forward, vroad.right, leftWall, rightWall, vroad.unknown2[0]);
         }
 
         return virtualRoad;

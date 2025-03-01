@@ -73,7 +73,7 @@ namespace LibOpenNFS::NFS4 {
         std::vector<SoundSource> soundsrc;
         std::vector<LightSource> lightsrc;
         std::array<std::vector<Polygon>, 11> polygonData;
-        std::vector<XObjChunk> xobjs;
+        std::vector<XObjChunk> extraObjects;
         std::vector<PositionData> posData;
 
       protected:
