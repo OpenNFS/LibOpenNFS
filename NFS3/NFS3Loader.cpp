@@ -417,17 +417,17 @@ std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdF
     std::vector<TrackVRoad> Loader::_ParseVirtualRoad(ColFile const &colFile) {
         std::vector<TrackVRoad> virtualRoad;
 
-        for (uint16_t vroadIdx = 0; vroadIdx < colFile.vroadHead.nrec; ++vroadIdx) {
-            ColVRoad vroad{colFile.vroad[vroadIdx]};
+        for (uint32_t vroadIdx = 0; vroadIdx < colFile.vroadHead.nrec; ++vroadIdx) {
+            ColVRoad const& vroad{colFile.vroad[vroadIdx]};
 
             // Transform NFS3/4 coords into ONFS 3d space
             glm::vec3 position{Utils::FixedToFloat(vroad.refPt) * NFS3_SCALE_FACTOR};
             position.y += 0.2f;
 
             // Get VROAD right vector
-            auto right{glm::vec3(vroad.right) / 128.f};
-            auto forward{glm::vec3(vroad.forward)};
-            auto normal{glm::vec3(vroad.normal)};
+            auto right{(glm::vec3(vroad.right) / 128.f)};
+            auto forward{(glm::vec3(vroad.forward) / 128.f) * NFS3_SCALE_FACTOR};
+            auto normal{(glm::vec3(vroad.normal) / 128.f) * NFS3_SCALE_FACTOR};
 
             glm::vec3 leftWall{((vroad.leftWall / 65536.0f) * NFS3_SCALE_FACTOR) * right};
             glm::vec3 rightWall{((vroad.rightWall / 65536.0f) * NFS3_SCALE_FACTOR) * right};
