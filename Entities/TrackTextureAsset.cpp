@@ -19,8 +19,8 @@ namespace LibOpenNFS {
     }
 
     std::vector<glm::vec2> TrackTextureAsset::ScaleUVs(std::vector<glm::vec2> const &uvs,
-                                                       bool const inverseU,
-                                                       bool const inverseV,
+                                                       bool const invertU,
+                                                       bool const invertV,
                                                        uint8_t const nRotate,
                                                        bool const mirrorX,
                                                        bool const mirrorY) const {
@@ -30,31 +30,23 @@ namespace LibOpenNFS {
         auto const uvRotationTransform{
             glm::mat2(cos(glm::radians(angle)), sin(glm::radians(angle)), -sin(glm::radians(angle)), cos(glm::radians(angle)))};
 
-        // NFS2
-        // ROAD: uint8_t nRotate = (textureFlags >> 11) & 3; // 8,11 ok
-        // XOBJ: nRotate = 0
-        // inverseU = textureAlignment[8];
-        // inverseV = textureAlignment[9];
-
-        // NFS4
-        if (mirrorY) {
-            std::swap(temp_uvs[1].y, temp_uvs[2].y);
-            std::swap(temp_uvs[0].y, temp_uvs[3].y);
-            std::swap(temp_uvs[4].x, temp_uvs[5].x);
-        }
-        if (mirrorX) {
-            std::swap(temp_uvs[0].x, temp_uvs[1].x);
-            std::swap(temp_uvs[2].x, temp_uvs[3].x);
-            std::swap(temp_uvs[4].x, temp_uvs[5].x);
-        }
-
         for (auto &uv : temp_uvs) {
-            uv.x = (inverseU ? (1 - uv.x) : uv.x) * maxU;
-            uv.y = (inverseV ? (1 - uv.y) : uv.y) * maxV;
-
             if (nRotate != 0) {
                 uv = ((uv - originTransform) * uvRotationTransform) + originTransform;
             }
+            uv.x = (invertU ? (1 - uv.x) : uv.x) * maxU;
+            uv.y = (invertV ? (1 - uv.y) : uv.y) * maxV;
+        }
+        if (mirrorY) {
+            std::swap(temp_uvs[1].y, temp_uvs[2].y);
+            temp_uvs[4].y = temp_uvs[2].y;
+            std::swap(temp_uvs[0].y, temp_uvs[5].y);
+        }
+        if (mirrorX) {
+            std::swap(temp_uvs[0].x, temp_uvs[1].x);
+            temp_uvs[3].x = temp_uvs[0].x;
+            std::swap(temp_uvs[2].x, temp_uvs[5].x);
+            temp_uvs[4].x = temp_uvs[2].x;
         }
 
         return temp_uvs;

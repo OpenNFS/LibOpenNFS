@@ -47,10 +47,23 @@ namespace LibOpenNFS::NFS4 {
         };
     };
 
-
     struct SoundSource {
         glm::ivec3 refpoint;
         uint32_t type;
+    };
+
+    enum PolygonChunkType : uint8_t {
+        LOW_RES_TRACK,
+        LOW_RES_MISC,
+        MED_RES_TRACK,
+        MED_RES_MISC,
+        HIGH_RES_TRACK,
+        HIGH_RES_MISC,
+        LANES,
+        HIGH_RES_MISC1,
+        HIGH_RES_MISC2,
+        HIGH_RES_MISC3,
+        HIGH_RES_MISC4
     };
 
     struct LightSource {

@@ -17,7 +17,7 @@ namespace LibOpenNFS::NFS4 {
       private:
         static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile, NFSVersion version);
         static std::map<uint32_t, TrackTextureAsset> _ParseTextures(Track const &track, std::string const &trackOutPath);
-        static std::vector<TrackBlock> _ParseFRDModels(FrdFile const &frdFile, Track &track);
+        static std::pair<std::vector<TrackBlock>, std::vector<TrackEntity>> _ParseFRDModels(FrdFile const &frdFile, Track &track);
         static std::vector<TrackVRoad> _ParseVirtualRoad(FrdFile const &frdFile);
     };
 
