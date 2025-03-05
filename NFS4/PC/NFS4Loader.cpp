@@ -292,7 +292,8 @@ namespace LibOpenNFS::NFS4 {
                         // flags
                         TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygon.texture_id())};
                         std::vector<glm::vec2> temp_uvs{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
-                        std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(temp_uvs, polygon.invert(),polygon.invert(),polygon.rotate(),polygon.mirror_x(), polygon.mirror_y())};
+                        std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(
+                            temp_uvs, polygon.invert(), polygon.invert(), polygon.rotate(), polygon.mirror_x(), polygon.mirror_y())};
                         xobj_uvs.insert(xobj_uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
                         glm::vec3 const normal{
@@ -343,7 +344,8 @@ namespace LibOpenNFS::NFS4 {
                     }
                     TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygon.texture_id())};
                     std::vector<glm::vec2> temp_uvs{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
-                    std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(temp_uvs, polygon.invert(),polygon.invert(),polygon.rotate(),polygon.mirror_x(), polygon.mirror_y())};
+                    std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(
+                        temp_uvs, polygon.invert(), polygon.invert(), polygon.rotate(), polygon.mirror_x(), polygon.mirror_y())};
                     uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
                     glm::vec3 const normal{
@@ -408,7 +410,8 @@ namespace LibOpenNFS::NFS4 {
                         // flags
                         TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygon.texture_id())};
                         std::vector<glm::vec2> temp_uvs{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
-                        std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(temp_uvs, polygon.invert(),polygon.invert(),polygon.rotate(),polygon.mirror_x(), polygon.mirror_y())};
+                        std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(
+                            temp_uvs, polygon.invert(), polygon.invert(), polygon.rotate(), polygon.mirror_x(), polygon.mirror_y())};
                         xobj_uvs.insert(xobj_uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
                         glm::vec3 const normal{
