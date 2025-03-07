@@ -28,9 +28,7 @@ namespace LibOpenNFS::NFS3 {
     class ExtraObjectBlock : IRawData {
       public:
         ExtraObjectBlock() = default;
-
         explicit ExtraObjectBlock(std::ifstream &frd);
-
         void _SerializeOut(std::ofstream &ofstream) override;
 
         uint32_t nobj = 0;

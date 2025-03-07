@@ -7,13 +7,13 @@ TexBlock::TexBlock(std::ifstream &frd) {
 }
 
 bool TexBlock::_SerializeIn(std::ifstream &ifstream) {
-    onfs_check(safe_read(ifstream, width, (sizeof(uint16_t))));
-    onfs_check(safe_read(ifstream, height, (sizeof(uint16_t))));
-    onfs_check(safe_read(ifstream, unknown1, (sizeof(uint32_t))));
-    onfs_check(safe_read(ifstream, corners, sizeof(float) * 8));
-    onfs_check(safe_read(ifstream, unknown2, (sizeof(uint32_t))));
-    onfs_check(safe_read(ifstream, isLane, (sizeof(bool))));
-    onfs_check(safe_read(ifstream, qfsIndex, (sizeof(uint16_t))));
+    onfs_check(safe_read(ifstream, width));
+    onfs_check(safe_read(ifstream, height));
+    onfs_check(safe_read(ifstream, unknown1));
+    onfs_check(safe_read(ifstream, corners));
+    onfs_check(safe_read(ifstream, unknown2));
+    onfs_check(safe_read(ifstream, isLane));
+    onfs_check(safe_read(ifstream, qfsIndex));
 
     return true;
 }

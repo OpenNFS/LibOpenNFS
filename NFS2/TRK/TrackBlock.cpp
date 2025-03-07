@@ -17,7 +17,7 @@ template <typename Platform> bool TrackBlock<Platform>::_SerializeIn(std::ifstre
     onfs_check(safe_read(ifstream, nExtraBlocks));
     onfs_check(safe_read(ifstream, unknown));
     onfs_check(safe_read(ifstream, serialNum));
-    onfs_check(safe_read(ifstream, clippingRect, 4 * sizeof(VERT_HIGHP)));
+    onfs_check(safe_read(ifstream, clippingRect));
     onfs_check(safe_read(ifstream, extraBlockTblOffset));
     onfs_check(safe_read(ifstream, nStickToNextVerts));
     onfs_check(safe_read(ifstream, nLowResVert));

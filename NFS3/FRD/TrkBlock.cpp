@@ -7,14 +7,14 @@ TrkBlock::TrkBlock(std::ifstream &frd) {
 }
 
 bool TrkBlock::_SerializeIn(std::ifstream &frd) {
-    onfs_check(safe_read(frd, ptCentre, sizeof(glm::vec3)));
-    onfs_check(safe_read(frd, ptBounding, sizeof(glm::vec3) * 4));
+    onfs_check(safe_read(frd, ptCentre));
+    onfs_check(safe_read(frd, ptBounding));
     onfs_check(safe_read(frd, nVertices));
-    onfs_check(safe_read(frd, nHiResVert, sizeof(uint32_t)));
-    onfs_check(safe_read(frd, nLoResVert, sizeof(uint32_t)));
-    onfs_check(safe_read(frd, nMedResVert, sizeof(uint32_t)));
-    onfs_check(safe_read(frd, nVerticesDup, sizeof(uint32_t)));
-    onfs_check(safe_read(frd, nObjectVert, sizeof(uint32_t)));
+    onfs_check(safe_read(frd, nHiResVert));
+    onfs_check(safe_read(frd, nLoResVert));
+    onfs_check(safe_read(frd, nMedResVert));
+    onfs_check(safe_read(frd, nVerticesDup));
+    onfs_check(safe_read(frd, nObjectVert));
 
     if (nVertices == 0) {
         return false;
@@ -36,10 +36,10 @@ bool TrkBlock::_SerializeIn(std::ifstream &frd) {
     onfs_check(safe_read(frd, nPositions));
     onfs_check(safe_read(frd, nPolygons));
     onfs_check(safe_read(frd, nVRoad));
-    onfs_check(safe_read(frd, nXobj, sizeof(uint32_t)));
-    onfs_check(safe_read(frd, nPolyobj, sizeof(uint32_t)));
-    onfs_check(safe_read(frd, nSoundsrc, sizeof(uint32_t)));
-    onfs_check(safe_read(frd, nLightsrc, sizeof(uint32_t)));
+    onfs_check(safe_read(frd, nXobj));
+    onfs_check(safe_read(frd, nPolyobj));
+    onfs_check(safe_read(frd, nSoundsrc));
+    onfs_check(safe_read(frd, nLightsrc));
 
     // Read track position data
     posData.resize(nPositions);

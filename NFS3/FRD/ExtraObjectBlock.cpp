@@ -19,11 +19,11 @@ bool ExtraObjectBlock::_SerializeIn(std::ifstream &ifstream) {
 
         if (x.crosstype == 4) {
             // Basic objects
-            onfs_check(safe_read(ifstream, x.ptRef, sizeof(glm::vec3)));
+            onfs_check(safe_read(ifstream, x.ptRef));
             onfs_check(safe_read(ifstream, x.AnimMemory));
         } else if (x.crosstype == 3) {
             // Animated objects
-            onfs_check(safe_read(ifstream, x.unknown3, sizeof(uint16_t) * 9));
+            onfs_check(safe_read(ifstream, x.unknown3));
             onfs_check(safe_read(ifstream, x.type3));
             onfs_check(safe_read(ifstream, x.objno));
             onfs_check(safe_read(ifstream, x.nAnimLength));

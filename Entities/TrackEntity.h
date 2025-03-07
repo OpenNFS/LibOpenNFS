@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <magic_enum/magic_enum.hpp>
 
 #include "TrackGeometry.h"
 
@@ -19,15 +19,6 @@ namespace LibOpenNFS {
         CAR,
         VROAD
     };
-
-    std::unordered_map<EntityType, std::string> const entity_type_to_string{
-        {EntityType::XOBJ, "XOBJ"},     {EntityType::OBJ_POLY, "OBJ_POLY"}, {EntityType::LANE, "LANE"},
-        {EntityType::SOUND, "SOUND"},   {EntityType::LIGHT, "LIGHT"},       {EntityType::ROAD, "ROAD"},
-        {EntityType::GLOBAL, "GLOBAL"}, {EntityType::CAR, "CAR"},           {EntityType::VROAD, "VROAD"}};
-
-    static std::string get_string(EntityType const type) {
-        return entity_type_to_string.at(type);
-    }
 
     class TrackEntity {
       public:
