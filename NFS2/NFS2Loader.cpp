@@ -322,10 +322,9 @@ namespace LibOpenNFS::NFS2 {
                             // Remap the COL TextureID's using the COL texture block (XBID2)
                             TEXTURE_BLOCK polygonTexture = polyToQfsTexTable[structures[structureIdx].polygonTable[polyIdx].texture];
                             TrackTextureAsset textureAsset = track.trackTextureAssets.at(polygonTexture.texNumber);
-                            // Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture
-                            // flags
+                            // Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture flags
                             std::vector<glm::vec2> uvs{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
-                            std::vector<glm::vec2> transformedUVs = textureAsset.ScaleUVs(uvs, false, false, 0);
+                            std::vector<glm::vec2> transformedUVs = textureAsset.ScaleUVs(uvs, false, std::is_same_v<Platform, PS1>, 0);
                             structureUVs.insert(structureUVs.end(), transformedUVs.begin(), transformedUVs.end());
 
                             // Calculate the normal, as no provided data
@@ -345,12 +344,10 @@ namespace LibOpenNFS::NFS2 {
                             }
                         }
 
-                        TrackGeometry structureModel = TrackGeometry(
+                        auto structureModel = TrackGeometry(
                             structureVertices, structureNormals, structureUVs, structureTextureIndices, structureVertexIndices,
                             structureShadingData, orientation * (Utils::PointToVec(structureReferenceCoordinates) / NFS2_SCALE_FACTOR));
-                        TrackEntity trackBlockEntity =
-                            TrackEntity(rawTrackBlock.serialNum + structureIdx, EntityType::OBJ_POLY, structureModel, 0);
-                        trackBlock.objects.emplace_back(trackBlockEntity);
+                        trackBlock.objects.emplace_back(rawTrackBlock.serialNum + structureIdx, EntityType::OBJ_POLY, structureModel, 0);
                     }
                 }
 
@@ -378,13 +375,7 @@ namespace LibOpenNFS::NFS2 {
                     trackBlockVertices.emplace_back(orientation * (((Utils::PointToVec(blockRefCoord) +
                                                                      (256.f * Utils::PointToVec(rawTrackBlock.vertexTable[vertIdx]))) /
                                                                     NFS2_SCALE_FACTOR)));
-
-                    if (track.nfsVersion == NFSVersion::NFS_3_PS1) {
-                        trackBlockShadingData.emplace_back(
-                            TextureUtils::ShadingDataToVec4((uint16_t)((PS1::VERT *)&rawTrackBlock.vertexTable[vertIdx])->w)); // And I oop
-                    } else {
-                        trackBlockShadingData.emplace_back(1.f, 1.f, 1.f, 1.f);
-                    }
+                    trackBlockShadingData.emplace_back(1.f, 1.f, 1.f, 1.f);
                 }
                 for (int32_t polyIdx = (rawTrackBlock.nLowResPoly + rawTrackBlock.nMedResPoly);
                      polyIdx < (rawTrackBlock.nLowResPoly + rawTrackBlock.nMedResPoly + rawTrackBlock.nHighResPoly); ++polyIdx) {
@@ -394,7 +385,7 @@ namespace LibOpenNFS::NFS2 {
                     // Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture flags
                     std::vector<glm::vec2> uvs{{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
                     std::vector<glm::vec2> transformedUVs =
-                        textureAsset.ScaleUVs(uvs, false, false, (polygonTexture.alignmentData >> 11) & 3);
+                        textureAsset.ScaleUVs(uvs, false, std::is_same_v<Platform, PS1>, (polygonTexture.alignmentData >> 11) & 3);
                     trackBlockUVs.insert(trackBlockUVs.end(), transformedUVs.begin(), transformedUVs.end());
                     // Calculate the normal, as no provided data
                     glm::vec3 normal = Utils::CalculateQuadNormal(trackBlockVertices[rawTrackBlock.polygonTable[polyIdx].vertex[0]],
@@ -500,12 +491,7 @@ namespace LibOpenNFS::NFS2 {
             for (uint16_t vertIdx = 0; vertIdx < structures[structureIdx].nVerts; ++vertIdx) {
                 globalStructureVertices.emplace_back(
                     orientation * ((256.f * Utils::PointToVec(structures[structureIdx].vertexTable[vertIdx])) / NFS2_SCALE_FACTOR));
-                if (track.nfsVersion == NFSVersion::NFS_3_PS1) {
-                    globalStructureShadingData.emplace_back(TextureUtils::ShadingDataToVec4(
-                        (uint16_t)((PS1::VERT *)&structures[structureIdx].vertexTable[vertIdx])->w)); // And I oop
-                } else {
-                    globalStructureShadingData.emplace_back(1.0, 1.0f, 1.0f, 1.0f);
-                }
+                globalStructureShadingData.emplace_back(1.0, 1.0f, 1.0f, 1.0f);
             }
 
             for (uint32_t polyIdx = 0; polyIdx < structures[structureIdx].nPoly; ++polyIdx) {
