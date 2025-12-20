@@ -2,8 +2,10 @@
 
 #include <filesystem>
 #include <fstream>
-#include <glm/gtx/quaternion.hpp>
 #include <sstream>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 #include "Common/Logging.h"
 

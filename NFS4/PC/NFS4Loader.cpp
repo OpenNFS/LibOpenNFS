@@ -219,6 +219,7 @@ namespace LibOpenNFS::NFS4 {
         std::vector<TrackBlock> trackBlocks;
         trackBlocks.reserve(frdFile.nBlocks);
         std::vector<TrackEntity> globalObjects;
+        uint32_t vroadCount{0};
 
         for (uint32_t trackblockIdx{0}; trackblockIdx < frdFile.nBlocks; ++trackblockIdx) {
             TrkBlock const &rawTrackBlock{frdFile.trackBlocks[trackblockIdx]};
@@ -238,7 +239,8 @@ namespace LibOpenNFS::NFS4 {
 
             // Build the base OpenNFS trackblock, to hold all the geometry and virtual road data, lights, sounds etc.
             // for this portion of track
-            TrackBlock trackBlock(trackblockIdx, rawTrackBlockCenter, 0, rawTrackBlock.header.nPositions, trackBlockNeighbourIds);
+            TrackBlock trackBlock(trackblockIdx, rawTrackBlockCenter, vroadCount, rawTrackBlock.header.nPositions, trackBlockNeighbourIds);
+            vroadCount += rawTrackBlock.header.nPositions;
 
             // Light and sound sources
             for (uint32_t lightNum{0}; lightNum < rawTrackBlock.header.nLightsrc.num; ++lightNum) {
