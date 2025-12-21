@@ -33,7 +33,7 @@ namespace LibOpenNFS {
         bool collidable{false};
         bool dynamic{false};
 
-        uint16_t nAnimLength, AnimDelay; // JimDiabolo : The bigger the AnimDelay, that slower is the movement
+        uint16_t nAnimLength, AnimDelay;
         std::vector<AnimData> animData;
 
       private:
