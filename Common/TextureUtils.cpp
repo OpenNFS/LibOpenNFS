@@ -129,12 +129,16 @@ namespace LibOpenNFS {
 
         // Fshtool changes the current working directory, save and restore
         char cwd[1024];
-        getcwd(cwd, sizeof(cwd));
+        if (getcwd(cwd, sizeof(cwd)) == nullptr) {
+            return false;
+        }
 
         char *args[3] = {const_cast<char *>(""), strdup(qfs_input.c_str()), strdup(output_dir.c_str())};
         int returnCode = (fsh_main(3, args) == 1);
 
-        chdir(cwd);
+        if (chdir(cwd) != 0) {
+            return false;
+        }
 
         return returnCode;
     }
