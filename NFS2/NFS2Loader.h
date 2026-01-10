@@ -10,7 +10,7 @@
 
 namespace LibOpenNFS::NFS2 {
     const float NFS2_SCALE_FACTOR = 1000000.0f;
-    const glm::vec3 NFS2_CAR_SCALE_FACTOR(-0.1, 0.1, 0.1f);
+    const float NFS2_CAR_SCALE_FACTOR = 2000.f;
 
     template <typename Platform>
     class Loader {
