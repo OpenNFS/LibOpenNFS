@@ -2,6 +2,7 @@
 
 #include "Common/Logging.h"
 #include "Common/TextureUtils.h"
+#include "PSH/PshFile.h"
 
 #include <array>
 
@@ -21,15 +22,14 @@ namespace LibOpenNFS::NFS2 {
         std::map<std::string, uint32_t> remappedTextureIds;
         uint32_t remappedTextureID = 0;
 
-        // TODO: Refactor all of this to nexgen style
         switch (nfsVersion) {
         case NFSVersion::NFS_3_PS1:
         case NFSVersion::NFS_2_PS1:
-            // ImageLoader::ExtractPSH(pshPath, carOutPath);
+            PshFile::Extract(pshPath, carOutPath);
             break;
         case NFSVersion::NFS_2:
         case NFSVersion::NFS_2_SE:
-            // ImageLoader::ExtractQFS(qfsPath, carOutPath);
+            TextureUtils::ExtractQFS(qfsPath, carOutPath);
             break;
         default:
             ASSERT(false, "Poop");
@@ -38,7 +38,7 @@ namespace LibOpenNFS::NFS2 {
         GeoFile<Platform> geoFile;
         ASSERT(GeoFile<Platform>::Load(geoPath, geoFile), "Could not load GEO file: " << geoPath);
 
-        Car::MetaData carData = _ParseGEOModels(geoFile);
+        Car::MetaData const carData = _ParseGEOModels(geoFile);
         return Car(carData, nfsVersion, carName, true);
     }
 
