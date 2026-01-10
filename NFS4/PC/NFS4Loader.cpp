@@ -26,7 +26,7 @@ namespace LibOpenNFS::NFS4 {
             // MCO
             vivPath << ".viv";
             fcePath << "/part.fce";
-            fshPath << "../resources/MCO/Data/skins/" << carName.substr(0, carName.size() - 1) << "dec.fsh";
+            fshPath << "../resources/MCO/Data/skins/" << carName.substr(0, carName.size() - 2) << "dec.fsh";
         }
 
         Shared::VivFile vivFile;
@@ -46,7 +46,7 @@ namespace LibOpenNFS::NFS4 {
 
         if (version == NFSVersion::MCO) {
             if (std::filesystem::exists(fshPath.str())) {
-                TextureUtils::ExtractQFS(fshPath.str(), fshPath.str() + "/Textures/");
+                TextureUtils::ExtractQFS(fshPath.str(), carOutPath + "/Textures/");
             } else {
                 LogInfo("Can't find MCO car texture at %s (More work needed to identify when certain fsh's are used)",
                         fshPath.str().c_str());

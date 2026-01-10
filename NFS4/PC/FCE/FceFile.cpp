@@ -22,7 +22,7 @@ namespace LibOpenNFS::NFS4 {
 
     bool FceFile::_SerializeIn(std::ifstream &ifstream) {
         onfs_check(safe_read(ifstream, header));
-        onfs_check(header == 0x101014);
+        onfs_check((header & 0xFFFFF0) == 0x101010);
         onfs_check(safe_read(ifstream, unknown));
         onfs_check(safe_read(ifstream, nTriangles));
         onfs_check(safe_read(ifstream, nVertices));

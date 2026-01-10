@@ -62,7 +62,7 @@ namespace LibOpenNFS {
             float suspensionRestLength = 0.020f;
 
             // Suspension
-            float suspensionStiffness = 750.f;
+            float suspensionStiffness = 950.f;
             float suspensionDamping = 200.f;
             float suspensionCompression = 200.4f;
             float rollInfluence = 0.04f; // Shift CoM

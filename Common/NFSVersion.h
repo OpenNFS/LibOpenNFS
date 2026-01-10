@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <magic_enum/magic_enum.hpp>
 
 enum class NFSVersion {
     UNKNOWN,
@@ -18,26 +18,10 @@ enum class NFSVersion {
 };
 
 inline NFSVersion get_enum(const std::string& nfsVerString) {
-    if (nfsVerString == "NFS_1")
-        return NFSVersion::NFS_1;
-    else if (nfsVerString == "NFS_2")
-        return NFSVersion::NFS_2;
-    else if (nfsVerString == "NFS_2_PS1")
-        return NFSVersion::NFS_2_PS1;
-    else if (nfsVerString == "NFS_2_SE")
-        return NFSVersion::NFS_2_SE;
-    else if (nfsVerString == "NFS_3")
-        return NFSVersion::NFS_3;
-    else if (nfsVerString == "NFS_3_PS1")
-        return NFSVersion::NFS_3_PS1;
-    else if (nfsVerString == "NFS_4")
-        return NFSVersion::NFS_4;
-    else if (nfsVerString == "NFS_4_PS1")
-        return NFSVersion::NFS_4_PS1;
-    else if (nfsVerString == "MCO")
-        return NFSVersion::MCO;
-    else if (nfsVerString == "NFS_5")
-        return NFSVersion::NFS_5;
-    else
-        return NFSVersion::UNKNOWN;
+    auto const nfsVersion = magic_enum::enum_cast<NFSVersion>(nfsVerString);
+    if (nfsVersion.has_value()) {
+        return nfsVersion.value();
+    }
+
+    return NFSVersion::UNKNOWN;
 }

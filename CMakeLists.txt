@@ -26,6 +26,7 @@ set(LIBOPENNFS_SOURCES
         NFS2/NFS2Loader.cpp
         NFS2/COL/ColFile.cpp
         NFS2/GEO/GeoFile.cpp
+        NFS2/GEO/GeoBlock.cpp
         NFS2/PSH/PshFile.cpp
         NFS2/TRK/ExtraObjectBlock.cpp
         NFS2/TRK/StructureBlock.cpp

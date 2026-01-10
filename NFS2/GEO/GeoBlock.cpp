@@ -1,36 +1,42 @@
-#include "GeoFile.h"
+#include "GeoBlock.h"
 
 #include "Common/Logging.h"
 
 namespace LibOpenNFS::NFS2 {
-    template <typename Platform> bool GeoFile<Platform>::Load(std::string const &geoPath, GeoFile &geoFile) {
-        LogInfo("Loading GEO File located at %s", geoPath.c_str());
-        std::ifstream geo(geoPath, std::ios::in | std::ios::binary);
-
-        bool const loadStatus = geoFile._SerializeIn(geo);
-        geo.close();
-
-        return loadStatus;
+    template <typename Platform> GeoBlock<Platform>::GeoBlock(std::ifstream &ifstream, uint32_t _partIdx) : partIdx(_partIdx) {
+        ASSERT(this->GeoBlock::_SerializeIn(ifstream), "Failed to serialize GeoBlock from file stream");
     }
 
-    template <typename Platform> void GeoFile<Platform>::Save(std::string const &geoPath, GeoFile &geoFile) {
-        LogInfo("Saving FCE File to %s", geoPath.c_str());
-        std::ofstream geo(geoPath, std::ios::out | std::ios::binary);
-        geoFile._SerializeOut(geo);
-    }
+    template <> bool GeoBlock<PC>::_SerializeIn(std::ifstream &ifstream) {
+        std::streamoff const headerStart = ifstream.tellg();
 
-    template <> bool GeoFile<PC>::_SerializeIn(std::ifstream &ifstream) {
-        onfs_check(safe_read(ifstream, header, sizeof(PC::HEADER)));
-        uint32_t partIdx = 0;
-
-        for (uint32_t i {0}; i < PC::PART_NAMES.size(); ++i) {
-            blocks.emplace_back(ifstream, partIdx);
+        onfs_check(safe_read(ifstream, header));
+        if (ifstream.eof()) {
+            return false;
         }
+        ASSERT(header.pad0 == 0 && header.pad1 == 1 && header.pad2 == 1, "Corrupt GEO block header");
+        vertices.resize(header.nVerts);
+        onfs_check(safe_read(ifstream, vertices));
+
+        std::streamoff const headerEnd = ifstream.tellg();
+
+        // Polygon Table start is aligned on 4 Byte boundary
+        if (((headerStart - headerEnd) % 4)) {
+            LogDebug("Part %u [%s] Polygon Table Pre-Pad Contents: ", partIdx, PC::PART_NAMES[partIdx]);
+            std::vector<uint16_t> pad(3);
+            onfs_check(safe_read(ifstream, pad));
+            for (uint32_t i = 0; i < 3; ++i) {
+                LogDebug("%u", pad[i]);
+            }
+        }
+
+        polygons.resize(header.nPolygons);
+        onfs_check(safe_read(ifstream, polygons));
 
         return true;
     }
 
-    template <> bool GeoFile<PS1>::_SerializeIn(std::ifstream &ifstream) {
+    template <> bool GeoBlock<PS1>::_SerializeIn(std::ifstream &ifstream) {
         // std::vector<CarModel> NFS2<PS1>::LoadGEO(const std::string &geo_path, std::map<unsigned int, Texture>
         // car_textures, std::map<std::string, uint32_t> remapped_texture_ids)
         /*glm::quat rotationMatrix = glm::normalize(glm::quat(glm::vec3(0, 0, 0)));
@@ -263,10 +269,10 @@ namespace LibOpenNFS::NFS2 {
         return false;
     }
 
-    template <typename Platform> void GeoFile<Platform>::_SerializeOut(std::ofstream &ofstream) {
+    template <typename Platform> void GeoBlock<Platform>::_SerializeOut(std::ofstream &ofstream) {
         ASSERT(false, "GEO output serialization is not currently implemented");
     }
 
-    template class GeoFile<PS1>;
-    template class GeoFile<PC>;
+    template class GeoBlock<PS1>;
+    template class GeoBlock<PC>;
 } // namespace LibOpenNFS::NFS2

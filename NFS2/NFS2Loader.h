@@ -10,11 +10,12 @@
 
 namespace LibOpenNFS::NFS2 {
     const float NFS2_SCALE_FACTOR = 1000000.0f;
+    const glm::vec3 NFS2_CAR_SCALE_FACTOR(-0.1, 0.1, 0.1f);
 
     template <typename Platform>
     class Loader {
     public:
-        /*static Car LoadCar(const std::string &carBasePath, NFSVersion nfsVersion);*/
+        static Car LoadCar(const std::string &carBasePath, std::string const &carOutPath, NFSVersion nfsVersion);
         static Track LoadTrack(NFSVersion nfsVersion, const std::string &trackBasePath,
                                const std::string &trackOutPath);
 

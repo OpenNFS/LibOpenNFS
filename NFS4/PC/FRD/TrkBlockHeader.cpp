@@ -7,8 +7,6 @@ namespace LibOpenNFS::NFS4 {
     }
 
     bool TrkBlockHeader::_SerializeIn(std::ifstream &frd) {
-        unsigned char ptrspace[44]; // some useless data from HS FRDs
-
         // 11 Polygon Numbers (7 track, 4 Object)
         onfs_check(safe_read(frd, sz));
         onfs_check(safe_read(frd, unknown1));

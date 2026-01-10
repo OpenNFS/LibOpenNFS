@@ -6,74 +6,41 @@
 #include <array>
 
 namespace LibOpenNFS::NFS2 {
-    /*template <typename Platform>
-    Car Loader<Platform>::LoadCar(const std::string &carBasePath, NFSVersion nfsVersion) {
+    template <typename Platform>
+    Car Loader<Platform>::LoadCar(std::string const &carBasePath, std::string const &carOutPath, NFSVersion nfsVersion) {
         std::filesystem::path p(carBasePath);
         std::string carName = p.filename().string();
 
         std::string geoPath = carBasePath + ".geo";
         std::string pshPath = carBasePath + ".psh";
         std::string qfsPath = carBasePath + ".qfs";
-        std::string carOutPath;
 
         // For every file in here that's a BMP, load the data into a Texture object. This lets us easily access textures
-    by an ID. std::map<uint32_t, Texture> carTextures; std::map<std::string, uint32_t> remappedTextureIds; uint32_t
-    remappedTextureID = 0;
+        // by an ID.
+        // std::map<uint32_t, Texture> carTextures;
+        std::map<std::string, uint32_t> remappedTextureIds;
+        uint32_t remappedTextureID = 0;
 
         // TODO: Refactor all of this to nexgen style
         switch (nfsVersion) {
         case NFSVersion::NFS_3_PS1:
         case NFSVersion::NFS_2_PS1:
-            carOutPath = LibOpenNFS::CAR_PATH + get_string(nfsVersion) + "/" + carName + "/";
             // ImageLoader::ExtractPSH(pshPath, carOutPath);
             break;
         case NFSVersion::NFS_2:
         case NFSVersion::NFS_2_SE:
-            carOutPath = CAR_PATH + get_string(nfsVersion) + "/" + carName + "/";
             // ImageLoader::ExtractQFS(qfsPath, carOutPath);
             break;
         default:
-            ASSERT(false, "I shouldn't be loading this version (" << get_string(nfsVersion) << ") and you know it");
-        }
-
-        for (std::filesystem::directory_iterator itr(carOutPath); itr != std::filesystem::directory_iterator(); ++itr) {
-            if (itr->path().filename().string().find("BMP") != std::string::npos &&
-    itr->path().filename().string().find("-a") == std::string::npos) {
-                // Map texture names, strings, into numbers so I can use them for indexes into the eventual Texture
-    Array remappedTextureIds[itr->path().filename().replace_extension("").string()] = remappedTextureID++; switch
-    (nfsVersion) { case NFSVersion::NFS_3_PS1: case NFSVersion::NFS_2_PS1: GLubyte *data; GLsizei width; GLsizei height;
-                    ASSERT(ImageLoader::LoadBmpCustomAlpha(itr->path().string().c_str(), &data, &width, &height, 0u),
-                           "Texture " << itr->path().string() << " did not load succesfully!");
-                    // carTextures[remappedTextureIds[itr->path().filename().replace_extension("").string()]] =
-                    //   Texture(nfsVersion, remappedTextureIds[itr->path().filename().replace_extension("").string()],
-    data, static_cast<unsigned int>(width),
-                    //           static_cast<unsigned int>(height), nullptr);
-                    break;
-                case NFSVersion::NFS_2:
-                case NFSVersion::NFS_2_SE:
-                    bmpread_t bmpAttr; // This will leak.
-                    ASSERT(bmpread(itr->path().string().c_str(), BMPREAD_ANY_SIZE | BMPREAD_ALPHA, &bmpAttr), "Texture "
-    << itr->path().string() << " did not load succesfully!");
-                    // carTextures[remappedTextureIds[itr->path().filename().replace_extension("").string()]] =
-                    //  Texture(nfsVersion, remappedTextureIds[itr->path().filename().replace_extension("").string()],
-    bmpAttr.data, static_cast<unsigned int>(bmpAttr.width),
-                    //          static_cast<unsigned int>(bmpAttr.height), nullptr);
-                    break;
-                default:
-                    ASSERT(false, "I shouldn't be loading this version (" << get_string(nfsVersion) << ")");
-                }
-            }
+            ASSERT(false, "Poop");
         }
 
         GeoFile<Platform> geoFile;
         ASSERT(GeoFile<Platform>::Load(geoPath, geoFile), "Could not load GEO file: " << geoPath);
 
-        // This must run before geometry load, as it will affect UV's
-        GLint textureArrayID  = GLTexture::MakeTextureArray(carTextures, false);
         Car::MetaData carData = _ParseGEOModels(geoFile);
-        // carData.meshes = LoadGEO(geo_path.str(), car_textures, remapped_texture_ids);
-        return std::make_shared<Car>(carData, NFSVersion::NFS_2, carName, textureArrayID);
-    }*/
+        return Car(carData, nfsVersion, carName, true);
+    }
 
     template <> Track Loader<PC>::LoadTrack(NFSVersion nfsVersion, std::string const &trackBasePath, std::string const &trackOutPath) {
         LogInfo("Loading Track located at %s", trackBasePath.c_str());
@@ -150,8 +117,74 @@ namespace LibOpenNFS::NFS2 {
         return track;
     }
 
-    template <typename Platform> Car::MetaData Loader<Platform>::_ParseGEOModels(GeoFile<Platform> const &geoFile) {
-        ASSERT(false, "Unimplemented");
+    template <> Car::MetaData Loader<PC>::_ParseGEOModels(GeoFile<PC> const &geoFile) {
+        Car::MetaData carMetadata;
+
+        // All Vertices are stored so that the model is rotated // 90 degs on X. Remove this at Vert load time.
+        float carScaleFactor = 2000.f;
+        glm::quat rotationMatrix = glm::normalize(glm::quat(glm::vec3(0, 0, 0)));
+
+        for (auto &geoBlock : geoFile.blocks) {
+            std::vector<uint32_t> indices;
+            std::vector<glm::vec3> verts;
+            std::vector<glm::vec3> norms;
+            std::vector<glm::vec2> uvs;
+            std::vector<uint32_t> texture_indices;
+
+            for (auto vertex : geoBlock.vertices) {
+                verts.emplace_back(rotationMatrix * glm::vec3(vertex.x / carScaleFactor,
+                                                              vertex.y / carScaleFactor,
+                                                              vertex.z / carScaleFactor));
+            }
+
+            for (auto const &[texMapType, vertex, texName] : geoBlock.polygons) {
+                std::string textureName(texName, texName + 4);
+                indices.emplace_back(vertex[0]);
+                indices.emplace_back(vertex[1]);
+                indices.emplace_back(vertex[2]);
+                indices.emplace_back(vertex[0]);
+                indices.emplace_back(vertex[2]);
+                indices.emplace_back(vertex[3]);
+
+                uvs.emplace_back(0.0f, 0.0f);
+                uvs.emplace_back(1.0f, 0.0f);
+                uvs.emplace_back(1.0f, 1.0f);
+                uvs.emplace_back(0.0f, 0.0f);
+                uvs.emplace_back(1.0f, 1.0f);
+                uvs.emplace_back(0.0f, 1.0f);
+
+                glm::vec3 normal = rotationMatrix * Utils::CalculateQuadNormal(verts[vertex[0]], verts[vertex[1]],
+                                                                               verts[vertex[2]], verts[vertex[3]]);
+                // Use the R/L flag to flip normals
+                if (texMapType & 0x4) {
+                    normal = -normal;
+                }
+
+                norms.emplace_back(normal);
+                norms.emplace_back(normal);
+                norms.emplace_back(normal);
+                norms.emplace_back(normal);
+                norms.emplace_back(normal);
+                norms.emplace_back(normal);
+
+                // Texture gl_texture = car_textures[remapped_texture_ids[textureName]];
+                texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
+                texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
+                texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
+                texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
+                texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
+                texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
+            }
+            auto center = glm::vec3((geoBlock.header.position[0] / 256.f) / carScaleFactor, (geoBlock.header.position[1] / 256.f) / carScaleFactor,
+                                         (geoBlock.header.position[2] / 256.f) / carScaleFactor);
+            carMetadata.meshes.emplace_back(std::string(PC::PART_NAMES[geoBlock.partIdx]), verts, uvs, norms, indices, center);
+        }
+
+        return carMetadata;
+    }
+
+    template <> Car::MetaData Loader<PS1>::_ParseGEOModels(GeoFile<PS1> const &geoFile) {
+        ASSERT(false, "Unimplemented!");
         return Car::MetaData();
     }
 
@@ -205,8 +238,7 @@ namespace LibOpenNFS::NFS2 {
     // One might question why a TRK parsing function requires the COL file too. Simples, we need XBID 2 for Texture
     // remapping during ONFS texgen.
     template <typename Platform>
-    std::vector<LibOpenNFS::TrackBlock> Loader<Platform>::_ParseTRKModels(TrkFile<Platform> const &trkFile,
-                                                                          ColFile<Platform> &colFile,
+    std::vector<LibOpenNFS::TrackBlock> Loader<Platform>::_ParseTRKModels(TrkFile<Platform> const &trkFile, ColFile<Platform> &colFile,
                                                                           Track const &track) {
         LogInfo("Parsing TRK file into ONFS GL structures");
         std::vector<LibOpenNFS::TrackBlock> trackBlocks;

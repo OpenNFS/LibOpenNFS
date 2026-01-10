@@ -16,7 +16,6 @@ namespace LibOpenNFS::NFS4 {
         static void Save(std::string const &frdPath, FrdFile &frdFile);
 
         // Raw File data
-        uint32_t ptrspace[44];
         char header[HEADER_LENGTH];
         uint32_t nBlocks;
         uint32_t numVRoad;

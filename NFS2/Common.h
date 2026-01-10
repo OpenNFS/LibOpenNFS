@@ -3,6 +3,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include <cstdint>
+#include <string_view>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -54,13 +55,6 @@ namespace LibOpenNFS {
             };
 #pragma pack(pop)
 
-            // Maybe this is a platform specific VERT HIGH P scenario?
-            struct BLOCK_3D {
-                int16_t x;
-                int16_t y;
-                int16_t z;
-            };
-
             struct POLY_3D {
                 uint32_t texMapType;
                 uint8_t vertex[4];
@@ -68,7 +62,7 @@ namespace LibOpenNFS {
             };
 
             // Mike Thompson CarEd disasm parts table for NFS2 Cars
-            const std::array<std::string, 32> PART_NAMES = {{
+            static constexpr std::array<std::string_view, 32> PART_NAMES = {{
               "High Additional Body Part",
               "High Main Body Part",
               "High Ground Part",
@@ -134,13 +128,6 @@ namespace LibOpenNFS {
                 uint64_t unknown[3];    // Always 0, 1, 1
             };
 
-            // Maybe this is a platform specific VERT HIGH P scenario?
-            struct BLOCK_3D {
-                int16_t x;
-                int16_t y;
-                int16_t z;
-            };
-
             struct POLY_3D {
                 uint16_t texMap[2];    // [1] seems to be useless. Value of 102 in bottom right of some meshes, small triangle.
                 uint16_t vertex[3][4]; // Literally wtf, 3 groups of 4 numbers that look like the vert indexes. One set [1] is usually
@@ -169,7 +156,7 @@ namespace LibOpenNFS {
             };
 #pragma pack(pop)
 
-            const std::array<std::string, 33> PART_NAMES = {{"High Additional Body Part",
+            static constexpr std::array<std::string_view, 33> PART_NAMES = {{"High Additional Body Part",
                                                              "High Main Body Part",
                                                              "High Ground Part",
                                                              "High Front Part",
