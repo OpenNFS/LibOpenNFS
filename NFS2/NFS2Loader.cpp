@@ -171,7 +171,8 @@ namespace LibOpenNFS::NFS2 {
             auto center = glm::vec3((geoBlock.header.position[0] / 256.f) / NFS2_CAR_SCALE_FACTOR,
                                     (geoBlock.header.position[1] / 256.f) / NFS2_CAR_SCALE_FACTOR,
                                     (geoBlock.header.position[2] / 256.f) / NFS2_CAR_SCALE_FACTOR);
-            carMetadata.meshes.emplace_back(std::string(PC::PART_NAMES[geoBlock.partIdx]), verts, uvs, norms, indices, center);
+            carMetadata.meshes.emplace_back(std::string(PC::PART_NAMES[geoBlock.partIdx]), verts, uvs, texture_indices, norms, indices,
+                                            center);
         }
 
         return carMetadata;
@@ -191,14 +192,14 @@ namespace LibOpenNFS::NFS2 {
                 verts.emplace_back(vertex.x / NFS2_CAR_SCALE_FACTOR, vertex.y / NFS2_CAR_SCALE_FACTOR, vertex.z / NFS2_CAR_SCALE_FACTOR);
             }
 
-            for (auto const &[texMapType, vertex, texName] : geoBlock.polygons) {
+            for (auto const &[texMapType, vert_idx, norm_idx, uv_idx, texName] : geoBlock.polygons) {
                 std::string textureName(texName, texName + 4);
-                indices.emplace_back(vertex[0][0]);
-                indices.emplace_back(vertex[0][1]);
-                indices.emplace_back(vertex[0][2]);
-                indices.emplace_back(vertex[0][0]);
-                indices.emplace_back(vertex[0][2]);
-                indices.emplace_back(vertex[0][3]);
+                indices.emplace_back(vert_idx[0]);
+                indices.emplace_back(vert_idx[1]);
+                indices.emplace_back(vert_idx[2]);
+                indices.emplace_back(vert_idx[0]);
+                indices.emplace_back(vert_idx[2]);
+                indices.emplace_back(vert_idx[3]);
 
                 uvs.emplace_back(0.0f, 0.0f);
                 uvs.emplace_back(1.0f, 0.0f);
@@ -207,9 +208,10 @@ namespace LibOpenNFS::NFS2 {
                 uvs.emplace_back(1.0f, 1.0f);
                 uvs.emplace_back(0.0f, 1.0f);
 
-                glm::vec3 normal = Utils::CalculateQuadNormal(verts[vertex[0][0]], verts[vertex[0][1]], verts[vertex[0][2]], verts[vertex[0][3]]);
+                glm::vec3 normal =
+                    Utils::CalculateQuadNormal(verts[vert_idx[0]], verts[vert_idx[1]], verts[vert_idx[2]], verts[vert_idx[3]]);
                 // Use the R/L flag to flip normals
-                if (texMapType[0] & 0x4) {
+                if (texMapType & 0x4) {
                     normal = -normal;
                 }
 
@@ -231,7 +233,8 @@ namespace LibOpenNFS::NFS2 {
             auto center = glm::vec3((geoBlock.header.position[0] / 256.f) / NFS2_CAR_SCALE_FACTOR,
                                     (geoBlock.header.position[1] / 256.f) / NFS2_CAR_SCALE_FACTOR,
                                     (geoBlock.header.position[2] / 256.f) / NFS2_CAR_SCALE_FACTOR);
-            carMetadata.meshes.emplace_back(std::string(PC::PART_NAMES[geoBlock.partIdx]), verts, uvs, norms, indices, center);
+            carMetadata.meshes.emplace_back(std::string(PS1::PART_NAMES[geoBlock.partIdx]), verts, uvs, texture_indices, norms, indices,
+                                            center);
         }
 
         return carMetadata;

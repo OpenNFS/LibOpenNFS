@@ -32,7 +32,7 @@ namespace LibOpenNFS::NFS2 {
         };
 
         // TODO: Move this GEO data back to GeoFile.h once I find a clean way to template a shared struct name
-#pragma pack(push, 2)
+#pragma pack(push, 1)
         struct HEADER {
             uint32_t padding;     // Possible value: 0x00, 0x01, 0x02
             uint32_t unknown[32]; // useless list with values, which increase by 0x4 (maybe global offset list, which is needed for
@@ -48,7 +48,7 @@ namespace LibOpenNFS::NFS2 {
             uint16_t unknown1;   // ? similar to the value in the list above
             uint16_t unknown2;   // ? similar to the value in the list above
             uint16_t unknown3;   // ? similar to the value in the list above
-            uint64_t padding[3];    // Always 0, 1, 1
+            uint64_t padding[3]; // Always 0, 1, 1
         };
 
         struct POLY_3D {
@@ -106,12 +106,16 @@ namespace LibOpenNFS::NFS2 {
         };
 
         // TODO: Move this GEO data back to GeoFile.h once I find a clean way to template a shared struct name
-#pragma pack(push, 2)
+#pragma pack(push, 1)
+        struct BlockOffset {
+            uint16_t type; // Always 0x0077, PS1 address? No, because in PC version too.
+            uint16_t offset;
+        };
+
         struct HEADER {
-            uint32_t padding;     // Possible value: 0x00, 0x01, 0x02
-            uint16_t unknown[64]; // useless list with values, which increase by 0x4 (maybe global offset list, which is needed for
-            // calculating the position of the blocks)
-            uint64_t unknown2; //  always 0x00
+            uint32_t version; // Possible value: 0x00, 0x01, 0x02?
+            BlockOffset blockOffsets[32];
+            uint64_t padding;
         };
 
         struct BLOCK_HEADER {
@@ -124,10 +128,19 @@ namespace LibOpenNFS::NFS2 {
             uint64_t padding[3];    // Always 0, 1, 1
         };
 
+        /*| Bit | Mask | Meaning |
+          |-----|------|---------|
+          | 0 | 0x01 | Triangle (vertex[2] == vertex[3]) |
+          | 1 | 0x02 | Quad |
+          | 2 | 0x04 | Mirrored/duplicate face |
+          | 3 | 0x08 | Unknown (UV related?) |
+          | 4 | 0x10 | Unknown |
+          | 5 | 0x20 | Textured (vs flat-shaded) |*/
         struct POLY_3D {
-            uint16_t texMap[2];    // [1] seems to be useless. Value of 102 in bottom right of some meshes, small triangle.
-            uint16_t vertex[3][4]; // Literally wtf, 3 groups of 4 numbers that look like the vert indexes. One set [1] is usually
-            // 0,0,0,0 or 1,1,1,1
+            uint32_t type;
+            uint16_t vertex_idx[4];
+            uint16_t normal_idx[4];
+            uint16_t uv_idx[4];
             char texName[4];
         };
 
