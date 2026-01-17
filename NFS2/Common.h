@@ -32,7 +32,7 @@ namespace LibOpenNFS::NFS2 {
         struct BLOCK_HEADER {
             uint32_t nVerts;
             uint32_t nPolygons;
-            int32_t position[3]; // Absolute XYZ of the block
+            glm::ivec3 position; // Absolute XYZ of the block
             uint16_t unknown;    // ? similar to the value in the list above
             uint16_t unknown1;   // ? similar to the value in the list above
             uint16_t unknown2;   // ? similar to the value in the list above

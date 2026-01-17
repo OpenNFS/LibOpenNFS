@@ -22,7 +22,7 @@
 #include "Shared/HRZ/HrzFile.h"
 
 namespace LibOpenNFS::NFS3 {
-    constexpr glm::vec3 NFS3_SCALE_FACTOR(-0.1, 0.1, 0.1f);
+    constexpr glm::vec3 SCALE_FACTOR(-0.1, 0.1, 0.1f);
 
     class Loader {
       public:
