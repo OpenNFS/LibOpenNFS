@@ -302,9 +302,8 @@ namespace LibOpenNFS::NFS2 {
         for (auto const &superBlock : trkFile.superBlocks) {
             for (auto rawTrackBlock : superBlock.trackBlocks) {
                 // Get position all vertices need to be relative to
-                glm::quat orientation = glm::normalize(glm::quat(glm::vec3(-glm::pi<float>() / 2, 0, 0)));
                 glm::vec3 rawTrackBlockCenter =
-                    orientation * (Utils::PointToVec(trkFile.blockReferenceCoords[rawTrackBlock.serialNum]) / NFS2_SCALE_FACTOR);
+                    Utils::PointToVec(trkFile.blockReferenceCoords[rawTrackBlock.serialNum]) * NFS2_SCALE_FACTOR;
                 std::vector<uint32_t> trackBlockNeighbourIds;
 
                 // Convert the neighbor int16_t's to uint32_t for OFNS trackblock representation
@@ -373,8 +372,10 @@ namespace LibOpenNFS::NFS2 {
                         std::vector<glm::vec3> structureNormals;
 
                         // Find the structure reference that matches this structure, else use block default
-                        VERT_HIGHP structureReferenceCoordinates = trkFile.blockReferenceCoords[rawTrackBlock.serialNum];
+                        glm::ivec3 structureReferenceCoordinates = trkFile.blockReferenceCoords[rawTrackBlock.serialNum];
                         bool refCoordsFound = false;
+                        std::vector<AnimData> animData;
+                        uint16_t animDelay;
 
                         for (auto &structureReference : structureReferences) {
                             // Only check fixed type structure references
@@ -386,8 +387,10 @@ namespace LibOpenNFS::NFS2 {
                                 }
                                 if (structureReference.recType == 3) {
                                     // For now, if animated, use position 0 of animation sequence
-                                    structureReferenceCoordinates = structureReference.animationData[0].position;
+                                    structureReferenceCoordinates = structureReference.animData[0].pt;
                                     refCoordsFound = true;
+                                    animData = structureReference.animData;
+                                    animDelay = structureReference.animDelay;
                                     break;
                                 }
                             }
@@ -397,9 +400,8 @@ namespace LibOpenNFS::NFS2 {
                                        rawTrackBlock.serialNum);
                         }
                         for (uint16_t vertIdx = 0; vertIdx < structures[structureIdx].nVerts; ++vertIdx) {
-                            structureVertices.emplace_back(
-                                orientation *
-                                ((256.f * Utils::PointToVec(structures[structureIdx].vertexTable[vertIdx])) / NFS2_SCALE_FACTOR));
+                            structureVertices.emplace_back((256.f * Utils::PointToVec(structures[structureIdx].vertexTable[vertIdx])) *
+                                                           NFS2_SCALE_FACTOR);
                             structureShadingData.emplace_back(1.0, 1.0f, 1.0f, 1.0f);
                         }
                         for (uint32_t polyIdx = 0; polyIdx < structures[structureIdx].nPoly; ++polyIdx) {
@@ -428,10 +430,16 @@ namespace LibOpenNFS::NFS2 {
                             }
                         }
 
-                        auto structureModel = TrackGeometry(
-                            structureVertices, structureNormals, structureUVs, structureTextureIndices, structureVertexIndices,
-                            structureShadingData, orientation * (Utils::PointToVec(structureReferenceCoordinates) / NFS2_SCALE_FACTOR));
-                        trackBlock.objects.emplace_back(rawTrackBlock.serialNum + structureIdx, EntityType::OBJ_POLY, structureModel, 0);
+                        auto structureModel = TrackGeometry(structureVertices, structureNormals, structureUVs, structureTextureIndices,
+                                                            structureVertexIndices, structureShadingData,
+                                                            Utils::PointToVec(structureReferenceCoordinates) * NFS2_SCALE_FACTOR);
+                        if (animData.empty()) {
+                            trackBlock.objects.emplace_back(rawTrackBlock.serialNum + structureIdx, EntityType::OBJ_POLY, structureModel,
+                                                            0);
+                        } else {
+                            trackBlock.objects.emplace_back(rawTrackBlock.serialNum + structureIdx, EntityType::OBJ_POLY, structureModel,
+                                                            animData, animDelay, 0);
+                        }
                     }
                 }
 
@@ -444,7 +452,7 @@ namespace LibOpenNFS::NFS2 {
                 std::vector<glm::vec3> trackBlockNormals;
 
                 // Base Track Geometry
-                VERT_HIGHP blockRefCoord = {};
+                glm::ivec3 blockRefCoord = {};
 
                 for (int32_t vertIdx = 0; vertIdx < rawTrackBlock.nStickToNextVerts + rawTrackBlock.nHighResVert; vertIdx++) {
                     if (vertIdx < rawTrackBlock.nStickToNextVerts) {
@@ -456,9 +464,9 @@ namespace LibOpenNFS::NFS2 {
                         blockRefCoord = trkFile.blockReferenceCoords[rawTrackBlock.serialNum];
                     }
 
-                    trackBlockVertices.emplace_back(orientation * (((Utils::PointToVec(blockRefCoord) +
-                                                                     (256.f * Utils::PointToVec(rawTrackBlock.vertexTable[vertIdx]))) /
-                                                                    NFS2_SCALE_FACTOR)));
+                    trackBlockVertices.emplace_back(
+                        (Utils::PointToVec(blockRefCoord) + (256.f * Utils::PointToVec(rawTrackBlock.vertexTable[vertIdx]))) *
+                        NFS2_SCALE_FACTOR);
                     trackBlockShadingData.emplace_back(1.f, 1.f, 1.f, 1.f);
                 }
                 for (int32_t polyIdx = (rawTrackBlock.nLowResPoly + rawTrackBlock.nMedResPoly);
@@ -499,8 +507,6 @@ namespace LibOpenNFS::NFS2 {
     template <typename Platform> std::vector<TrackVRoad> Loader<Platform>::_ParseVirtualRoad(ColFile<Platform> &colFile) {
         std::vector<TrackVRoad> virtualRoad;
 
-        glm::quat orientation = glm::normalize(glm::quat(glm::vec3(-glm::pi<float>() / 2, 0, 0)));
-
         if (!colFile.IsBlockPresent(ExtraBlockID::COLLISION_BLOCK_ID)) {
             LogWarning("Col file is missing virtual road data");
             return virtualRoad;
@@ -508,17 +514,20 @@ namespace LibOpenNFS::NFS2 {
 
         for (auto &vroadEntry : colFile.GetExtraObjectBlock(ExtraBlockID::COLLISION_BLOCK_ID).collisionData) {
             // Transform NFS2 coords into ONFS 3d space
-            glm::vec3 vroadCenter = orientation * (Utils::PointToVec(vroadEntry.trackPosition) / NFS2_SCALE_FACTOR);
+            glm::vec3 vroadCenter = Utils::PointToVec(vroadEntry.trackPosition) * NFS2_SCALE_FACTOR;
             vroadCenter.y += 0.2f;
 
             // Get VROAD forward and normal vectors, fake a right vector
-            glm::vec3 right = orientation * glm::vec3(vroadEntry.rightVec[0], vroadEntry.rightVec[2], vroadEntry.rightVec[1]);
-            glm::vec3 forward = orientation * glm::vec3(vroadEntry.fwdVec[0], vroadEntry.fwdVec[2], vroadEntry.fwdVec[1]) / 256.f;
-            glm::vec3 normal = orientation * glm::vec3(vroadEntry.vertVec[0], vroadEntry.vertVec[2], vroadEntry.vertVec[1]) / 256.f;
+            glm::vec3 right = glm::vec3(vroadEntry.rightVec) * NFS2_SCALE_FACTOR;
+            glm::vec3 forward = glm::vec3(vroadEntry.fwdVec) * NFS2_SCALE_FACTOR;
+            glm::vec3 normal = glm::vec3(vroadEntry.vertVec) * NFS2_SCALE_FACTOR;
 
-            glm::vec3 leftWall = (vroadEntry.leftBorder / NFS2_SCALE_FACTOR) * right * 2.f;
-            glm::vec3 rightWall = (vroadEntry.rightBorder / NFS2_SCALE_FACTOR) * right * 2.f;
-            glm::vec3 lateralRespawn = ((vroadEntry.postCrashPosition) / NFS2_SCALE_FACTOR) * right; // TODO: This is incorrect
+            glm::vec3 leftWall = float(vroadEntry.leftBorder) * right * 2.f;
+            glm::vec3 rightWall = float(vroadEntry.rightBorder) * right * 2.f;
+            glm::vec3 lateralRespawn = float(vroadEntry.postCrashPosition) * right; // TODO: This is incorrect
+
+            // Adjust vroadCenter to be the actual midpoint between left and right walls
+            // vroadCenter += (leftWall + rightWall) / 2.f;
 
             virtualRoad.emplace_back(vroadCenter, glm::vec3(), normal, forward, right, leftWall, rightWall, vroadEntry.unknown2);
         }
@@ -532,9 +541,6 @@ namespace LibOpenNFS::NFS2 {
     std::vector<TrackEntity> Loader<Platform>::_ParseCOLModels(ColFile<Platform> &colFile, Track const &track) {
         LogInfo("Parsing COL file into ONFS GL structures");
         std::vector<TrackEntity> colEntities;
-
-        // All Vertices are stored so that the model is rotated 90 degs on X. Remove this at Vert load time.
-        glm::quat orientation = glm::normalize(glm::quat(glm::vec3(-glm::pi<float>() / 2, 0, 0)));
 
         // Shorter reference to structures and texture table
         auto structures = colFile.GetExtraObjectBlock(ExtraBlockID::STRUCTURE_BLOCK_ID).structures;
@@ -550,8 +556,11 @@ namespace LibOpenNFS::NFS2 {
             std::vector<glm::vec4> globalStructureShadingData;
             std::vector<glm::vec3> globalStructureNormals;
 
-            VERT_HIGHP structureReferenceCoordinates = {};
+            glm::ivec3 structureReferenceCoordinates = {};
             bool refCoordsFound = false;
+            std::vector<AnimData> animData;
+            uint16_t animDelay;
+
             // Find the structure reference that matches this structure
             for (auto &structure : colFile.GetExtraObjectBlock(ExtraBlockID::STRUCTURE_REF_BLOCK_A_ID).structureReferences) {
                 // Only check fixed type structure references
@@ -563,8 +572,10 @@ namespace LibOpenNFS::NFS2 {
                     }
                     if (structure.recType == 3) {
                         // For now, if animated, use position 0 of animation sequence
-                        structureReferenceCoordinates = structure.animationData[0].position;
+                        structureReferenceCoordinates = structure.animData[0].pt;
                         refCoordsFound = true;
+                        animData = structure.animData;
+                        animDelay = structure.animDelay;
                         break;
                     }
                 }
@@ -573,8 +584,8 @@ namespace LibOpenNFS::NFS2 {
                 LogWarning("Couldn't find a reference coordinate for Structure %d in COL file", structureIdx);
             }
             for (uint16_t vertIdx = 0; vertIdx < structures[structureIdx].nVerts; ++vertIdx) {
-                globalStructureVertices.emplace_back(
-                    orientation * ((256.f * Utils::PointToVec(structures[structureIdx].vertexTable[vertIdx])) / NFS2_SCALE_FACTOR));
+                globalStructureVertices.emplace_back((256.f * Utils::PointToVec(structures[structureIdx].vertexTable[vertIdx])) *
+                                                     NFS2_SCALE_FACTOR);
                 globalStructureShadingData.emplace_back(1.0, 1.0f, 1.0f, 1.0f);
             }
 
@@ -605,11 +616,15 @@ namespace LibOpenNFS::NFS2 {
                 }
             }
 
-            glm::vec3 position = orientation * (Utils::PointToVec(structureReferenceCoordinates) / NFS2_SCALE_FACTOR);
+            glm::vec3 position = Utils::PointToVec(structureReferenceCoordinates) * NFS2_SCALE_FACTOR;
             TrackGeometry globalStructureModel(globalStructureVertices, globalStructureNormals, globalStructureUVs,
                                                globalStructureTextureIndices, globalStructureVertexIndices, globalStructureShadingData,
                                                position);
-            colEntities.emplace_back(structureIdx, EntityType::GLOBAL, globalStructureModel, 0);
+            if (animData.empty()) {
+                colEntities.emplace_back(structureIdx, EntityType::GLOBAL, globalStructureModel, 0);
+            } else {
+                colEntities.emplace_back(structureIdx, EntityType::GLOBAL, globalStructureModel, animData, animDelay, 0);
+            }
         }
 
         return colEntities;

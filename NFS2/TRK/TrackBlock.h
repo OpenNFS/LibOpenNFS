@@ -26,7 +26,7 @@ namespace LibOpenNFS {
             uint16_t nExtraBlocks;
             uint16_t unknown;
             uint32_t serialNum;
-            struct VERT_HIGHP clippingRect[4];
+            glm::ivec3 clippingRect[4];
             uint32_t extraBlockTblOffset;
             uint16_t nStickToNextVerts, nLowResVert, nMedResVert, nHighResVert;
             uint16_t nLowResPoly, nMedResPoly, nHighResPoly;

@@ -40,10 +40,10 @@ namespace LibOpenNFS {
 
         struct COLLISION_BLOCK {
             // XBID = 15
-            VERT_HIGHP trackPosition; // Position auint32_t track on a single line, either at center or side of road
-            int8_t vertVec[3];        // The three vectors are mutually orthogonal, and are normalized so that
-            int8_t fwdVec[3];         // each vector's norm is slightly less than 128. Each vector is coded on
-            int8_t rightVec[3];       // 3 bytes : its x, z and y components are each signed 8-bit values.
+            glm::ivec3 trackPosition; // Position auint32_t track on a single line, either at center or side of road
+            glm::i8vec3 vertVec;      // The three vectors are mutually orthogonal, and are normalized so that
+            glm::i8vec3 fwdVec;       // each vector's norm is slightly less than 128. Each vector is coded on
+            glm::i8vec3 rightVec;     // 3 bytes : its x, z and y components are each signed 8-bit values.
             uint8_t zero;
             uint16_t blockNumber;
             uint16_t unknown; // The left and right border values indicate the two limits beyond which no car can go. This is the data used for

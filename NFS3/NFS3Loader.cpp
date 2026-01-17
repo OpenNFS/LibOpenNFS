@@ -152,19 +152,18 @@ namespace LibOpenNFS::NFS3 {
         return carMetadata;
     }
 
-    Car::PhysicsData Loader::_ParsePhysicsData(CarpFile const & carpFile) {
+    Car::PhysicsData Loader::_ParsePhysicsData(CarpFile const &carpFile) {
         Car::PhysicsData physicsData;
 
         physicsData.mass = carpFile.mass;
-        physicsData.maxSpeed = carpFile.topSpeedCap * 3.6f;  // topSpeedCap is in m/s
+        physicsData.maxSpeed = carpFile.topSpeedCap * 3.6f; // topSpeedCap is in m/s
         physicsData.suspensionStiffness = carpFile.suspensionStiffness * 750.f;
         physicsData.maxBreakingForce = carpFile.maximumBrakingDeceleration * 3.6f;
 
         return physicsData;
     }
 
-std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile,
-                                                                 Track const &track,
+    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile, Track const &track,
                                                                  std::string const &trackOutPath) {
         std::map<uint32_t, TrackTextureAsset> textureAssetMap;
         size_t max_width{0}, max_height{0};
@@ -305,8 +304,8 @@ std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdF
             }
 
             /* XOBJS - EXTRA OBJECTS */
-            for (uint32_t l = (trackblockIdx * 4); l < (trackblockIdx * 4) + 4; ++l) {
-                for (uint32_t j = 0; j < frdFile.extraObjectBlocks[l].nobj; ++j) {
+            for (uint32_t l = (trackblockIdx * 4); l < (trackblockIdx * 4) + 5; ++l) {
+                for (uint32_t j = 0; j < frdFile.extraObjectBlocks.at(l).nobj; ++j) {
                     // Mesh Data
                     std::vector<glm::vec3> extraObjectVerts;
                     std::vector<glm::vec4> extraObjectShadingData;
@@ -349,8 +348,8 @@ std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdF
                     auto extraObjectModel{TrackGeometry(extraObjectVerts, normals, uvs, textureIndices, vertexIndices,
                                                         extraObjectShadingData, extraObjectCenter)};
                     if (extraObjectData.crosstype == 3) {
-                        auto extraObjectEntity{
-                            TrackEntity(l, EntityType::XOBJ, extraObjectModel, extraObjectData.animData, accumulatedObjectFlags)};
+                        auto extraObjectEntity{TrackEntity(l, EntityType::XOBJ, extraObjectModel, extraObjectData.animData,
+                                                           extraObjectData.AnimDelay, accumulatedObjectFlags)};
                         trackBlock.objects.emplace_back(extraObjectEntity);
                     } else {
                         auto extraObjectEntity{TrackEntity(l, EntityType::XOBJ, extraObjectModel, accumulatedObjectFlags)};
@@ -418,7 +417,7 @@ std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdF
         std::vector<TrackVRoad> virtualRoad;
 
         for (uint32_t vroadIdx = 0; vroadIdx < colFile.vroadHead.nrec; ++vroadIdx) {
-            ColVRoad const& vroad{colFile.vroad[vroadIdx]};
+            ColVRoad const &vroad{colFile.vroad[vroadIdx]};
 
             // Transform NFS3/4 coords into ONFS 3d space
             glm::vec3 position{Utils::FixedToFloat(vroad.refPt) * NFS3_SCALE_FACTOR};

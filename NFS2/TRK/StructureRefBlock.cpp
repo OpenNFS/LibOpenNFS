@@ -21,15 +21,14 @@ bool StructureRefBlock::_SerializeIn(std::ifstream &ifstream) {
     } else if (recType == 3) {
         // Animated type
         onfs_check(safe_read(ifstream, animLength));
-        onfs_check(safe_read(ifstream, unknown));
-        animationData.resize(animLength);
-        onfs_check(safe_read(ifstream, animationData));
+        onfs_check(safe_read(ifstream, animDelay));
+        animData.resize(animLength);
+        onfs_check(safe_read(ifstream, animData));
     } else if (recType == 4) {
         // 4 Component PSX Vert data? TODO: Restructure to allow the 4th component to be read
         onfs_check(safe_read(ifstream, refCoordinates));
     } else {
-        LogDebug("Unknown Structure Reference type: %d Size: %d StructRef: %d", (int)recType, (int)recSize,
-                 (int)structureRef);
+        LogDebug("Unknown Structure Reference type: %d Size: %d StructRef: %d", (int)recType, (int)recSize, (int)structureRef);
         return true;
     }
 

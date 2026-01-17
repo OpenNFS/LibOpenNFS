@@ -11,19 +11,8 @@
 #include "Common/NFSVersion.h"
 
 namespace LibOpenNFS::NFS2 {
-    struct VERT_HIGHP {
-        int32_t x, z, y;
-    };
-
-    struct ANIM_POS {
-        VERT_HIGHP position;
-        int16_t unknown[4];
-    };
-
     struct PC {
-        struct VERT {
-            int16_t x, z, y;
-        };
+        using VERT = glm::i16vec3;
 
         struct POLYGONDATA {
             int16_t texture;
@@ -95,9 +84,7 @@ namespace LibOpenNFS::NFS2 {
     };
 
     struct PS1 {
-        struct VERT {
-            int16_t x, z, y, w;
-        };
+        using VERT = glm::i16vec4;
 
         struct POLYGONDATA {
             uint8_t texture;

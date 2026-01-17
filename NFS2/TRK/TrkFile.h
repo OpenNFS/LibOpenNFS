@@ -26,9 +26,9 @@ namespace LibOpenNFS {
             uint32_t nBlocks;
             std::vector<SuperBlock<Platform>> superBlocks;
             std::vector<uint32_t> superBlockOffsets;
-            std::vector<VERT_HIGHP> blockReferenceCoords;
+            std::vector<glm::ivec3> blockReferenceCoords;
 
-        private:
+          private:
             bool _SerializeIn(std::ifstream &ifstream) override;
             void _SerializeOut(std::ofstream &ofstream) override;
         };
