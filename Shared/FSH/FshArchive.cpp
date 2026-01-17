@@ -1,5 +1,8 @@
 #include "FshArchive.h"
 
+#include <cstring>
+#include <filesystem>
+
 namespace LibOpenNFS::Shared {
     bool FshArchive::Load(std::string const &filepath) {
         std::ifstream file(filepath, std::ios::binary | std::ios::ate);

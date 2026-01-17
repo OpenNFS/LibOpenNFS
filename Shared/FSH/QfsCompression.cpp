@@ -1,5 +1,8 @@
 #include "QfsCompression.h"
 
+#include <cstring>
+#include <stdexcept>
+
 namespace LibOpenNFS::Shared {
     bool QfsCompression::IsCompressed(uint8_t const *data, size_t const size) {
         if (size < 5)
