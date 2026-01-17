@@ -7,8 +7,8 @@
 
 namespace LibOpenNFS {
     namespace NFS3 {
-        const uint8_t NUM_POLYGON_BLOCKS = 7;
-        const uint8_t NUM_POLYOBJ_CHUNKS = 4;
+        constexpr uint8_t NUM_POLYGON_BLOCKS = 7;
+        constexpr uint8_t NUM_POLYOBJ_CHUNKS = 4;
 
         struct ObjectPolyBlock // a POLYOBJ chunk
         {
@@ -21,7 +21,7 @@ namespace LibOpenNFS {
         };
 
         class PolyBlock : private IRawData {
-        public:
+          public:
             PolyBlock() = default;
             explicit PolyBlock(std::ifstream &frd, uint32_t nTrackBlockPolys);
             void _SerializeOut(std::ofstream &ofstream) override;
@@ -36,7 +36,7 @@ namespace LibOpenNFS {
             // if not present, then all objects in the chunk are XOBJs
             // the 1st chunk is described anyway in the TRKBLOCK
 
-        private:
+          private:
             bool _SerializeIn(std::ifstream &ifstream) override;
         };
 

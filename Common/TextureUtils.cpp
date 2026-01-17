@@ -113,7 +113,7 @@ namespace LibOpenNFS {
         return rgbValue;
     }
 
-    glm::vec4 TextureUtils::ShadingDataToVec4(uint32_t packed_rgba) {
+    glm::vec4 TextureUtils::ShadingDataToVec4(uint32_t const packed_rgba) {
         return {((packed_rgba >> 16) & 0xFF) / 255.0f, ((packed_rgba >> 8) & 0xFF) / 255.0f,
                 (packed_rgba & 0xFF) / 255.0f, ((packed_rgba >> 24) & 0xFF) / 255.0f};
     }
@@ -127,20 +127,19 @@ namespace LibOpenNFS {
 
         std::filesystem::create_directories(output_dir);
 
-        // Fshtool changes the current working directory, save and restore
-        char cwd[1024];
-        if (getcwd(cwd, sizeof(cwd)) == nullptr) {
+        Shared::FshArchive archive;
+        if (!archive.Load(qfs_input)) {
+            LogWarning("Failed to load QFS archive: %s - %s", qfs_input.c_str(), archive.LastError().c_str());
             return false;
         }
 
-        char *args[3] = {const_cast<char *>(""), strdup(qfs_input.c_str()), strdup(output_dir.c_str())};
-        int returnCode = (fsh_main(3, args) == 1);
-
-        if (chdir(cwd) != 0) {
+        if (!archive.ExtractAll(output_dir, false, false)) {
+            LogWarning("Failed to extract textures: %s", archive.LastError().c_str());
             return false;
         }
 
-        return returnCode;
+        LogInfo("Successfully extracted %zu textures from %s", archive.TextureCount(), qfs_input.c_str());
+        return true;
     }
 
     bool TextureUtils::ExtractTrackTextures(std::string const &trackPath,
@@ -183,8 +182,7 @@ namespace LibOpenNFS {
         switch (nfsVer) {
         case NFSVersion::NFS_2_PS1:
         case NFSVersion::NFS_3_PS1:
-            // TODO: PSH's are FSH's, so fshtool is capable of handling this. But I need to write out to a BMP, not just a global bin palette
-            // so reuse old OpenNFS 0.3 PSH extraction logic for now
+            // PSH files use a different format, continue using existing PSH extraction logic
             return NFS2::PshFile::Extract(nfsTexArchivePath.str(), onfsTrackAssetTextureDir);
         case NFSVersion::NFS_3: {
             std::stringstream nfsSkyTexArchivePath;

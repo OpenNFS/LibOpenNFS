@@ -21,7 +21,7 @@ namespace LibOpenNFS::NFS3 {
         fedataPath << carOutPath << "/fedata.eng";
         carpPath << carOutPath << "/carp.txt";
 
-        Shared::VivFile vivFile;
+        Shared::VivArchive vivFile;
         FceFile fceFile;
         FedataFile fedataFile;
         CarpFile carpFile;
@@ -31,8 +31,9 @@ namespace LibOpenNFS::NFS3 {
         if (std::filesystem::exists(carOutPath)) {
             LogInfo("VIV has already been extracted to %s, skipping", carOutPath.c_str());
         } else {
-            ASSERT(Shared::VivFile::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
-            ASSERT(Shared::VivFile::Extract(carOutPath, vivFile), "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
+            ASSERT(Shared::VivArchive::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
+            ASSERT(Shared::VivArchive::Extract(carOutPath, vivFile),
+                   "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
         }
         ASSERT(FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
         if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nPriColours)) {
@@ -225,11 +226,11 @@ namespace LibOpenNFS::NFS3 {
             std::vector<glm::vec4> trackBlockShadingData;
 
             // Get neighbouring block IDs
-            for (auto &neighbourBlockData : rawTrackBlock.nbdData) {
-                if (neighbourBlockData.blk == -1) {
+            for (auto &[blk, unknown] : rawTrackBlock.nbdData) {
+                if (blk == -1) {
                     break;
                 }
-                trackBlockNeighbourIds.emplace_back(neighbourBlockData.blk);
+                trackBlockNeighbourIds.emplace_back(blk);
             }
 
             // Build the base OpenNFS trackblock, to hold all the geometry and virtual road data, lights, sounds etc.

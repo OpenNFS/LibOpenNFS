@@ -1,40 +1,41 @@
 #pragma once
 
-#include <sstream>
-#include <iomanip>
 #include <cstdint>
 #include <cstdlib>
+#include <iomanip>
+#include <sstream>
 
-#include "Common/TextureUtils.h"
-#include "FCE/FceFile.h"
-#include "FEDATA/FedataFile.h"
-#include "FRD/FrdFile.h"
+#include "../Shared/CAN/CanFile.h"
+#include "../Shared/VIV/VivArchive.h"
 #include "CARP/CarpFile.h"
 #include "COL/ColFile.h"
-#include "SPEEDS/SpeedsFile.h"
-#include "Shared/CanFile.h"
-#include "Shared/HrzFile.h"
-#include "Shared/VivFile.h"
+#include "Common/TextureUtils.h"
 #include "Entities/Car.h"
 #include "Entities/Track.h"
 #include "Entities/TrackBlock.h"
-#include "Entities/TrackVRoad.h"
 #include "Entities/TrackTextureAsset.h"
+#include "Entities/TrackVRoad.h"
+#include "FCE/FceFile.h"
+#include "FEDATA/FedataFile.h"
+#include "FRD/FrdFile.h"
+#include "SPEEDS/SpeedsFile.h"
+#include "Shared/HRZ/HrzFile.h"
 
 namespace LibOpenNFS::NFS3 {
-    const glm::vec3 NFS3_SCALE_FACTOR(-0.1, 0.1, 0.1f);
+    constexpr glm::vec3 NFS3_SCALE_FACTOR(-0.1, 0.1, 0.1f);
 
     class Loader {
-    public:
-        static Car LoadCar(const std::string &carBasePath, const std::string &carOutPath);
-        static Track LoadTrack(const std::string &trackBasePath, const std::string &trackOutPath);
+      public:
+        static Car LoadCar(std::string const &carBasePath, std::string const &carOutPath);
+        static Track LoadTrack(std::string const &trackBasePath, std::string const &trackOutPath);
 
-    private:
-        static Car::MetaData _ParseAssetData(const FceFile &fceFile, const FedataFile &fedataFile);
+      private:
+        static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile);
         static Car::PhysicsData _ParsePhysicsData(CarpFile const &carpFile);
-        static std::map<uint32_t, TrackTextureAsset> _ParseTextures(const FrdFile &frdFile, const Track &track, const std::string &trackOutPath);
-        static std::vector<TrackBlock> _ParseFRDModels(const FrdFile &frdFile, const Track &track);
-        static std::vector<TrackVRoad> _ParseVirtualRoad(const ColFile &colFile);
-        static std::vector<TrackEntity> _ParseCOLModels(const ColFile &colFile, const Track &track, std::vector<TexBlock> &texBlocks);
+        static std::map<uint32_t, TrackTextureAsset> _ParseTextures(FrdFile const &frdFile, Track const &track,
+                                                                    std::string const &trackOutPath);
+        static std::vector<TrackBlock> _ParseFRDModels(FrdFile const &frdFile, Track const &track);
+        static std::vector<TrackVRoad> _ParseVirtualRoad(ColFile const &colFile);
+        static std::vector<TrackEntity> _ParseCOLModels(ColFile const &colFile, Track const &track, std::vector<TexBlock> &texBlocks);
     };
 } // namespace LibOpenNFS::NFS3

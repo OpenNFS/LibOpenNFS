@@ -3,7 +3,7 @@
 #include "Common/Logging.h"
 
 namespace LibOpenNFS::NFS2 {
-    template <typename Platform> GeoBlock<Platform>::GeoBlock(std::ifstream &ifstream, uint32_t _partIdx) : partIdx(_partIdx) {
+    template <typename Platform> GeoBlock<Platform>::GeoBlock(std::ifstream &ifstream, uint32_t const _partIdx) : partIdx(_partIdx) {
         ASSERT(this->GeoBlock::_SerializeIn(ifstream), "Failed to serialize GeoBlock from file stream");
     }
 

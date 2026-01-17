@@ -8,16 +8,15 @@
 
 namespace LibOpenNFS {
     namespace NFS2 {
-        template <typename Platform>
-        class ColFile : IRawData {
-        public:
+        template <typename Platform> class ColFile : IRawData {
+          public:
             ColFile() = default;
-            static bool Load(const std::string &colPath, ColFile &colFile, NFSVersion version);
-            static void Save(const std::string &colPath, ColFile &colFile);
+            static bool Load(std::string const &colPath, ColFile &colFile, NFSVersion version);
+            static void Save(std::string const &colPath, ColFile &colFile);
             ExtraObjectBlock<Platform> GetExtraObjectBlock(ExtraBlockID eBlockType);
-            bool IsBlockPresent(ExtraBlockID eBlockType);
+            bool IsBlockPresent(ExtraBlockID eBlockType) const;
 
-            static const uint8_t HEADER_LENGTH = 4;
+            static constexpr uint8_t HEADER_LENGTH = 4;
 
             // ONFS attribute
             NFSVersion version;
@@ -30,7 +29,7 @@ namespace LibOpenNFS {
             std::vector<uint32_t> extraBlockOffsets;
             std::vector<ExtraObjectBlock<Platform>> extraObjectBlocks;
 
-        private:
+          private:
             bool _SerializeIn(std::ifstream &ifstream) override;
             void _SerializeOut(std::ofstream &ofstream) override;
 

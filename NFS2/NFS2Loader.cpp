@@ -86,15 +86,14 @@ namespace LibOpenNFS::NFS2 {
         return track;
     }
 
-    template <> Track Loader<PS1>::LoadTrack(NFSVersion nfsVersion, std::string const &trackBasePath, std::string const &trackOutPath) {
+    template <>
+    Track Loader<PS1>::LoadTrack(NFSVersion const nfsVersion, std::string const &trackBasePath, std::string const &trackOutPath) {
         LogInfo("Loading Track located at %s", trackBasePath.c_str());
         std::filesystem::path p(trackBasePath);
         Track track(nfsVersion, p.filename().string(), trackBasePath);
 
-        std::string trkPath, colPath;
-
-        trkPath = trackBasePath + ".trk";
-        colPath = trackBasePath + ".col";
+        std::string trkPath = trackBasePath + ".trk";
+        std::string colPath = trackBasePath + ".col";
         colPath.replace(colPath.find("zz"), 2, "");
 
         TrkFile<PS1> trkFile;
@@ -522,9 +521,9 @@ namespace LibOpenNFS::NFS2 {
             glm::vec3 forward = glm::vec3(vroadEntry.fwdVec) * NFS2_SCALE_FACTOR;
             glm::vec3 normal = glm::vec3(vroadEntry.vertVec) * NFS2_SCALE_FACTOR;
 
-            glm::vec3 leftWall = float(vroadEntry.leftBorder) * right * 2.f;
-            glm::vec3 rightWall = float(vroadEntry.rightBorder) * right * 2.f;
-            glm::vec3 lateralRespawn = float(vroadEntry.postCrashPosition) * right; // TODO: This is incorrect
+            glm::vec3 leftWall = static_cast<float>(vroadEntry.leftBorder) * right * 2.f;
+            glm::vec3 rightWall = static_cast<float>(vroadEntry.rightBorder) * right * 2.f;
+            glm::vec3 lateralRespawn = static_cast<float>(vroadEntry.postCrashPosition) * right; // TODO: This is incorrect
 
             // Adjust vroadCenter to be the actual midpoint between left and right walls
             // vroadCenter += (leftWall + rightWall) / 2.f;

@@ -5,9 +5,8 @@
 #include "Common/Logging.h"
 
 class ParseTest : public testing::Test {
-public:
+  public:
     virtual void SetUp() {
-
     }
 
     virtual void TearDown() {
@@ -15,7 +14,7 @@ public:
 };
 
 // Test that testing works (TODO: Add actual tests!)
-TEST_F(ParseTest, Dummy){
-    const std::string sky = "blue";
+TEST_F(ParseTest, Dummy) {
+    constexpr std::string sky = "blue";
     ASSERT_TRUE(sky == "blue");
 }

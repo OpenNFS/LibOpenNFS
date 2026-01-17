@@ -4,17 +4,17 @@
 
 using namespace LibOpenNFS::NFS3;
 
-bool BnkFile::Load(const std::string &bnkPath, BnkFile &bnkFile) {
+bool BnkFile::Load(std::string const &bnkPath, BnkFile &bnkFile) {
     LogInfo("Loading BNK File located at %s", bnkPath.c_str());
     std::ifstream bnk(bnkPath, std::ios::in | std::ios::binary);
 
-    bool loadStatus = bnkFile._SerializeIn(bnk);
+    bool const loadStatus = bnkFile._SerializeIn(bnk);
     bnk.close();
 
     return loadStatus;
 }
 
-void BnkFile::Save(const std::string &bnkPath, BnkFile &bnkFile) {
+void BnkFile::Save(std::string const &bnkPath, BnkFile &bnkFile) {
     LogInfo("Saving BNK File to %s", bnkPath.c_str());
     std::ofstream bnk(bnkPath, std::ios::out | std::ios::binary);
     bnkFile._SerializeOut(bnk);

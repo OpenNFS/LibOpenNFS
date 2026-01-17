@@ -8,47 +8,47 @@
 
 namespace LibOpenNFS {
     class Car {
-    public:
+      public:
         class Dummy {
-        public:
+          public:
             std::string name;
             glm::vec3 position;
-            Dummy(const char* dummyName, const glm::vec3 position) {
-                this->name     = std::string(dummyName);
+            Dummy(char const *dummyName, glm::vec3 const position) {
+                this->name = std::string(dummyName);
                 this->position = position;
             }
         };
 
         class Colour {
-        public:
+          public:
             std::string colourName;
             glm::vec4 colour;
             glm::vec4 colourSecondary;
-            Colour(const std::string& colourName, const glm::vec4 colour, const glm::vec4 colourSecondary = {0.0, 0.0, 0.0, 0.0}) {
+            Colour(std::string const &colourName, glm::vec4 const colour, glm::vec4 const colourSecondary = {0.0, 0.0, 0.0, 0.0}) {
                 this->colourName = colourName;
-                this->colour     = colour;
+                this->colour = colour;
                 this->colourSecondary = colourSecondary;
             }
         };
 
         class MetaData {
-        public:
+          public:
             explicit MetaData() = default;
-            std::string name    = "Unset";
+            std::string name = "Unset";
             std::vector<Dummy> dummies;
             std::vector<Colour> colours;
             std::vector<CarGeometry> meshes;
         };
 
         class PhysicsData {
-        public:
+          public:
             explicit PhysicsData() = default;
             float mass = 1750.f;
 
             // Engine
             float maxEngineForce = 3000.f;   // Max engine force to apply
             float maxBreakingForce = 1000.f; // Max breaking force
-            float maxSpeed = 100.f;         // Max speed before stop applying engine force
+            float maxSpeed = 100.f;          // Max speed before stop applying engine force
 
             // Steering
             bool absoluteSteer = false;      // Use absolute steering
@@ -68,11 +68,20 @@ namespace LibOpenNFS {
             float rollInfluence = 0.04f; // Shift CoM
         };
 
-        enum class ModelIndex : uint8_t { LEFT_FRONT_WHEEL = 0, RIGHT_FRONT_WHEEL, LEFT_REAR_WHEEL, RIGHT_REAR_WHEEL, CAR_BODY };
+        enum class ModelIndex : uint8_t {
+            LEFT_FRONT_WHEEL = 0,
+            RIGHT_FRONT_WHEEL,
+            LEFT_REAR_WHEEL,
+            RIGHT_REAR_WHEEL,
+            CAR_BODY
+        };
 
-        explicit Car(const MetaData& carData, NFSVersion nfsVersion, const std::string& carID) : metadata(carData), tag(nfsVersion), id(carID){};
-        explicit Car(const MetaData& carData, NFSVersion nfsVersion, const std::string& carID, const PhysicsData& physicsData) : metadata(carData), tag(nfsVersion), id(carID), physicsData(physicsData){};
-        Car(const MetaData& carData, NFSVersion nfsVersion, const std::string& carID, bool _multi_textured) : Car(carData, nfsVersion, carID) {
+        explicit Car(MetaData const &carData, NFSVersion const nfsVersion, std::string const &carID)
+            : id(carID), tag(nfsVersion), metadata(carData) {};
+        explicit Car(MetaData const &carData, NFSVersion const nfsVersion, std::string const &carID, PhysicsData const &physicsData)
+            : id(carID), tag(nfsVersion), metadata(carData), physicsData(physicsData) {};
+        Car(MetaData const &carData, NFSVersion const nfsVersion, std::string const &carID, bool const _multi_textured)
+            : Car(carData, nfsVersion, carID) {
             isMultitextured = _multi_textured;
         };
 
