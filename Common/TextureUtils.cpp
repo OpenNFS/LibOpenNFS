@@ -114,8 +114,8 @@ namespace LibOpenNFS {
     }
 
     glm::vec4 TextureUtils::ShadingDataToVec4(uint32_t const packed_rgba) {
-        return {((packed_rgba >> 16) & 0xFF) / 255.0f, ((packed_rgba >> 8) & 0xFF) / 255.0f,
-                (packed_rgba & 0xFF) / 255.0f, ((packed_rgba >> 24) & 0xFF) / 255.0f};
+        return {((packed_rgba >> 16) & 0xFF) / 255.0f, ((packed_rgba >> 8) & 0xFF) / 255.0f, (packed_rgba & 0xFF) / 255.0f,
+                ((packed_rgba >> 24) & 0xFF) / 255.0f};
     }
 
     bool TextureUtils::ExtractQFS(std::string const &qfs_input, std::string const &output_dir, bool skipMirrored) {
@@ -142,9 +142,7 @@ namespace LibOpenNFS {
         return true;
     }
 
-    bool TextureUtils::ExtractTrackTextures(std::string const &trackPath,
-                                            ::std::string const &trackName,
-                                            NFSVersion nfsVer,
+    bool TextureUtils::ExtractTrackTextures(std::string const &trackPath, ::std::string const &trackName, NFSVersion nfsVer,
                                             std::string const &outPath) {
         std::stringstream nfsTexArchivePath;
         std::string fullTrackPath = trackPath + "/" + trackName;
@@ -200,7 +198,40 @@ namespace LibOpenNFS {
         return ExtractQFS(nfsTexArchivePath.str(), onfsTrackAssetTextureDir, nfsVer == NFSVersion::NFS_4);
     }
 
-    std::tuple<uint32_t, uint32_t> TextureUtils::GetBitmapDimensions(std::string const& texturePath) {
+    std::string TextureUtils::GetTrackTexturePath(std::string const &trackPath, std::string const &trackName, NFSVersion nfsVer) {
+        std::stringstream nfsTexArchivePath;
+        std::string fullTrackPath = trackPath + "/" + trackName;
+
+        switch (nfsVer) {
+        case NFSVersion::NFS_2:
+            nfsTexArchivePath << trackPath << "0.qfs";
+            break;
+        case NFSVersion::NFS_2_SE:
+            nfsTexArchivePath << trackPath << "0m.qfs";
+            break;
+        case NFSVersion::NFS_2_PS1:
+            nfsTexArchivePath << trackPath << "0.psh";
+            break;
+        case NFSVersion::NFS_3:
+            nfsTexArchivePath << fullTrackPath << "0.qfs";
+            break;
+        case NFSVersion::NFS_3_PS1: {
+            std::string pshPath = trackPath;
+            pshPath.replace(pshPath.find("zz"), 2, "");
+            nfsTexArchivePath << pshPath << "0.psh";
+        } break;
+        case NFSVersion::NFS_4:
+            nfsTexArchivePath << trackPath << "/tr0.qfs";
+            break;
+        case NFSVersion::UNKNOWN:
+        default:
+            ASSERT(false, "Trying to extract track textures from unknown NFS version");
+            break;
+        }
+        return nfsTexArchivePath.str();
+    }
+
+    std::tuple<uint32_t, uint32_t> TextureUtils::GetBitmapDimensions(std::string const &texturePath) {
 #pragma pack(push, 2)
         struct BITMAPFILEHEADER {
             uint16_t bfType;
@@ -227,7 +258,7 @@ namespace LibOpenNFS {
 
         std::ifstream bmp(texturePath, std::ios::binary);
         if (!bmp.is_open()) {
-            return {0,0};
+            return {0, 0};
         }
         BITMAPFILEHEADER bmpFileHeader{};
         bmp.read(reinterpret_cast<char *>(&bmpFileHeader), sizeof(BITMAPFILEHEADER));

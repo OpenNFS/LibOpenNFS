@@ -18,6 +18,7 @@ namespace LibOpenNFS {
         static bool ExtractQFS(std::string const &qfs_input, std::string const &output_dir, bool skipMirrored = false);
         static bool ExtractTrackTextures(std::string const &trackPath, ::std::string const &trackName, NFSVersion nfsVer,
                                          std::string const &outPath);
+        static std::string GetTrackTexturePath(std::string const &trackPath, ::std::string const &trackName, NFSVersion nfsVer);
         static std::tuple<uint32_t, uint32_t> GetBitmapDimensions(std::string const &texturePath);
     };
 

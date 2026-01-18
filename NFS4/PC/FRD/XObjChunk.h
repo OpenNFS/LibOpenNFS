@@ -3,6 +3,7 @@
 #include "../../Common/IRawData.h"
 #include "../Common.h"
 #include "BaseObjectBlock.h"
+#include <memory>
 
 namespace LibOpenNFS::NFS4 {
     class XObjChunk : public IRawData {
