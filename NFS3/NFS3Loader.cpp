@@ -177,7 +177,10 @@ namespace LibOpenNFS::NFS3 {
             // Some TexBlocks don't appear to be genuine, though their QfsIndex seems sane. Skip over them, as their
             // height is disproportionate to the rest (approaching UINT16_MAX vs <= 256). This upsets Texture Array
             // scaling.
-            if (frdTexBlock.unknown1 == 0xFF000000 && frdTexBlock.unknown2 == 0xFF000000) {
+            if (frdTexBlock.unknown1 == 0xFF000000 && frdTexBlock.unknown2 == 0xFF000000 ||
+                frdTexBlock.qfsIndex >= archive.TextureCount()) {
+                LogWarning("Skipping FRD Texture Block with QFS Index: %d as corrupted. Width: %u, Num QFS Textures: %u", frdTexBlock.qfsIndex,
+                           frdTexBlock.width, frdTexBlock.qfsIndex, archive.TextureCount());
                 continue;
             }
 
