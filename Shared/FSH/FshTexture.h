@@ -79,6 +79,12 @@ namespace LibOpenNFS::Shared {
         std::vector<uint32_t> ToARGB32() const;
 
         /**
+         * Convert texture to RGBA byte array (suitable for OpenGL)
+         * @return Vector of RGBA bytes (4 bytes per pixel: R, G, B, A)
+         */
+        std::vector<uint8_t> ToRGBA() const;
+
+        /**
          * Export texture to BMP file
          * @param filepath Output file path
          * @param includeAlpha If true, export as 32-bit BGRA BMP with alpha channel embedded

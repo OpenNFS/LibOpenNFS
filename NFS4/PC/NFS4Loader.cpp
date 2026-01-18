@@ -6,6 +6,7 @@
 #include <../../Shared/VIV/VivArchive.h>
 #include <Common/Logging.h>
 #include <Common/Utils.h>
+#include <Shared/FSH/FshArchive.h>
 
 #include <sstream>
 
@@ -86,7 +87,7 @@ namespace LibOpenNFS::NFS4 {
 
         track.nBlocks = frdFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
-        track.trackTextureAssets = _ParseTextures(track, trackOutPath);
+        track.trackTextureAssets = _ParseTextures(track);
         std::tie(track.trackBlocks, track.globalObjects) = _ParseFRDModels(frdFile, track);
         track.virtualRoad = _ParseVirtualRoad(frdFile);
 
@@ -171,40 +172,23 @@ namespace LibOpenNFS::NFS4 {
         return carMetadata;
     }
 
-    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(Track const &track, std::string const &trackOutPath) {
-        using namespace std::filesystem;
+    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(Track const &track) {
+        Shared::FshArchive archive;
+        ASSERT(archive.Load(track.texturePath, true),
+               "Failed to load texture archive: " << track.texturePath << " - " << archive.LastError());
 
-        // TODO: Hack :( OpenNFS needs to scale the UVs by the proportion of the textures size to the max sized texture on the track,
-        // due to the usage of a texture array in the renderer. NFS4 doesn't encode the size of the texture inside the FRD file, hence
-        // we need to grab the dimensions from the QFS file. As we rely on fshtool for QFS unpacking and don't have a dedicated QFS parser
-        // we will 'dumbly' reuse the extraction utility function, and then parse the associated bitmap headers for width and height, ahead
-        // of geometry parsing. This lets us scale the UVs directly at model creation time. This has the unfortunate affect of saddling
-        // LibOpenNFS users with this redundant process, hence we'll IFDEF it to be active only for OpenNFS's usage.
-        std::string const fullTrackOutPath{trackOutPath + track.name};
-        ASSERT(TextureUtils::ExtractTrackTextures(track.basePath, track.name, track.nfsVersion, fullTrackOutPath),
-               "Could not extract texture pack");
-
-        // TODO: Grab these from the QFS directly instead of extracting...
         std::map<uint32_t, TrackTextureAsset> textureAssetMap;
         size_t max_width{0}, max_height{0};
-        std::string const textureOutPath{trackOutPath + track.name + "/textures/"};
 
-        for (recursive_directory_iterator iter(textureOutPath), end; iter != end; ++iter) {
-            path texturePath{iter->path()};
-            if (texturePath.extension().string() != ".BMP") {
-                continue;
-            }
-            std::string textureFilename{texturePath.filename().string()};
-            auto const textureId{std::atoi(textureFilename.substr(0, textureFilename.size() - 4).c_str())};
-            auto const [width, height] = TextureUtils::GetBitmapDimensions(texturePath.string());
+        uint32_t texId{0};
+        for (auto const &tex : archive.Textures()) {
+            // Find the maximum width and height for UV scaling
+            max_width = tex.Width() > max_width ? tex.Width() : max_width;
+            max_height = tex.Height() > max_height ? tex.Height() : max_height;
 
-            // Find the maximum width and height, so we can avoid overestimating with blanket values (256x256) and
-            // thereby scale UV's unnecessarily
-            max_width = width > max_width ? width : max_width;
-            max_height = height > max_height ? height : max_height;
-
-            // Load QFS texture information into ONFS texture objects
-            textureAssetMap[textureId] = TrackTextureAsset(textureId, width, height, texturePath.string(), "");
+            // Get pixel data directly from FSH as RGBA
+            textureAssetMap[texId] = TrackTextureAsset(texId, tex.Width(), tex.Height(), tex.ToRGBA());
+            texId++;
         }
 
         // Now that maximum width/height is known, set the Max U/V for the texture

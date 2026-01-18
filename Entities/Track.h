@@ -20,6 +20,7 @@ namespace LibOpenNFS {
         NFSVersion nfsVersion{};
         std::string name;
         std::string basePath;
+        std::string texturePath;
         std::string tag;
         uint32_t nBlocks{0};
         std::vector<Shared::CameraAnimPoint> cameraAnimation;

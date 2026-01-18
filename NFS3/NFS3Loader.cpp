@@ -5,6 +5,7 @@
 #include <Entities/TrackEntity.h>
 #include <Entities/TrackGeometry.h>
 #include <Entities/TrackSound.h>
+#include <Shared/FSH/FshArchive.h>
 
 #include <filesystem>
 
@@ -87,7 +88,7 @@ namespace LibOpenNFS::NFS3 {
 
         track.nBlocks = frdFile.nBlocks;
         track.cameraAnimation = canFile.animPoints;
-        track.trackTextureAssets = _ParseTextures(frdFile, track, trackOutPath);
+        track.trackTextureAssets = _ParseTextures(frdFile, track);
         track.trackBlocks = _ParseFRDModels(frdFile, track);
         track.globalObjects = _ParseCOLModels(colFile, track, frdFile.textureBlocks);
         track.virtualRoad = _ParseVirtualRoad(colFile);
@@ -164,8 +165,10 @@ namespace LibOpenNFS::NFS3 {
         return physicsData;
     }
 
-    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile, Track const &track,
-                                                                 std::string const &trackOutPath) {
+    std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(FrdFile const &frdFile, Track const &track) {
+        Shared::FshArchive archive;
+        ASSERT(archive.Load(track.texturePath), "Failed to load texture archive: " << track.texturePath << " - " << archive.LastError());
+
         std::map<uint32_t, TrackTextureAsset> textureAssetMap;
         size_t max_width{0}, max_height{0};
 
@@ -177,26 +180,25 @@ namespace LibOpenNFS::NFS3 {
             if (frdTexBlock.unknown1 == 0xFF000000 && frdTexBlock.unknown2 == 0xFF000000) {
                 continue;
             }
-            std::stringstream fileReference;
-            std::stringstream alphaFileReference;
 
             // Find the maximum width and height, so we can avoid overestimating with blanket values (256x256) and
-            // thereby scale UV's uneccesarily
+            // thereby scale UV's unnecessarily
             max_width = frdTexBlock.width > max_width ? frdTexBlock.width : max_width;
             max_height = frdTexBlock.height > max_height ? frdTexBlock.height : max_height;
 
             if (frdTexBlock.isLane) {
+                // Lane textures come from a separate sfx archive - use legacy file path for now
+                std::stringstream fileReference, alphaFileReference;
                 fileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex + 9 << ".BMP";
                 alphaFileReference << "../resources/sfx/" << std::setfill('0') << std::setw(4) << frdTexBlock.qfsIndex + 9 << "-a.BMP";
+                textureAssetMap[frdTexBlock.qfsIndex] = TrackTextureAsset(frdTexBlock.qfsIndex, frdTexBlock.width, frdTexBlock.height,
+                                                                          fileReference.str(), alphaFileReference.str());
             } else {
-                fileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
-                              << frdTexBlock.qfsIndex << ".BMP";
-                alphaFileReference << trackOutPath << "/" << track.name << "/textures/" << std::setfill('0') << std::setw(4)
-                                   << frdTexBlock.qfsIndex << "-a.BMP";
+                // Get pixel data directly from FSH archive
+                auto const &fshTexture = archive.GetTexture(frdTexBlock.qfsIndex);
+                textureAssetMap[frdTexBlock.qfsIndex] =
+                    TrackTextureAsset(frdTexBlock.qfsIndex, frdTexBlock.width, frdTexBlock.height, fshTexture.ToRGBA());
             }
-
-            textureAssetMap[frdTexBlock.qfsIndex] = TrackTextureAsset(frdTexBlock.qfsIndex, frdTexBlock.width, frdTexBlock.height,
-                                                                      fileReference.str(), alphaFileReference.str());
         }
 
         // Now that maximum width/height is known, set the Max U/V for the texture

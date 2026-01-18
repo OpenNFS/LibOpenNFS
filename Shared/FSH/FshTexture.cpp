@@ -36,6 +36,21 @@ namespace LibOpenNFS::Shared {
         return pixels;
     }
 
+    std::vector<uint8_t> FshTexture::ToRGBA() const {
+        auto const argb = ToARGB32();
+        std::vector<uint8_t> rgba(argb.size() * 4);
+
+        for (size_t i = 0; i < argb.size(); ++i) {
+            uint32_t const pixel = argb[i];
+            rgba[i * 4 + 0] = static_cast<uint8_t>((pixel >> 16) & 0xFF); // R
+            rgba[i * 4 + 1] = static_cast<uint8_t>((pixel >> 8) & 0xFF);  // G
+            rgba[i * 4 + 2] = static_cast<uint8_t>(pixel & 0xFF);         // B
+            rgba[i * 4 + 3] = static_cast<uint8_t>((pixel >> 24) & 0xFF); // A
+        }
+
+        return rgba;
+    }
+
     bool FshTexture::ExportToBmp(std::string const &filepath, bool includeAlpha) const {
         std::ofstream file(filepath, std::ios::binary);
         if (!file)

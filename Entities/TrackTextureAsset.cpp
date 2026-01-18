@@ -1,10 +1,9 @@
 #include "TrackTextureAsset.h"
 
+#include <utility>
+
 namespace LibOpenNFS {
-    TrackTextureAsset::TrackTextureAsset(uint32_t const id,
-                                         uint32_t const width,
-                                         uint32_t const height,
-                                         std::string const &fileReference,
+    TrackTextureAsset::TrackTextureAsset(uint32_t const id, uint32_t const width, uint32_t const height, std::string const &fileReference,
                                          std::string const &alphaFileReference) {
         this->id = id;
         this->width = width;
@@ -18,12 +17,12 @@ namespace LibOpenNFS {
         this->maxV = 0.f;
     }
 
-    std::vector<glm::vec2> TrackTextureAsset::ScaleUVs(std::vector<glm::vec2> const &uvs,
-                                                       bool const invertU,
-                                                       bool const invertV,
-                                                       uint8_t const nRotate,
-                                                       bool const mirrorX,
-                                                       bool const mirrorY) const {
+    TrackTextureAsset::TrackTextureAsset(uint32_t const id, uint32_t const width, uint32_t const height, std::vector<uint8_t> pixelData)
+        : data(std::move(pixelData)), id(id), width(width), height(height) {
+    }
+
+    std::vector<glm::vec2> TrackTextureAsset::ScaleUVs(std::vector<glm::vec2> const &uvs, bool const invertU, bool const invertV,
+                                                       uint8_t const nRotate, bool const mirrorX, bool const mirrorY) const {
         std::vector<glm::vec2> temp_uvs = uvs;
         constexpr auto originTransform{glm::vec2(0.5f, 0.5f)};
         float const angle{(float)nRotate * 90.f};
