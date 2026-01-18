@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Common/IRawData.h"
+#include "../../Shared/AnimKeyframe.h"
 #include "../Common.h"
 
 namespace LibOpenNFS::NFS3 {
@@ -16,7 +17,7 @@ namespace LibOpenNFS::NFS3 {
         // in HS, only 6 are used ; 6 = expected 4
         uint8_t type3, objno;            // type3==3; objno==index among all block's objects?
         uint16_t nAnimLength, AnimDelay; // JimDiabolo : The bigger the AnimDelay, that slower is the movement
-        std::vector<AnimData> animData;
+        std::vector<AnimKeyframe> animKeyframes;
         // common section
         uint32_t nVertices;
         std::vector<glm::vec3> vert;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Common/IRawData.h"
+#include "../../Shared/AnimKeyframe.h"
 #include "../Common.h"
 
 namespace LibOpenNFS::NFS3 {
@@ -49,7 +50,7 @@ namespace LibOpenNFS::NFS3 {
         // type 3
         uint16_t animLength;
         uint16_t unknown;
-        std::vector<AnimData> animData; // same structure as in xobjs
+        std::vector<AnimKeyframe> animKeyframes; // same structure as in xobjs
     };
 
     struct ColVRoad {
@@ -80,7 +81,7 @@ namespace LibOpenNFS::NFS3 {
         std::vector<ColObject> object2;      // Extra object data
         ExtraBlockHeader vroadHead{};        // Unknown Record detailing unknown table data
         std::vector<ColVRoad> vroad;         // Unknown table
-        uint32_t *hs_extra {nullptr};        // for the extra HS data in ColVRoad
+        uint32_t *hs_extra{nullptr};         // for the extra HS data in ColVRoad
 
       private:
         bool _SerializeIn(std::ifstream &ifstream) override;

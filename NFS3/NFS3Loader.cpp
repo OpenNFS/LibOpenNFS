@@ -349,7 +349,7 @@ namespace LibOpenNFS::NFS3 {
                     auto extraObjectModel{TrackGeometry(extraObjectVerts, normals, uvs, textureIndices, vertexIndices,
                                                         extraObjectShadingData, extraObjectCenter)};
                     if (extraObjectData.crosstype == 3) {
-                        auto extraObjectEntity{TrackEntity(l, EntityType::XOBJ, extraObjectModel, extraObjectData.animData,
+                        auto extraObjectEntity{TrackEntity(l, EntityType::XOBJ, extraObjectModel, extraObjectData.animKeyframes,
                                                            extraObjectData.AnimDelay, accumulatedObjectFlags)};
                         trackBlock.objects.emplace_back(extraObjectEntity);
                     } else {

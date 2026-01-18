@@ -103,10 +103,10 @@ bool ColFile::_SerializeIn(std::ifstream &ifstream) {
                     return false;
                 }
 
-                object[xobjIdx].animData.resize(object[xobjIdx].animLength);
-                onfs_check(safe_read(ifstream, object[xobjIdx].animData));
+                object[xobjIdx].animKeyframes.resize(object[xobjIdx].animLength);
+                onfs_check(safe_read(ifstream, object[xobjIdx].animKeyframes));
                 // Make a ref point from first anim position
-                object[xobjIdx].ptRef = Utils::FixedToFloat(object[xobjIdx].animData[0].pt);
+                object[xobjIdx].ptRef = Utils::FixedToFloat(object[xobjIdx].animKeyframes[0].pt);
             } else {
                 // Unknown object type
                 return false;
@@ -138,10 +138,10 @@ bool ColFile::_SerializeIn(std::ifstream &ifstream) {
                     return false;
                 }
 
-                object2[xobjIdx].animData.resize(object2[xobjIdx].animLength);
-                onfs_check(safe_read(ifstream, object2[xobjIdx].animData));
+                object2[xobjIdx].animKeyframes.resize(object2[xobjIdx].animLength);
+                onfs_check(safe_read(ifstream, object2[xobjIdx].animKeyframes));
                 // Make a ref point from first anim position
-                object2[xobjIdx].ptRef = Utils::FixedToFloat(object2[xobjIdx].animData[0].pt);
+                object2[xobjIdx].ptRef = Utils::FixedToFloat(object2[xobjIdx].animKeyframes[0].pt);
             } else {
                 // Unknown object2 type
                 return false;

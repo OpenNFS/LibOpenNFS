@@ -2,7 +2,7 @@
 
 #include "TrackGeometry.h"
 
-#include <NFS3/Common.h>
+#include "../Shared/AnimKeyframe.h"
 
 namespace LibOpenNFS {
     enum class EntityType {
@@ -19,7 +19,7 @@ namespace LibOpenNFS {
 
     class TrackEntity {
       public:
-        TrackEntity(uint32_t entityID, EntityType entityType, TrackGeometry const &geometry, std::vector<AnimData> const &animData,
+        TrackEntity(uint32_t entityID, EntityType entityType, TrackGeometry const &geometry, std::vector<AnimKeyframe> const &AnimKeyframes,
                     uint16_t animDelay, uint32_t flags = 0u);
         TrackEntity(uint32_t entityID, EntityType entityType, TrackGeometry const &geometry, uint32_t flags = 0u);
         TrackEntity(uint32_t entityID, EntityType entityType, uint32_t flags = 0u);
@@ -34,7 +34,7 @@ namespace LibOpenNFS {
         bool dynamic{false};
 
         uint16_t animDelay;
-        std::vector<AnimData> animData;
+        std::vector<AnimKeyframe> animKeyframes;
 
       private:
         void _SetCollisionParameters();

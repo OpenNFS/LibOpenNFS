@@ -34,10 +34,10 @@ bool ExtraObjectBlock::_SerializeIn(std::ifstream &ifstream) {
                 return false;
             }
 
-            x.animData.resize(x.nAnimLength);
-            onfs_check(safe_read(ifstream, x.animData));
+            x.animKeyframes.resize(x.nAnimLength);
+            onfs_check(safe_read(ifstream, x.animKeyframes));
             // make a ref point from first anim position
-            x.ptRef = Utils::FixedToFloat(x.animData[0].pt);
+            x.ptRef = Utils::FixedToFloat(x.animKeyframes[0].pt);
         } else
             return false; // unknown object type
 
@@ -84,7 +84,7 @@ void ExtraObjectBlock::_SerializeOut(std::ofstream &ofstream) {
             ofstream.write((char *)&obj[xobjIdx].objno, sizeof(uint8_t));
             ofstream.write((char *)&obj[xobjIdx].nAnimLength, sizeof(uint16_t));
             ofstream.write((char *)&obj[xobjIdx].AnimDelay, sizeof(uint16_t));
-            ofstream.write((char *)obj[xobjIdx].animData.data(), sizeof(AnimData) * obj[xobjIdx].nAnimLength);
+            ofstream.write((char *)obj[xobjIdx].animKeyframes.data(), sizeof(AnimKeyframe) * obj[xobjIdx].nAnimLength);
         }
         ofstream.write((char *)&(obj[xobjIdx].nVertices), sizeof(uint32_t));
         ofstream.write((char *)obj[xobjIdx].vert.data(), sizeof(glm::vec3) * obj[xobjIdx].nVertices);

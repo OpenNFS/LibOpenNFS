@@ -1,6 +1,8 @@
 #include "NFS4Loader.h"
 
 #include "FCE/FceFile.h"
+#include "FRD/AnimBlock.h"
+
 #include <../../Shared/VIV/VivArchive.h>
 #include <Common/Logging.h>
 #include <Common/Utils.h>
@@ -277,12 +279,12 @@ namespace LibOpenNFS::NFS4 {
                     auto const &objectHeader{extraObject.objectHeaders.at(objectIdx)};
 
                     for (uint32_t vertIdx{0}; vertIdx < objectHeader.nVertices; ++vertIdx) {
-                        extraObjectVerts.emplace_back(object.vertices[vertIdx] * NFS4_SCALE_FACTOR);
-                        extraObjectShadingData.emplace_back(TextureUtils::ShadingDataToVec4(object.shadingVertices[vertIdx]));
+                        extraObjectVerts.emplace_back(object->vertices[vertIdx] * NFS4_SCALE_FACTOR);
+                        extraObjectShadingData.emplace_back(TextureUtils::ShadingDataToVec4(object->shadingVertices[vertIdx]));
                     }
 
                     for (uint32_t polyIdx{0}; polyIdx < objectHeader.nPolygons; ++polyIdx) {
-                        auto const &polygon{object.polygons.at(polyIdx)};
+                        auto const &polygon{object->polygons.at(polyIdx)};
 
                         // Store into the track texture map if referenced by a polygon
                         if (!track.trackTextureAssets.contains(polygon.texture_id())) {
@@ -394,13 +396,21 @@ namespace LibOpenNFS::NFS4 {
                     auto const &object{globalObject.objectBlocks.at(objectIdx)};
                     auto const &objectHeader{globalObject.objectHeaders.at(objectIdx)};
 
+                    std::vector<AnimKeyframe> AnimKeyframes;
+                    uint16_t animDelay;
+                    if (objectHeader.type == XObjHeader::Type::ANIMATED) {
+                        auto animBlock = static_cast<AnimBlock const *>(object.get());
+                        AnimKeyframes = animBlock->keyframes;
+                        animDelay = animBlock->delay;
+                    }
+
                     for (uint32_t vertIdx{0}; vertIdx < objectHeader.nVertices; ++vertIdx) {
-                        extraObjectVerts.emplace_back(object.vertices[vertIdx] * NFS4_SCALE_FACTOR);
-                        extraObjectShadingData.emplace_back(TextureUtils::ShadingDataToVec4(object.shadingVertices[vertIdx]));
+                        extraObjectVerts.emplace_back(object->vertices[vertIdx] * NFS4_SCALE_FACTOR);
+                        extraObjectShadingData.emplace_back(TextureUtils::ShadingDataToVec4(object->shadingVertices[vertIdx]));
                     }
 
                     for (uint32_t polyIdx{0}; polyIdx < objectHeader.nPolygons; ++polyIdx) {
-                        auto const &polygon{object.polygons.at(polyIdx)};
+                        auto const &polygon{object->polygons.at(polyIdx)};
 
                         // Store into the track texture map if referenced by a polygon
                         if (!track.trackTextureAssets.contains(polygon.texture_id())) {
@@ -434,7 +444,12 @@ namespace LibOpenNFS::NFS4 {
                     glm::vec3 extraObjectCenter{objectHeader.pt * NFS4_SCALE_FACTOR};
                     auto extraObjectModel{TrackGeometry(extraObjectVerts, normals, xobj_uvs, textureIndices, vertexIndices,
                                                         extraObjectShadingData, extraObjectCenter)};
-                    globalObjects.emplace_back(objectIdx, EntityType::GLOBAL, extraObjectModel, accumulatedObjectFlags);
+                    if (AnimKeyframes.empty()) {
+                        globalObjects.emplace_back(objectIdx, EntityType::GLOBAL, extraObjectModel, accumulatedObjectFlags);
+                    } else {
+                        globalObjects.emplace_back(objectIdx, EntityType::GLOBAL, extraObjectModel, AnimKeyframes, animDelay,
+                                                   accumulatedObjectFlags);
+                    }
                 }
             }
         }

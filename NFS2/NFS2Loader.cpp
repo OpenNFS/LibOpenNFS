@@ -301,8 +301,7 @@ namespace LibOpenNFS::NFS2 {
         for (auto const &superBlock : trkFile.superBlocks) {
             for (auto rawTrackBlock : superBlock.trackBlocks) {
                 // Get position all vertices need to be relative to
-                glm::vec3 rawTrackBlockCenter =
-                    Utils::PointToVec(trkFile.blockReferenceCoords[rawTrackBlock.serialNum]) * SCALE_FACTOR;
+                glm::vec3 rawTrackBlockCenter = Utils::PointToVec(trkFile.blockReferenceCoords[rawTrackBlock.serialNum]) * SCALE_FACTOR;
                 std::vector<uint32_t> trackBlockNeighbourIds;
 
                 // Convert the neighbor int16_t's to uint32_t for OFNS trackblock representation
@@ -373,7 +372,7 @@ namespace LibOpenNFS::NFS2 {
                         // Find the structure reference that matches this structure, else use block default
                         glm::ivec3 structureReferenceCoordinates = trkFile.blockReferenceCoords[rawTrackBlock.serialNum];
                         bool refCoordsFound = false;
-                        std::vector<AnimData> animData;
+                        std::vector<AnimKeyframe> animKeyframes;
                         uint16_t animDelay;
 
                         for (auto &structureReference : structureReferences) {
@@ -386,9 +385,9 @@ namespace LibOpenNFS::NFS2 {
                                 }
                                 if (structureReference.recType == 3) {
                                     // For now, if animated, use position 0 of animation sequence
-                                    structureReferenceCoordinates = structureReference.animData[0].pt;
+                                    structureReferenceCoordinates = structureReference.animKeyframes[0].pt;
                                     refCoordsFound = true;
-                                    animData = structureReference.animData;
+                                    animKeyframes = structureReference.animKeyframes;
                                     animDelay = structureReference.animDelay;
                                     break;
                                 }
@@ -432,12 +431,12 @@ namespace LibOpenNFS::NFS2 {
                         auto structureModel = TrackGeometry(structureVertices, structureNormals, structureUVs, structureTextureIndices,
                                                             structureVertexIndices, structureShadingData,
                                                             Utils::PointToVec(structureReferenceCoordinates) * SCALE_FACTOR);
-                        if (animData.empty()) {
+                        if (animKeyframes.empty()) {
                             trackBlock.objects.emplace_back(rawTrackBlock.serialNum + structureIdx, EntityType::OBJ_POLY, structureModel,
                                                             0);
                         } else {
                             trackBlock.objects.emplace_back(rawTrackBlock.serialNum + structureIdx, EntityType::OBJ_POLY, structureModel,
-                                                            animData, animDelay, 0);
+                                                            animKeyframes, animDelay, 0);
                         }
                     }
                 }
@@ -557,7 +556,7 @@ namespace LibOpenNFS::NFS2 {
 
             glm::ivec3 structureReferenceCoordinates = {};
             bool refCoordsFound = false;
-            std::vector<AnimData> animData;
+            std::vector<AnimKeyframe> animKeyframes;
             uint16_t animDelay;
 
             // Find the structure reference that matches this structure
@@ -571,9 +570,9 @@ namespace LibOpenNFS::NFS2 {
                     }
                     if (structure.recType == 3) {
                         // For now, if animated, use position 0 of animation sequence
-                        structureReferenceCoordinates = structure.animData[0].pt;
+                        structureReferenceCoordinates = structure.animKeyframes[0].pt;
                         refCoordsFound = true;
-                        animData = structure.animData;
+                        animKeyframes = structure.animKeyframes;
                         animDelay = structure.animDelay;
                         break;
                     }
@@ -619,10 +618,10 @@ namespace LibOpenNFS::NFS2 {
             TrackGeometry globalStructureModel(globalStructureVertices, globalStructureNormals, globalStructureUVs,
                                                globalStructureTextureIndices, globalStructureVertexIndices, globalStructureShadingData,
                                                position);
-            if (animData.empty()) {
+            if (animKeyframes.empty()) {
                 colEntities.emplace_back(structureIdx, EntityType::GLOBAL, globalStructureModel, 0);
             } else {
-                colEntities.emplace_back(structureIdx, EntityType::GLOBAL, globalStructureModel, animData, animDelay, 0);
+                colEntities.emplace_back(structureIdx, EntityType::GLOBAL, globalStructureModel, animKeyframes, animDelay, 0);
             }
         }
 

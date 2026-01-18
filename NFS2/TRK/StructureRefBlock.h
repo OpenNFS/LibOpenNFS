@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../../Common/IRawData.h"
+#include "../../Shared/AnimKeyframe.h"
 #include "../Common.h"
-#include "NFS3/Common.h"
 
 namespace LibOpenNFS {
     namespace NFS2 {
@@ -19,9 +19,9 @@ namespace LibOpenNFS {
             // Fixed Type (recType == 1)
             glm::ivec3 refCoordinates;
             // Animated Type (recType == 3)
-            uint16_t animLength;            // num of position records
-            uint16_t animDelay;             // Potentially time between animation steps?
-            std::vector<AnimData> animData; // Sequence of positions which animation follows
+            uint16_t animLength;                     // num of position records
+            uint16_t animDelay;                      // Potentially time between animation steps?
+            std::vector<AnimKeyframe> animKeyframes; // Sequence of positions which animation follows
 
           private:
             bool _SerializeIn(std::ifstream &ifstream) override;

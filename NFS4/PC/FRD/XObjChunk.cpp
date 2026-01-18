@@ -15,17 +15,17 @@ namespace LibOpenNFS::NFS4 {
             auto const &objectHeader{objectHeaders.at(i)};
             switch ((XObjHeader::Type)objectHeader.type) {
             case XObjHeader::Type::NORMAL_1:
-            [[fallthrough]];
+                [[fallthrough]];
             case XObjHeader::Type::NORMAL_2:
             default:
-                objectBlocks.push_back(BaseObjectBlock(objectHeader, frd));
-                objectBlocks.back()._SerializeIn(frd);
+                objectBlocks.push_back(std::make_unique<BaseObjectBlock>(objectHeader, frd));
+                objectBlocks.back()->_SerializeIn(frd);
                 break;
             case XObjHeader::Type::ANIMATED:
-                objectBlocks.push_back(AnimBlock(objectHeader, frd));
+                objectBlocks.push_back(std::make_unique<AnimBlock>(objectHeader, frd));
                 break;
             case XObjHeader::Type::SPECIAL:
-                objectBlocks.push_back(SpecialBlock(objectHeader, frd));
+                objectBlocks.push_back(std::make_unique<SpecialBlock>(objectHeader, frd));
                 break;
             }
         }

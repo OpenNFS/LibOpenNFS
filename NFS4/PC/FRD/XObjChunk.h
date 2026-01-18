@@ -13,7 +13,7 @@ namespace LibOpenNFS::NFS4 {
 
         uint32_t nObjects{};
         std::vector<XObjHeader> objectHeaders;
-        std::vector<BaseObjectBlock> objectBlocks;
+        std::vector<std::unique_ptr<BaseObjectBlock>> objectBlocks;
 
       protected:
         bool _SerializeIn(std::ifstream &frd) override;

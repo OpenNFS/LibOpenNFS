@@ -22,8 +22,8 @@ bool StructureRefBlock::_SerializeIn(std::ifstream &ifstream) {
         // Animated type
         onfs_check(safe_read(ifstream, animLength));
         onfs_check(safe_read(ifstream, animDelay));
-        animData.resize(animLength);
-        onfs_check(safe_read(ifstream, animData));
+        animKeyframes.resize(animLength);
+        onfs_check(safe_read(ifstream, animKeyframes));
     } else if (recType == 4) {
         // 4 Component PSX Vert data? TODO: Restructure to allow the 4th component to be read
         onfs_check(safe_read(ifstream, refCoordinates));
