@@ -32,17 +32,19 @@ namespace LibOpenNFS::Shared {
         /**
          * Load an FSH or QFS archive from file
          * @param filepath Path to the archive file
+         * @param skipMirroredImages If true, skip mirrored/duplicate images (used for NFS4 track textures)
          * @return true on success
          */
-        bool Load(std::string const &filepath);
+        bool Load(std::string const &filepath, bool skipMirroredImages = false);
 
         /**
          * Load an FSH or QFS archive from memory
          * @param data Raw archive data
+         * @param skipMirroredImages If true, skip mirrored/duplicate images (used for NFS4 track textures)
          * @return true on success
          */
-        bool Load(std::vector<uint8_t> const &data);
-        bool Load(std::vector<uint8_t> &&data);
+        bool Load(std::vector<uint8_t> const &data, bool skipMirroredImages = false);
+        bool Load(std::vector<uint8_t> &&data, bool skipMirroredImages = false);
 
         /**
          * Check if archive was compressed (QFS)
@@ -117,6 +119,7 @@ namespace LibOpenNFS::Shared {
         Palette m_globalPalette;
         bool m_hasGlobalPalette = false;
         bool m_wasCompressed = false;
+        bool m_skipMirroredImages = false;
         mutable std::string m_lastError;
 
         bool ParseData();

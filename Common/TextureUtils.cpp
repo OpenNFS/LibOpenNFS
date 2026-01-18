@@ -118,7 +118,7 @@ namespace LibOpenNFS {
                 (packed_rgba & 0xFF) / 255.0f, ((packed_rgba >> 24) & 0xFF) / 255.0f};
     }
 
-    bool TextureUtils::ExtractQFS(std::string const &qfs_input, std::string const &output_dir) {
+    bool TextureUtils::ExtractQFS(std::string const &qfs_input, std::string const &output_dir, bool skipMirrored) {
         LogInfo("Extracting QFS file: %s to %s", qfs_input.c_str(), output_dir.c_str());
         if (std::filesystem::exists(output_dir)) {
             LogInfo("Textures already exist at %s, nothing to extract", output_dir.c_str());
@@ -128,7 +128,7 @@ namespace LibOpenNFS {
         std::filesystem::create_directories(output_dir);
 
         Shared::FshArchive archive;
-        if (!archive.Load(qfs_input)) {
+        if (!archive.Load(qfs_input, skipMirrored)) {
             LogWarning("Failed to load QFS archive: %s - %s", qfs_input.c_str(), archive.LastError().c_str());
             return false;
         }
@@ -197,7 +197,7 @@ namespace LibOpenNFS {
             break;
         }
 
-        return ExtractQFS(nfsTexArchivePath.str(), onfsTrackAssetTextureDir);
+        return ExtractQFS(nfsTexArchivePath.str(), onfsTrackAssetTextureDir, nfsVer == NFSVersion::NFS_4);
     }
 
     std::tuple<uint32_t, uint32_t> TextureUtils::GetBitmapDimensions(std::string const& texturePath) {

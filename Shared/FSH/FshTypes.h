@@ -172,18 +172,21 @@ namespace LibOpenNFS::Shared {
         }
 
         static Colour FromRGB16_565(uint16_t const rgb) {
-            return Colour(static_cast<uint8_t>((rgb & 0x1F) << 3), static_cast<uint8_t>(((rgb >> 5) & 0x3F) << 2),
-                          static_cast<uint8_t>(((rgb >> 11) & 0x1F) << 3), 255);
+            // RGB565: bits 11-15 = R, bits 5-10 = G, bits 0-4 = B
+            return Colour(static_cast<uint8_t>(((rgb >> 11) & 0x1F) << 3), static_cast<uint8_t>(((rgb >> 5) & 0x3F) << 2),
+                          static_cast<uint8_t>((rgb & 0x1F) << 3), 255);
         }
 
         static Colour FromARGB16_1555(uint16_t const argb) {
-            return Colour(static_cast<uint8_t>((argb & 0x1F) << 3), static_cast<uint8_t>(((argb >> 5) & 0x1F) << 3),
-                          static_cast<uint8_t>(((argb >> 10) & 0x1F) << 3), static_cast<uint8_t>((argb & 0x8000) ? 255 : 0));
+            // ARGB1555: bit 15 = A, bits 10-14 = R, bits 5-9 = G, bits 0-4 = B
+            return Colour(static_cast<uint8_t>(((argb >> 10) & 0x1F) << 3), static_cast<uint8_t>(((argb >> 5) & 0x1F) << 3),
+                          static_cast<uint8_t>((argb & 0x1F) << 3), static_cast<uint8_t>((argb & 0x8000) ? 255 : 0));
         }
 
         static Colour FromARGB16_4444(uint16_t const argb) {
-            return Colour(static_cast<uint8_t>((argb & 0x0F) * 17), static_cast<uint8_t>(((argb >> 4) & 0x0F) * 17),
-                          static_cast<uint8_t>(((argb >> 8) & 0x0F) * 17), static_cast<uint8_t>(((argb >> 12) & 0x0F) * 17));
+            // ARGB4444: bits 12-15 = A, bits 8-11 = R, bits 4-7 = G, bits 0-3 = B
+            return Colour(static_cast<uint8_t>(((argb >> 8) & 0x0F) * 17), static_cast<uint8_t>(((argb >> 4) & 0x0F) * 17),
+                          static_cast<uint8_t>((argb & 0x0F) * 17), static_cast<uint8_t>(((argb >> 12) & 0x0F) * 17));
         }
 
         uint32_t ToARGB32() const {

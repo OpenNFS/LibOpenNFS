@@ -4,7 +4,7 @@
 #include <filesystem>
 
 namespace LibOpenNFS::Shared {
-    bool FshArchive::Load(std::string const &filepath) {
+    bool FshArchive::Load(std::string const &filepath, bool const skipMirroredImages) {
         std::ifstream file(filepath, std::ios::binary | std::ios::ate);
         if (!file) {
             m_lastError = "Failed to open file: " + filepath;
@@ -21,18 +21,21 @@ namespace LibOpenNFS::Shared {
         }
 
         m_sourcePath = filepath;
+        m_skipMirroredImages = skipMirroredImages;
         return ParseData();
     }
 
-    bool FshArchive::Load(std::vector<uint8_t> const &data) {
+    bool FshArchive::Load(std::vector<uint8_t> const &data, bool const skipMirroredImages) {
         m_rawData = data;
         m_sourcePath.clear();
+        m_skipMirroredImages = skipMirroredImages;
         return ParseData();
     }
 
-    bool FshArchive::Load(std::vector<uint8_t> &&data) {
+    bool FshArchive::Load(std::vector<uint8_t> &&data, bool const skipMirroredImages) {
         m_rawData = std::move(data);
         m_sourcePath.clear();
+        m_skipMirroredImages = skipMirroredImages;
         return ParseData();
     }
 
@@ -154,7 +157,15 @@ namespace LibOpenNFS::Shared {
         m_textures.clear();
         m_textureMap.clear();
 
+        bool skipNext = false;
+
         for (size_t i = 0; i < numEntries; ++i) {
+            // Skip mirrored images (entry following one with 0x6F text attachment)
+            if (skipNext) {
+                skipNext = false;
+                continue;
+            }
+
             std::string const name(directory[i].name, 4);
             size_t const offset = static_cast<size_t>(directory[i].offset);
 
@@ -174,6 +185,22 @@ namespace LibOpenNFS::Shared {
 
             // Check if this is a bitmap entry
             if (IsBitmapCode(code)) {
+                // Check if this entry has a 0x6F text attachment (indicates next entry is mirrored)
+                if (m_skipMirroredImages) {
+                    size_t attachOffset = offset;
+                    auto const *attachHeader = entryHeader;
+                    while (attachHeader->GetNextOffset() > 0) {
+                        attachOffset += static_cast<size_t>(attachHeader->GetNextOffset());
+                        if (attachOffset + 16 > m_fshData.size())
+                            break;
+                        attachHeader = reinterpret_cast<FshEntryHeader const *>(m_fshData.data() + attachOffset);
+                        if ((attachHeader->GetFormatCode() & 0xFF) == static_cast<uint8_t>(AttachmentType::Text)) {
+                            skipNext = true;
+                            break;
+                        }
+                    }
+                }
+
                 FshTexture texture = ParseTexture(name, offset, nextOffset);
                 m_textureMap[texture.Name()] = m_textures.size();
                 m_textures.push_back(std::move(texture));
@@ -211,21 +238,21 @@ namespace LibOpenNFS::Shared {
                                     static_cast<uint8_t>(data[i * 3 + 2] << 2), 255);
             }
             break;
-        case 0x2D: { // ARGB16 1555
+        case 0x2D: { // ARGB16 1555: bit 15 = A, bits 10-14 = R, bits 5-9 = G, bits 0-4 = B
             auto const *data16 = reinterpret_cast<uint16_t const *>(data);
             for (size_t i = 0; i < numColors; ++i) {
                 uint16_t const val = data16[i];
-                palette[i] = Colour(static_cast<uint8_t>((val & 0x1F) << 3), static_cast<uint8_t>(((val >> 5) & 0x1F) << 3),
-                                    static_cast<uint8_t>(((val >> 10) & 0x1F) << 3), static_cast<uint8_t>((val & 0x8000) ? 255 : 0));
+                palette[i] = Colour(static_cast<uint8_t>(((val >> 10) & 0x1F) << 3), static_cast<uint8_t>(((val >> 5) & 0x1F) << 3),
+                                    static_cast<uint8_t>((val & 0x1F) << 3), static_cast<uint8_t>((val & 0x8000) ? 255 : 0));
             }
             break;
         }
-        case 0x29: { // RGB16 565
+        case 0x29: { // RGB16 565: bits 11-15 = R, bits 5-10 = G, bits 0-4 = B
             auto const *data16 = reinterpret_cast<uint16_t const *>(data);
             for (size_t i = 0; i < numColors; ++i) {
                 uint16_t const val = data16[i];
-                palette[i] = Colour(static_cast<uint8_t>((val & 0x1F) << 3), static_cast<uint8_t>(((val >> 5) & 0x3F) << 2),
-                                    static_cast<uint8_t>(((val >> 11) & 0x1F) << 3), 255);
+                palette[i] = Colour(static_cast<uint8_t>(((val >> 11) & 0x1F) << 3), static_cast<uint8_t>(((val >> 5) & 0x3F) << 2),
+                                    static_cast<uint8_t>((val & 0x1F) << 3), 255);
             }
             break;
         }
@@ -319,7 +346,7 @@ namespace LibOpenNFS::Shared {
         }
 
         // Apply global palette if no local palette and format requires it
-        if (format == PixelFormat::Indexed8Bit && texture.GetPalette().Colors()[0].a == 0 && m_hasGlobalPalette) {
+        if (format == PixelFormat::Indexed8Bit && m_hasGlobalPalette) {
             texture.GetPalette() = m_globalPalette;
         }
 
