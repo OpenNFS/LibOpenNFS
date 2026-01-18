@@ -24,33 +24,33 @@ bool PolyBlock::_SerializeIn(std::ifstream &ifstream) {
         return false;
     }
 
-    for (auto &o : obj) {
-        onfs_check(safe_read(ifstream, o.n1));
-        if (o.n1 > 0) {
-            onfs_check(safe_read(ifstream, o.n2));
+    for (auto &[n1, n2, nobj, types, numpoly, poly] : obj) {
+        onfs_check(safe_read(ifstream, n1));
+        if (n1 > 0) {
+            onfs_check(safe_read(ifstream, n2));
 
-            o.types.resize(o.n2);
-            o.numpoly.resize(o.n2);
-            o.poly.resize(o.n2);
+            types.resize(n2);
+            numpoly.resize(n2);
+            poly.resize(n2);
 
             uint32_t polygonCount = 0;
-            o.nobj = 0;
+            nobj = 0;
 
-            for (uint32_t k = 0; k < o.n2; ++k) {
-                onfs_check(safe_read(ifstream, o.types[k]));
+            for (uint32_t k = 0; k < n2; ++k) {
+                onfs_check(safe_read(ifstream, types[k]));
 
-                if (o.types[k] == 1) {
-                    onfs_check(safe_read(ifstream, o.numpoly[o.nobj]));
+                if (types[k] == 1) {
+                    onfs_check(safe_read(ifstream, numpoly[nobj]));
 
-                    o.poly[o.nobj].resize(o.numpoly[o.nobj]);
-                    onfs_check(safe_read(ifstream, o.poly[o.nobj]));
+                    poly[nobj].resize(numpoly[nobj]);
+                    onfs_check(safe_read(ifstream, poly[nobj]));
 
-                    polygonCount += o.numpoly[o.nobj];
-                    ++o.nobj;
+                    polygonCount += numpoly[nobj];
+                    ++nobj;
                 }
             }
             // n1 == total nb polygons
-            if (polygonCount != o.n1) {
+            if (polygonCount != n1) {
                 return false;
             }
         }
@@ -68,17 +68,17 @@ void PolyBlock::_SerializeOut(std::ofstream &ofstream) {
         }
     }
 
-    for (auto &o : obj) {
-        ofstream.write((char *)&o.n1, sizeof(uint32_t));
-        if (o.n1 > 0) {
-            ofstream.write((char *)&o.n2, sizeof(uint32_t));
-            o.nobj = 0;
-            for (uint32_t k = 0; k < o.n2; ++k) {
-                ofstream.write((char *)&o.types[k], sizeof(uint32_t));
-                if (o.types[k] == 1) {
-                    ofstream.write((char *)&o.numpoly[o.nobj], sizeof(uint32_t));
-                    ofstream.write((char *)o.poly[o.nobj].data(), sizeof(PolygonData) * o.numpoly[o.nobj]);
-                    ++o.nobj;
+    for (auto &[n1, n2, nobj, types, numpoly, poly] : obj) {
+        ofstream.write((char *)&n1, sizeof(uint32_t));
+        if (n1 > 0) {
+            ofstream.write((char *)&n2, sizeof(uint32_t));
+            nobj = 0;
+            for (uint32_t k = 0; k < n2; ++k) {
+                ofstream.write((char *)&types[k], sizeof(uint32_t));
+                if (types[k] == 1) {
+                    ofstream.write((char *)&numpoly[nobj], sizeof(uint32_t));
+                    ofstream.write((char *)poly[nobj].data(), sizeof(PolygonData) * numpoly[nobj]);
+                    ++nobj;
                 }
             }
         }

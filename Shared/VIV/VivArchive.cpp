@@ -1,4 +1,4 @@
-#include "VivFile.h"
+#include "VivArchive.h"
 
 #include <cstring>
 #include <filesystem>
@@ -7,7 +7,7 @@
 #include "Common/Logging.h"
 
 namespace LibOpenNFS::Shared {
-    bool VivFile::Load(std::string const &vivPath, VivFile &vivFile) {
+    bool VivArchive::Load(std::string const &vivPath, VivArchive &vivFile) {
         LogInfo("Loading VIV File located at %s", vivPath.c_str());
         std::ifstream viv(vivPath, std::ios::in | std::ios::binary);
 
@@ -17,13 +17,13 @@ namespace LibOpenNFS::Shared {
         return loadStatus;
     }
 
-    void VivFile::Save(std::string const &vivPath, VivFile &vivFile) {
+    void VivArchive::Save(std::string const &vivPath, VivArchive &vivFile) {
         LogInfo("Saving CAN File to %s", vivPath.c_str());
         std::ofstream viv(vivPath, std::ios::out | std::ios::binary);
         vivFile._SerializeOut(viv);
     }
 
-    bool VivFile::Extract(std::string const &outPath, VivFile &vivFile) {
+    bool VivArchive::Extract(std::string const &outPath, VivArchive &vivFile) {
         std::filesystem::create_directories(outPath);
 
         for (uint32_t fileIdx = 0; fileIdx < vivFile.nFiles; ++fileIdx) {
@@ -43,7 +43,7 @@ namespace LibOpenNFS::Shared {
         return true;
     }
 
-    bool VivFile::_SerializeIn(std::ifstream &ifstream) {
+    bool VivArchive::_SerializeIn(std::ifstream &ifstream) {
         onfs_check(safe_read(ifstream, vivHeader));
 
         if (memcmp(vivHeader, "BIGF", sizeof(vivHeader)) != 0) {
@@ -88,7 +88,7 @@ namespace LibOpenNFS::Shared {
         return true;
     }
 
-    void VivFile::_SerializeOut(std::ofstream &ofstream) {
+    void VivArchive::_SerializeOut(std::ofstream &ofstream) {
         ASSERT(false, "VIV Output serialization is not implemented yet");
     }
 } // namespace LibOpenNFS::Shared

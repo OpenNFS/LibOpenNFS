@@ -4,11 +4,11 @@
 #include <map>
 #include <vector>
 
+#include "../Shared/CAN/CanFile.h"
 #include "TrackBlock.h"
 #include "TrackEntity.h"
-#include "TrackVRoad.h"
 #include "TrackTextureAsset.h"
-#include "Shared/CanFile.h"
+#include "TrackVRoad.h"
 
 namespace LibOpenNFS {
     class Track {

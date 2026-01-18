@@ -3,6 +3,7 @@
 #include "Common/Logging.h"
 #include "Common/TextureUtils.h"
 
+#include <cstring>
 #include <sstream>
 
 // TODO: Need to perform proper deserialisation in this file, and then use a helper in ImageLoader that calls into this
@@ -33,7 +34,7 @@ bool PshFile::_SerializeIn(std::ifstream &ifstream) {
     LogInfo("%d images inside PSH", header.nDirectories);
 
     // Header should contain SHPP
-    if (memcmp(header.header, "SHPP", sizeof(header.header)) != 0 && memcmp(header.chk, "GIMX", sizeof(header.chk)) != 0) {
+    if (std::memcmp(header.header, "SHPP", sizeof(header.header)) != 0 && memcmp(header.chk, "GIMX", sizeof(header.chk)) != 0) {
         LogWarning("Invalid PSH Header(s)");
         return false;
     }

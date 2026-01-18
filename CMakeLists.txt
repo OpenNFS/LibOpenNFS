@@ -10,7 +10,6 @@ set(LIBOPENNFS_SOURCES
         LibOpenNFS.h
         Common/Utils.cpp
         Common/TextureUtils.cpp
-        lib/fshtool/fshtool.c
         Entities/BaseLight.cpp
         Entities/Car.cpp
         Entities/CarGeometry.cpp
@@ -58,9 +57,12 @@ set(LIBOPENNFS_SOURCES
         NFS4/PC/FRD/BaseObjectBlock.cpp
         NFS4/PC/FRD/AnimBlock.cpp
         NFS4/PC/FRD/SpecialBlock.cpp
-        Shared/CanFile.cpp
-        Shared/HrzFile.cpp
-        Shared/VivFile.cpp)
+        Shared/CAN/CanFile.cpp
+        Shared/FSH/QfsCompression.cpp
+        Shared/FSH/FshTexture.cpp
+        Shared/FSH/FshArchive.cpp
+        Shared/HRZ/HrzFile.cpp
+        Shared/VIV/VivArchive.cpp)
 
 add_library(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE ${LIBOPENNFS_SOURCES} ${CRP_LIB_SOURCES})

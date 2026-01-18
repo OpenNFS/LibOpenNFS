@@ -6,13 +6,12 @@
 
 using namespace LibOpenNFS::NFS2;
 
-template <typename Platform>
-bool ColFile<Platform>::Load(std::string const &colPath, ColFile &colFile, NFSVersion version) {
+template <typename Platform> bool ColFile<Platform>::Load(std::string const &colPath, ColFile &colFile, NFSVersion version) {
     LogInfo("Loading COL File located at %s", colPath.c_str());
     std::ifstream col(colPath, std::ios::in | std::ios::binary);
     colFile.version = version;
 
-    bool loadStatus = colFile._SerializeIn(col);
+    bool const loadStatus = colFile._SerializeIn(col);
     col.close();
 
     return loadStatus;
@@ -57,12 +56,11 @@ template <typename Platform> bool ColFile<Platform>::_SerializeIn(std::ifstream 
 template <typename Platform> void ColFile<Platform>::_SerializeOut(std::ofstream &ofstream) {
     ASSERT(false, "COL output serialization is not currently implemented");
 }
-template <typename Platform>
-ExtraObjectBlock<Platform> ColFile<Platform>::GetExtraObjectBlock(ExtraBlockID eBlockType) {
+template <typename Platform> ExtraObjectBlock<Platform> ColFile<Platform>::GetExtraObjectBlock(ExtraBlockID const eBlockType) {
     return extraObjectBlocks[extraObjectBlockMap[eBlockType]];
 }
-template <typename Platform> bool ColFile<Platform>::IsBlockPresent(ExtraBlockID eBlockType) {
-    return extraObjectBlockMap.count(eBlockType);
+template <typename Platform> bool ColFile<Platform>::IsBlockPresent(ExtraBlockID const eBlockType) const {
+    return extraObjectBlockMap.contains(eBlockType);
 }
 
 template class LibOpenNFS::NFS2::ColFile<PS1>;

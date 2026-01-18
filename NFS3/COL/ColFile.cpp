@@ -10,7 +10,7 @@ bool ColFile::Load(std::string const &colPath, ColFile &colFile) {
     LogInfo("Loading COL File located at %s", colPath.c_str());
     std::ifstream col(colPath, std::ios::in | std::ios::binary);
 
-    bool const loadStatus {colFile._SerializeIn(col)};
+    bool const loadStatus{colFile._SerializeIn(col)};
     col.close();
 
     return loadStatus;
@@ -28,8 +28,7 @@ bool ColFile::_SerializeIn(std::ifstream &ifstream) {
     onfs_check(safe_read(ifstream, fileLength));
     onfs_check(safe_read(ifstream, nBlocks));
 
-    if ((memcmp(header, "COLL", sizeof(char)) != 0) || (version != 11) ||
-        ((nBlocks != 2) && (nBlocks != 4) && (nBlocks != 5))) {
+    if ((memcmp(header, "COLL", sizeof(char)) != 0) || (version != 11) || ((nBlocks != 2) && (nBlocks != 4) && (nBlocks != 5))) {
         LogWarning("Invalid COL file");
         return false;
     }
@@ -56,14 +55,12 @@ bool ColFile::_SerializeIn(std::ifstream &ifstream) {
             onfs_check(safe_read(ifstream, struct3D[colRec_Idx].nVert));
             onfs_check(safe_read(ifstream, struct3D[colRec_Idx].nPoly));
 
-            int32_t delta =
-                (8 + sizeof(ColVertex) * struct3D[colRec_Idx].nVert + sizeof(ColPolygon) * struct3D[colRec_Idx].nPoly) %
-                4;
+            int32_t delta = (8 + sizeof(ColVertex) * struct3D[colRec_Idx].nVert + sizeof(ColPolygon) * struct3D[colRec_Idx].nPoly) % 4;
             delta = (4 - delta) % 4;
 
             // Check the size matches up with the expected size of the contents
-            if (struct3D[colRec_Idx].size != 8 + sizeof(ColVertex) * struct3D[colRec_Idx].nVert +
-                                                 sizeof(ColPolygon) * struct3D[colRec_Idx].nPoly + delta) {
+            if (struct3D[colRec_Idx].size !=
+                8 + sizeof(ColVertex) * struct3D[colRec_Idx].nVert + sizeof(ColPolygon) * struct3D[colRec_Idx].nPoly + delta) {
                 return false;
             }
 
@@ -76,8 +73,8 @@ bool ColFile::_SerializeIn(std::ifstream &ifstream) {
             onfs_check(safe_read(ifstream, struct3D[colRec_Idx].polygon));
 
             // Consume the delta, to eat alignment bytes
-            int dummy;
             if (delta > 0) {
+                int dummy;
                 onfs_check(safe_read(ifstream, dummy, delta));
             }
         }

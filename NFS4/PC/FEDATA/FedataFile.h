@@ -3,8 +3,8 @@
 #include "../../Common/IRawData.h"
 
 namespace LibOpenNFS::NFS4 {
-    static uint32_t const COLOUR_TABLE_OFFSET = 0x043C;
-    static uint32_t const MENU_NAME_FILEPOS_OFFSET = 0x03C8;
+    static constexpr uint32_t COLOUR_TABLE_OFFSET = 0x043C;
+    static constexpr uint32_t MENU_NAME_FILEPOS_OFFSET = 0x03C8;
 
     class FedataFile : IRawData {
       public:

@@ -86,15 +86,14 @@ namespace LibOpenNFS::NFS2 {
         return track;
     }
 
-    template <> Track Loader<PS1>::LoadTrack(NFSVersion nfsVersion, std::string const &trackBasePath, std::string const &trackOutPath) {
+    template <>
+    Track Loader<PS1>::LoadTrack(NFSVersion const nfsVersion, std::string const &trackBasePath, std::string const &trackOutPath) {
         LogInfo("Loading Track located at %s", trackBasePath.c_str());
         std::filesystem::path p(trackBasePath);
         Track track(nfsVersion, p.filename().string(), trackBasePath);
 
-        std::string trkPath, colPath;
-
-        trkPath = trackBasePath + ".trk";
-        colPath = trackBasePath + ".col";
+        std::string trkPath = trackBasePath + ".trk";
+        std::string colPath = trackBasePath + ".col";
         colPath.replace(colPath.find("zz"), 2, "");
 
         TrkFile<PS1> trkFile;
@@ -128,7 +127,7 @@ namespace LibOpenNFS::NFS2 {
             std::vector<uint32_t> texture_indices;
 
             for (auto vertex : geoBlock.vertices) {
-                verts.emplace_back(vertex.x / NFS2_CAR_SCALE_FACTOR, vertex.y / NFS2_CAR_SCALE_FACTOR, vertex.z / NFS2_CAR_SCALE_FACTOR);
+                verts.emplace_back(vertex.x / CAR_SCALE_FACTOR, vertex.y / CAR_SCALE_FACTOR, vertex.z / CAR_SCALE_FACTOR);
             }
 
             for (auto const &[texMapType, vertex, texName] : geoBlock.polygons) {
@@ -168,9 +167,9 @@ namespace LibOpenNFS::NFS2 {
                 texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
                 texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
             }
-            auto center = glm::vec3((geoBlock.header.position[0] / 256.f) / NFS2_CAR_SCALE_FACTOR,
-                                    (geoBlock.header.position[1] / 256.f) / NFS2_CAR_SCALE_FACTOR,
-                                    (geoBlock.header.position[2] / 256.f) / NFS2_CAR_SCALE_FACTOR);
+            auto center = glm::vec3((geoBlock.header.position[0] / 256.f) / CAR_SCALE_FACTOR,
+                                    (geoBlock.header.position[1] / 256.f) / CAR_SCALE_FACTOR,
+                                    (geoBlock.header.position[2] / 256.f) / CAR_SCALE_FACTOR);
             carMetadata.meshes.emplace_back(std::string(PC::PART_NAMES[geoBlock.partIdx]), verts, uvs, texture_indices, norms, indices,
                                             center);
         }
@@ -189,7 +188,7 @@ namespace LibOpenNFS::NFS2 {
             std::vector<uint32_t> texture_indices;
 
             for (auto vertex : geoBlock.vertices) {
-                verts.emplace_back(vertex.x / NFS2_CAR_SCALE_FACTOR, vertex.y / NFS2_CAR_SCALE_FACTOR, vertex.z / NFS2_CAR_SCALE_FACTOR);
+                verts.emplace_back(vertex.x / CAR_SCALE_FACTOR, vertex.y / CAR_SCALE_FACTOR, vertex.z / CAR_SCALE_FACTOR);
             }
 
             for (auto const &[texMapType, vert_idx, norm_idx, uv_idx, texName] : geoBlock.polygons) {
@@ -230,9 +229,9 @@ namespace LibOpenNFS::NFS2 {
                 texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
                 texture_indices.emplace_back(0); // remapped_texture_ids[textureName]);
             }
-            auto center = glm::vec3((geoBlock.header.position[0] / 256.f) / NFS2_CAR_SCALE_FACTOR,
-                                    (geoBlock.header.position[1] / 256.f) / NFS2_CAR_SCALE_FACTOR,
-                                    (geoBlock.header.position[2] / 256.f) / NFS2_CAR_SCALE_FACTOR);
+            auto center = glm::vec3((geoBlock.header.position[0] / 256.f) / CAR_SCALE_FACTOR,
+                                    (geoBlock.header.position[1] / 256.f) / CAR_SCALE_FACTOR,
+                                    (geoBlock.header.position[2] / 256.f) / CAR_SCALE_FACTOR);
             carMetadata.meshes.emplace_back(std::string(PS1::PART_NAMES[geoBlock.partIdx]), verts, uvs, texture_indices, norms, indices,
                                             center);
         }
@@ -303,7 +302,7 @@ namespace LibOpenNFS::NFS2 {
             for (auto rawTrackBlock : superBlock.trackBlocks) {
                 // Get position all vertices need to be relative to
                 glm::vec3 rawTrackBlockCenter =
-                    Utils::PointToVec(trkFile.blockReferenceCoords[rawTrackBlock.serialNum]) * NFS2_SCALE_FACTOR;
+                    Utils::PointToVec(trkFile.blockReferenceCoords[rawTrackBlock.serialNum]) * SCALE_FACTOR;
                 std::vector<uint32_t> trackBlockNeighbourIds;
 
                 // Convert the neighbor int16_t's to uint32_t for OFNS trackblock representation
@@ -401,7 +400,7 @@ namespace LibOpenNFS::NFS2 {
                         }
                         for (uint16_t vertIdx = 0; vertIdx < structures[structureIdx].nVerts; ++vertIdx) {
                             structureVertices.emplace_back((256.f * Utils::PointToVec(structures[structureIdx].vertexTable[vertIdx])) *
-                                                           NFS2_SCALE_FACTOR);
+                                                           SCALE_FACTOR);
                             structureShadingData.emplace_back(1.0, 1.0f, 1.0f, 1.0f);
                         }
                         for (uint32_t polyIdx = 0; polyIdx < structures[structureIdx].nPoly; ++polyIdx) {
@@ -432,7 +431,7 @@ namespace LibOpenNFS::NFS2 {
 
                         auto structureModel = TrackGeometry(structureVertices, structureNormals, structureUVs, structureTextureIndices,
                                                             structureVertexIndices, structureShadingData,
-                                                            Utils::PointToVec(structureReferenceCoordinates) * NFS2_SCALE_FACTOR);
+                                                            Utils::PointToVec(structureReferenceCoordinates) * SCALE_FACTOR);
                         if (animData.empty()) {
                             trackBlock.objects.emplace_back(rawTrackBlock.serialNum + structureIdx, EntityType::OBJ_POLY, structureModel,
                                                             0);
@@ -466,7 +465,7 @@ namespace LibOpenNFS::NFS2 {
 
                     trackBlockVertices.emplace_back(
                         (Utils::PointToVec(blockRefCoord) + (256.f * Utils::PointToVec(rawTrackBlock.vertexTable[vertIdx]))) *
-                        NFS2_SCALE_FACTOR);
+                        SCALE_FACTOR);
                     trackBlockShadingData.emplace_back(1.f, 1.f, 1.f, 1.f);
                 }
                 for (int32_t polyIdx = (rawTrackBlock.nLowResPoly + rawTrackBlock.nMedResPoly);
@@ -514,17 +513,17 @@ namespace LibOpenNFS::NFS2 {
 
         for (auto &vroadEntry : colFile.GetExtraObjectBlock(ExtraBlockID::COLLISION_BLOCK_ID).collisionData) {
             // Transform NFS2 coords into ONFS 3d space
-            glm::vec3 vroadCenter = Utils::PointToVec(vroadEntry.trackPosition) * NFS2_SCALE_FACTOR;
+            glm::vec3 vroadCenter = Utils::PointToVec(vroadEntry.trackPosition) * SCALE_FACTOR;
             vroadCenter.y += 0.2f;
 
             // Get VROAD forward and normal vectors, fake a right vector
-            glm::vec3 right = glm::vec3(vroadEntry.rightVec) * NFS2_SCALE_FACTOR;
-            glm::vec3 forward = glm::vec3(vroadEntry.fwdVec) * NFS2_SCALE_FACTOR;
-            glm::vec3 normal = glm::vec3(vroadEntry.vertVec) * NFS2_SCALE_FACTOR;
+            glm::vec3 right = glm::vec3(vroadEntry.rightVec) * SCALE_FACTOR;
+            glm::vec3 forward = glm::vec3(vroadEntry.fwdVec) * SCALE_FACTOR;
+            glm::vec3 normal = glm::vec3(vroadEntry.vertVec) * SCALE_FACTOR;
 
-            glm::vec3 leftWall = float(vroadEntry.leftBorder) * right * 2.f;
-            glm::vec3 rightWall = float(vroadEntry.rightBorder) * right * 2.f;
-            glm::vec3 lateralRespawn = float(vroadEntry.postCrashPosition) * right; // TODO: This is incorrect
+            glm::vec3 leftWall = static_cast<float>(vroadEntry.leftBorder) * right * 2.f;
+            glm::vec3 rightWall = static_cast<float>(vroadEntry.rightBorder) * right * 2.f;
+            glm::vec3 lateralRespawn = static_cast<float>(vroadEntry.postCrashPosition) * right; // TODO: This is incorrect
 
             // Adjust vroadCenter to be the actual midpoint between left and right walls
             // vroadCenter += (leftWall + rightWall) / 2.f;
@@ -585,7 +584,7 @@ namespace LibOpenNFS::NFS2 {
             }
             for (uint16_t vertIdx = 0; vertIdx < structures[structureIdx].nVerts; ++vertIdx) {
                 globalStructureVertices.emplace_back((256.f * Utils::PointToVec(structures[structureIdx].vertexTable[vertIdx])) *
-                                                     NFS2_SCALE_FACTOR);
+                                                     SCALE_FACTOR);
                 globalStructureShadingData.emplace_back(1.0, 1.0f, 1.0f, 1.0f);
             }
 
@@ -616,7 +615,7 @@ namespace LibOpenNFS::NFS2 {
                 }
             }
 
-            glm::vec3 position = Utils::PointToVec(structureReferenceCoordinates) * NFS2_SCALE_FACTOR;
+            glm::vec3 position = Utils::PointToVec(structureReferenceCoordinates) * SCALE_FACTOR;
             TrackGeometry globalStructureModel(globalStructureVertices, globalStructureNormals, globalStructureUVs,
                                                globalStructureTextureIndices, globalStructureVertexIndices, globalStructureShadingData,
                                                position);

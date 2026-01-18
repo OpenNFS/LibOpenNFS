@@ -4,8 +4,8 @@
 
 namespace LibOpenNFS::NFS3 {
 
-    static uint32_t const COLOUR_TABLE_OFFSET = 0xA7;
-    static uint32_t const MENU_NAME_FILEPOS_OFFSET = 0x37;
+    static constexpr uint32_t COLOUR_TABLE_OFFSET = 0xA7;
+    static constexpr uint32_t MENU_NAME_FILEPOS_OFFSET = 0x37;
 
     class FedataFile final : IRawData {
       public:

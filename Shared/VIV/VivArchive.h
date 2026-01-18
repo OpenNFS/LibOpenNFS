@@ -8,12 +8,12 @@ namespace LibOpenNFS::Shared {
         std::vector<uint8_t> data;
     };
 
-    class VivFile : IRawData {
-    public:
-        VivFile() = default;
-        static bool Load(const std::string &vivPath, VivFile &vivFile);
-        static void Save(const std::string &vivPath, VivFile &vivFile);
-        static bool Extract(const std::string &outPath, VivFile &vivFile);
+    class VivArchive : IRawData {
+      public:
+        VivArchive() = default;
+        static bool Load(std::string const &vivPath, VivArchive &vivFile);
+        static void Save(std::string const &vivPath, VivArchive &vivFile);
+        static bool Extract(std::string const &outPath, VivArchive &vivFile);
 
         char vivHeader[4];
         uint32_t vivSize;
@@ -21,7 +21,7 @@ namespace LibOpenNFS::Shared {
         uint32_t startPos;
         std::vector<VivEntry> files;
 
-    private:
+      private:
         bool _SerializeIn(std::ifstream &ifstream) override;
         void _SerializeOut(std::ofstream &ofstream) override;
     };

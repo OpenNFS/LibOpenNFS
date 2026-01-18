@@ -12,6 +12,8 @@ namespace LibOpenNFS {
         BaseLight(uint32_t entityID, uint32_t flags, LightType type, glm::vec3 position, glm::vec4 colour);
         ~BaseLight() override = default;
         LightType type;
+        bool active{true};
+        glm::vec3 initialPosition;
         glm::vec3 position;
         glm::vec4 colour;
         glm::vec3 attenuation;

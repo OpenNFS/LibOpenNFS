@@ -1,9 +1,9 @@
 #include "NFS4Loader.h"
 
 #include "FCE/FceFile.h"
+#include <../../Shared/VIV/VivArchive.h>
 #include <Common/Logging.h>
 #include <Common/Utils.h>
-#include <Shared/VivFile.h>
 
 #include <sstream>
 
@@ -29,15 +29,16 @@ namespace LibOpenNFS::NFS4 {
             fshPath << "../resources/MCO/Data/skins/" << carName.substr(0, carName.size() - 2) << "dec.fsh";
         }
 
-        Shared::VivFile vivFile;
+        Shared::VivArchive vivFile;
         FceFile fceFile;
         FedataFile fedataFile;
 
         if (std::filesystem::exists(carOutPath)) {
             LogInfo("VIV has already been extracted to %s, skipping", carOutPath.c_str());
         } else {
-            ASSERT(Shared::VivFile::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
-            ASSERT(Shared::VivFile::Extract(carOutPath, vivFile), "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
+            ASSERT(Shared::VivArchive::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
+            ASSERT(Shared::VivArchive::Extract(carOutPath, vivFile),
+                   "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
         }
         ASSERT(NFS4::FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
         if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nColours)) {
