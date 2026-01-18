@@ -100,7 +100,7 @@ namespace LibOpenNFS::NFS3 {
 
     Car::MetaData Loader::_ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile) {
         LogInfo("Parsing FCE File into ONFS Structures");
-        // All Vertices are stored so that the model is rotated 90 degs on X, 180 on Z. Remove this at Vert load time.
+
         Car::MetaData carMetadata;
 
         // Go get car metadata from FEDATA
@@ -282,7 +282,7 @@ namespace LibOpenNFS::NFS3 {
                             // Convert the UV's into ONFS space, to enable tiling/mirroring etc based on NFS texture
                             // flags
                             TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygonTexture.qfsIndex)};
-                            std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(polygonTexture.GetUVs(), false, true)};
+                            std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(polygonTexture.GetUVs(), false, false)};
                             uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
                             // Calculate the normal, as the provided data is a little suspect
@@ -332,7 +332,7 @@ namespace LibOpenNFS::NFS3 {
                     for (uint32_t k = 0; k < extraObjectData.nPolygons; k++) {
                         TexBlock blockTexture{frdFile.textureBlocks[extraObjectData.polyData[k].textureId]};
                         TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(blockTexture.qfsIndex)};
-                        std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(blockTexture.GetUVs(), true, true)};
+                        std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(blockTexture.GetUVs(), true, false)};
                         uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
                         glm::vec3 normal = Utils::CalculateQuadNormal(extraObjectVerts[extraObjectData.polyData[k].vertex[0]],
@@ -390,7 +390,7 @@ namespace LibOpenNFS::NFS3 {
                 for (uint32_t polyIdx = 0; polyIdx < trackPolygonBlock.sz[lodChunkIdx]; polyIdx++) {
                     TexBlock polygonTexture{frdFile.textureBlocks[chunkPolygonData[polyIdx].textureId]};
                     TrackTextureAsset trackTextureAsset{track.trackTextureAssets.at(polygonTexture.qfsIndex)};
-                    std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(polygonTexture.GetUVs(), false, true)};
+                    std::vector<glm::vec2> transformedUVs{trackTextureAsset.ScaleUVs(polygonTexture.GetUVs(), false, false)};
                     uvs.insert(uvs.end(), transformedUVs.begin(), transformedUVs.end());
 
                     glm::vec3 normal = Utils::CalculateQuadNormal(
