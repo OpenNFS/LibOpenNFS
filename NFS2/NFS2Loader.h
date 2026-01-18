@@ -15,7 +15,7 @@ namespace LibOpenNFS::NFS2 {
     template <typename Platform> class Loader {
       public:
         static Car LoadCar(std::string const &carBasePath, std::string const &carOutPath, NFSVersion nfsVersion);
-        static Track LoadTrack(NFSVersion nfsVersion, std::string const &trackBasePath, std::string const &trackOutPath);
+        static Track LoadTrack(NFSVersion nfsVersion, std::string const &trackBasePath);
 
       private:
         static Car::MetaData _ParseGEOModels(GeoFile<Platform> const &geoFile);

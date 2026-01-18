@@ -51,7 +51,7 @@ namespace LibOpenNFS::NFS3 {
         return Car(carData, NFSVersion::NFS_3, carName, carPhysicsData);
     }
 
-    Track Loader::LoadTrack(std::string const &trackBasePath, std::string const &trackOutPath) {
+    Track Loader::LoadTrack(std::string const &trackBasePath) {
         LogInfo("Loading Track located at %s", trackBasePath.c_str());
         std::filesystem::path p(trackBasePath);
         std::string trackName = p.filename().string();
@@ -179,8 +179,8 @@ namespace LibOpenNFS::NFS3 {
             // scaling.
             if (frdTexBlock.unknown1 == 0xFF000000 && frdTexBlock.unknown2 == 0xFF000000 ||
                 frdTexBlock.qfsIndex >= archive.TextureCount()) {
-                LogWarning("Skipping FRD Texture Block with QFS Index: %d as corrupted. Width: %u, Num QFS Textures: %u", frdTexBlock.qfsIndex,
-                           frdTexBlock.width, frdTexBlock.qfsIndex, archive.TextureCount());
+                LogWarning("Skipping FRD Texture Block with QFS Index: %d as corrupted. Width: %u, Num QFS Textures: %u",
+                           frdTexBlock.qfsIndex, frdTexBlock.width, frdTexBlock.qfsIndex, archive.TextureCount());
                 continue;
             }
 

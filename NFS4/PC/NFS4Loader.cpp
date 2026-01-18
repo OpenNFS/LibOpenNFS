@@ -62,7 +62,7 @@ namespace LibOpenNFS::NFS4 {
         return Car(carData, version, carName);
     }
 
-    Track Loader::LoadTrack(std::string const &trackBasePath, std::string const &trackOutPath) {
+    Track Loader::LoadTrack(std::string const &trackBasePath) {
         LogInfo("Loading Track located at %s", trackBasePath.c_str());
         std::filesystem::path p(trackBasePath);
         std::string trackName = p.filename().string();

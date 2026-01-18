@@ -42,7 +42,7 @@ namespace LibOpenNFS::NFS2 {
         return Car(carData, nfsVersion, carName, true);
     }
 
-    template <> Track Loader<PC>::LoadTrack(NFSVersion nfsVersion, std::string const &trackBasePath, std::string const &trackOutPath) {
+    template <> Track Loader<PC>::LoadTrack(NFSVersion nfsVersion, std::string const &trackBasePath) {
         LogInfo("Loading Track located at %s", trackBasePath.c_str());
         std::filesystem::path p(trackBasePath);
         Track track(nfsVersion, p.filename().string(), trackBasePath);
@@ -86,8 +86,7 @@ namespace LibOpenNFS::NFS2 {
         return track;
     }
 
-    template <>
-    Track Loader<PS1>::LoadTrack(NFSVersion const nfsVersion, std::string const &trackBasePath, std::string const &trackOutPath) {
+    template <> Track Loader<PS1>::LoadTrack(NFSVersion const nfsVersion, std::string const &trackBasePath) {
         LogInfo("Loading Track located at %s", trackBasePath.c_str());
         std::filesystem::path p(trackBasePath);
         Track track(nfsVersion, p.filename().string(), trackBasePath);
@@ -239,6 +238,7 @@ namespace LibOpenNFS::NFS2 {
     }
 
     template <typename Platform> std::map<uint32_t, TrackTextureAsset> Loader<Platform>::_ParseTextures(Track const &track) {
+        // PshFile::Extract(track.texturePath, "./");
         Shared::FshArchive archive;
         ASSERT(archive.Load(track.texturePath), "Failed to load texture archive: " << track.texturePath << " - " << archive.LastError());
 
