@@ -2,7 +2,6 @@
 
 #include "Common/Logging.h"
 #include "Common/TextureUtils.h"
-#include "PSH/PshFile.h"
 
 #include <array>
 
@@ -24,8 +23,11 @@ namespace LibOpenNFS::NFS2 {
 
         switch (nfsVersion) {
         case NFSVersion::NFS_3_PS1:
-        case NFSVersion::NFS_2_PS1:
-            PshFile::Extract(pshPath, carOutPath);
+        case NFSVersion::NFS_2_PS1: {
+            Shared::FshArchive archive;
+            archive.Load(pshPath);
+            archive.ExtractAll(carOutPath);
+        }
             break;
         case NFSVersion::NFS_2:
         case NFSVersion::NFS_2_SE:

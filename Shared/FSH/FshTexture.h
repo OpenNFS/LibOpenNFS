@@ -38,7 +38,7 @@ namespace LibOpenNFS::Shared {
         }
 
         bool HasPalette() const {
-            return m_format == PixelFormat::Indexed8Bit ||  m_format == PixelFormat::Indexed8BitPSH ||m_format == PixelFormat::Indexed4Bit;
+            return m_format == PixelFormat::Indexed8Bit || m_format == PixelFormat::Indexed8BitPSH || m_format == PixelFormat::Indexed4Bit;
         }
         bool HasAlpha() const {
             return HasAlphaChannel(m_format) || m_hasAlphaAttachment;
