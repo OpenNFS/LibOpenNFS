@@ -38,7 +38,7 @@ namespace LibOpenNFS::Shared {
         }
 
         bool HasPalette() const {
-            return m_format == PixelFormat::Indexed8Bit;
+            return m_format == PixelFormat::Indexed8Bit ||  m_format == PixelFormat::Indexed8BitPSH ||m_format == PixelFormat::Indexed4Bit;
         }
         bool HasAlpha() const {
             return HasAlphaChannel(m_format) || m_hasAlphaAttachment;
@@ -110,10 +110,12 @@ namespace LibOpenNFS::Shared {
         bool m_hasAlphaAttachment = false;
 
         // Conversion methods
+        void ConvertIndexed4ToARGB32(std::vector<uint32_t> &output) const;
         void ConvertIndexed8ToARGB32(std::vector<uint32_t> &output) const;
         void ConvertARGB32(std::vector<uint32_t> &output) const;
         void ConvertRGB24ToARGB32(std::vector<uint32_t> &output) const;
         void ConvertARGB16_1555ToARGB32(std::vector<uint32_t> &output) const;
+        void ConvertABGR16_1555ToARGB32(std::vector<uint32_t> &output) const;
         void ConvertRGB16_565ToARGB32(std::vector<uint32_t> &output) const;
         void ConvertARGB16_4444ToARGB32(std::vector<uint32_t> &output) const;
         void DecompressDXT1ToARGB32(std::vector<uint32_t> &output) const;

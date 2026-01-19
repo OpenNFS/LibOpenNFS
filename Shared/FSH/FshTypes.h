@@ -15,14 +15,17 @@ namespace LibOpenNFS::Shared {
 
     // Pixel format codes used in FSH entries
     enum class PixelFormat : uint8_t {
-        Indexed8Bit = 0x7B, // 8-bit indexed with palette
-        ARGB32 = 0x7D,      // 32-bit ARGB (8:8:8:8)
-        RGB24 = 0x7F,       // 24-bit RGB (0:8:8:8)
-        ARGB16_1555 = 0x7E, // 16-bit ARGB (1:5:5:5)
-        RGB16_565 = 0x78,   // 16-bit RGB (0:5:6:5)
-        ARGB16_4444 = 0x6D, // 16-bit ARGB (4:4:4:4)
-        DXT1 = 0x60,        // DXT1 compressed (NFS6+)
-        DXT3 = 0x61,        // DXT3 compressed (NFS6+)
+        Indexed4Bit = 0x40,    // 4-bit indexed with palette (PSH)
+        Indexed8BitPSH = 0x41, // 8-bit indexed with palette (PSH)
+        Indexed8Bit = 0x7B,    // 8-bit indexed with palette
+        ARGB32 = 0x7D,         // 32-bit ARGB (8:8:8:8)
+        RGB24 = 0x7F,          // 24-bit RGB (0:8:8:8)
+        ARGB16_1555 = 0x7E,    // 16-bit ARGB (1:5:5:5)
+        ABGR16_1555 = 0x79,    // 16-bit ABGR (1:5:5:5) - PlayStation format
+        RGB16_565 = 0x78,      // 16-bit RGB (0:5:6:5)
+        ARGB16_4444 = 0x6D,    // 16-bit ARGB (4:4:4:4)
+        DXT1 = 0x60,           // DXT1 compressed (NFS6+)
+        DXT3 = 0x61,           // DXT3 compressed (NFS6+)
         Unknown = 0xFF
     };
 
@@ -47,13 +50,17 @@ namespace LibOpenNFS::Shared {
     // Bits per pixel for each format
     inline uint8_t GetBitsPerPixel(PixelFormat const format) {
         switch (format) {
+        case PixelFormat::Indexed4Bit:
+            return 4;
         case PixelFormat::Indexed8Bit:
+        case PixelFormat::Indexed8BitPSH:
             return 8;
         case PixelFormat::ARGB32:
             return 32;
         case PixelFormat::RGB24:
             return 24;
         case PixelFormat::ARGB16_1555:
+        case PixelFormat::ABGR16_1555:
         case PixelFormat::RGB16_565:
         case PixelFormat::ARGB16_4444:
             return 16;
@@ -70,6 +77,7 @@ namespace LibOpenNFS::Shared {
         switch (format) {
         case PixelFormat::ARGB32:
         case PixelFormat::ARGB16_1555:
+        case PixelFormat::ABGR16_1555:
         case PixelFormat::ARGB16_4444:
         case PixelFormat::DXT3:
             return true;
@@ -84,7 +92,10 @@ namespace LibOpenNFS::Shared {
 
     inline std::string PixelFormatToString(PixelFormat const format) {
         switch (format) {
+        case PixelFormat::Indexed4Bit:
+            return "4-bit Indexed";
         case PixelFormat::Indexed8Bit:
+        case PixelFormat::Indexed8BitPSH:
             return "8-bit Indexed";
         case PixelFormat::ARGB32:
             return "32-bit ARGB";
@@ -92,6 +103,8 @@ namespace LibOpenNFS::Shared {
             return "24-bit RGB";
         case PixelFormat::ARGB16_1555:
             return "16-bit ARGB (1:5:5:5)";
+        case PixelFormat::ABGR16_1555:
+            return "16-bit ABGR (1:5:5:5)";
         case PixelFormat::RGB16_565:
             return "16-bit RGB (5:6:5)";
         case PixelFormat::ARGB16_4444:
@@ -181,6 +194,19 @@ namespace LibOpenNFS::Shared {
             // ARGB1555: bit 15 = A, bits 10-14 = R, bits 5-9 = G, bits 0-4 = B
             return Colour(static_cast<uint8_t>(((argb >> 10) & 0x1F) << 3), static_cast<uint8_t>(((argb >> 5) & 0x1F) << 3),
                           static_cast<uint8_t>((argb & 0x1F) << 3), static_cast<uint8_t>((argb & 0x8000) ? 255 : 0));
+        }
+
+        static Colour FromABGR16_1555(uint16_t const abgr) {
+            // ABGR1555 (PlayStation): bit 15 = A, bits 10-14 = B, bits 5-9 = G, bits 0-4 = R
+            auto const r = static_cast<uint8_t>(((abgr & 0x1F) * 255 + 15) / 31);
+            auto const g = static_cast<uint8_t>((((abgr >> 5) & 0x1F) * 255 + 15) / 31);
+            auto const b = static_cast<uint8_t>((((abgr >> 10) & 0x1F) * 255 + 15) / 31);
+            // Alpha: transparent if A bit is 0 AND color is black, otherwise opaque
+            uint8_t a = 255;
+            if (((abgr & 0x8000) == 0) && (r == 0) && (g == 0) && (b == 0)) {
+                a = 0;
+            }
+            return Colour(r, g, b, a);
         }
 
         static Colour FromARGB16_4444(uint16_t const argb) {

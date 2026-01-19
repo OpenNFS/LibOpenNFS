@@ -4,7 +4,6 @@
 
 #include "Common/Logging.h"
 
-#include <NFS2/PSH/PshFile.h>
 #include <fstream>
 
 namespace LibOpenNFS {
@@ -178,10 +177,6 @@ namespace LibOpenNFS {
         std::string onfsTrackAssetTextureDir = outPath + "/textures/";
 
         switch (nfsVer) {
-        case NFSVersion::NFS_2_PS1:
-        case NFSVersion::NFS_3_PS1:
-            // PSH files use a different format, continue using existing PSH extraction logic
-            return NFS2::PshFile::Extract(nfsTexArchivePath.str(), onfsTrackAssetTextureDir);
         case NFSVersion::NFS_3: {
             std::stringstream nfsSkyTexArchivePath;
             nfsSkyTexArchivePath << fullTrackPath.substr(0, fullTrackPath.find_last_of('/')) << "/sky.fsh";

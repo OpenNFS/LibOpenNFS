@@ -1,5 +1,4 @@
 #include "FshArchive.h"
-
 #include <cstring>
 #include <filesystem>
 
@@ -183,7 +182,6 @@ namespace LibOpenNFS::Shared {
             auto const *entryHeader = reinterpret_cast<FshEntryHeader const *>(m_fshData.data() + offset);
             uint8_t const code = entryHeader->GetFormatCode() & 0x7F;
 
-            // Check if this is a bitmap entry
             if (IsBitmapCode(code)) {
                 // Check if this entry has a 0x6F text attachment (indicates next entry is mirrored)
                 if (m_skipMirroredImages) {
@@ -211,11 +209,12 @@ namespace LibOpenNFS::Shared {
     }
 
     bool FshArchive::IsBitmapCode(uint8_t const code) {
-        return code == 0x78 || code == 0x7B || code == 0x7D || code == 0x7E || code == 0x7F || code == 0x6D || code == 0x60 || code == 0x61;
+        return code == 0x78 || code == 0x7B || code == 0x7D || code == 0x7E || code == 0x7F || code == 0x6D || code == 0x60 ||
+               code == 0x61 || code == 0x40 || code == 0x41;
     }
 
     bool FshArchive::IsPaletteCode(uint8_t const code) {
-        return code == 0x22 || code == 0x24 || code == 0x29 || code == 0x2A || code == 0x2D;
+        return code == 0x22 || code == 0x23 || code == 0x24 || code == 0x29 || code == 0x2A || code == 0x2D;
     }
 
     void FshArchive::ParsePalette(size_t const offset, Palette &palette) const {
@@ -232,6 +231,13 @@ namespace LibOpenNFS::Shared {
                 palette[i] = Colour(data[i * 3], data[i * 3 + 1], data[i * 3 + 2], 255);
             }
             break;
+        case 0x23: { // ABGR 1555: (1:5:5:5) - PlayStation format
+            auto const *data16 = reinterpret_cast<uint16_t const *>(data);
+            for (size_t i = 0; i < numColors; ++i) {
+                palette[i] = Colour::FromABGR16_1555(data16[i]);
+            }
+            break;
+        }
         case 0x22: // DOS RGB24 (6-bit per channel)
             for (size_t i = 0; i < numColors; ++i) {
                 palette[i] = Colour(static_cast<uint8_t>(data[i * 3] << 2), static_cast<uint8_t>(data[i * 3 + 1] << 2),
@@ -271,7 +277,7 @@ namespace LibOpenNFS::Shared {
     FshTexture FshArchive::ParseTexture(std::string const &name, size_t const offset, size_t const nextOffset) const {
         auto const *header = reinterpret_cast<FshEntryHeader const *>(m_fshData.data() + offset);
         uint8_t const rawCode = header->GetFormatCode();
-        uint8_t const code = rawCode & 0x7F;
+        uint8_t const code = (rawCode & 0x7F);
         bool const isCompressed = (rawCode & 0x80) != 0;
 
         auto const format = static_cast<PixelFormat>(code);
@@ -280,7 +286,9 @@ namespace LibOpenNFS::Shared {
         // Calculate pixel data size
         size_t dataSize = 0;
         switch (format) {
+        case PixelFormat::Indexed4Bit:
         case PixelFormat::Indexed8Bit:
+        case PixelFormat::Indexed8BitPSH:
             dataSize = static_cast<size_t>(header->width) * header->height;
             break;
         case PixelFormat::ARGB32:
@@ -340,13 +348,13 @@ namespace LibOpenNFS::Shared {
             uint8_t const attachCode = attachHeader->GetFormatCode();
 
             // Check for local palette
-            if (IsPaletteCode(attachCode) && format == PixelFormat::Indexed8Bit) {
+            if (IsPaletteCode(attachCode) && texture.HasPalette()) {
                 ParsePalette(attachOffset, texture.GetPalette());
             }
         }
 
         // Apply global palette if no local palette and format requires it
-        if (format == PixelFormat::Indexed8Bit && m_hasGlobalPalette) {
+        if (texture.HasPalette() && texture.GetPalette().Size() == 0 && m_hasGlobalPalette) {
             texture.GetPalette() = m_globalPalette;
         }
 

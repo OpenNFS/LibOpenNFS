@@ -5,7 +5,11 @@ namespace LibOpenNFS::Shared {
         std::vector<uint32_t> pixels(static_cast<size_t>(m_width) * m_height);
 
         switch (m_format) {
+        case PixelFormat::Indexed4Bit:
+            ConvertIndexed4ToARGB32(pixels);
+            break;
         case PixelFormat::Indexed8Bit:
+        case PixelFormat::Indexed8BitPSH:
             ConvertIndexed8ToARGB32(pixels);
             break;
         case PixelFormat::ARGB32:
@@ -16,6 +20,9 @@ namespace LibOpenNFS::Shared {
             break;
         case PixelFormat::ARGB16_1555:
             ConvertARGB16_1555ToARGB32(pixels);
+            break;
+        case PixelFormat::ABGR16_1555:
+            ConvertABGR16_1555ToARGB32(pixels);
             break;
         case PixelFormat::RGB16_565:
             ConvertRGB16_565ToARGB32(pixels);
@@ -179,6 +186,14 @@ namespace LibOpenNFS::Shared {
         return file.good();
     }
 
+    void FshTexture::ConvertIndexed4ToARGB32(std::vector<uint32_t> &output) const {
+        // For PSH 4-bit indexed, raw data is already unpacked to 1 byte per pixel
+        for (size_t i = 0; i < m_rawData.size() && i < output.size(); ++i) {
+            uint8_t const index = m_rawData[i] & 0x0F; // Ensure index is in valid range
+            output[i] = m_palette[index].ToARGB32();
+        }
+    }
+
     void FshTexture::ConvertIndexed8ToARGB32(std::vector<uint32_t> &output) const {
         for (size_t i = 0; i < m_rawData.size(); ++i) {
             output[i] = m_palette[m_rawData[i]].ToARGB32();
@@ -186,7 +201,7 @@ namespace LibOpenNFS::Shared {
     }
 
     void FshTexture::ConvertARGB32(std::vector<uint32_t> &output) const {
-        auto const *src = reinterpret_cast<uint32_t const *>(m_rawData.data());
+        auto const *src = m_rawData.data();
         for (size_t y = 0; y < m_height; ++y) {
             for (size_t x = 0; x < m_width; ++x) {
                 size_t const idx = y * m_width + x;
@@ -217,6 +232,13 @@ namespace LibOpenNFS::Shared {
         auto const *src = reinterpret_cast<uint16_t const *>(m_rawData.data());
         for (size_t i = 0; i < static_cast<size_t>(m_width) * m_height; ++i) {
             output[i] = Colour::FromARGB16_1555(src[i]).ToARGB32();
+        }
+    }
+
+    void FshTexture::ConvertABGR16_1555ToARGB32(std::vector<uint32_t> &output) const {
+        auto const *src = reinterpret_cast<uint16_t const *>(m_rawData.data());
+        for (size_t i = 0; i < static_cast<size_t>(m_width) * m_height; ++i) {
+            output[i] = Colour::FromABGR16_1555(src[i]).ToARGB32();
         }
     }
 
