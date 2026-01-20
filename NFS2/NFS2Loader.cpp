@@ -26,9 +26,8 @@ namespace LibOpenNFS::NFS2 {
         case NFSVersion::NFS_2_PS1: {
             Shared::FshArchive archive;
             archive.Load(pshPath);
-            archive.ExtractAll(carOutPath);
-        }
-            break;
+            ASSERT(archive.ExtractAll(carOutPath), "Failed to extract NFS2/3 PSX car texture)");
+        } break;
         case NFSVersion::NFS_2:
         case NFSVersion::NFS_2_SE:
             TextureUtils::ExtractQFS(qfsPath, carOutPath);

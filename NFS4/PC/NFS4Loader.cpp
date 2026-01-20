@@ -17,10 +17,11 @@ namespace LibOpenNFS::NFS4 {
         std::filesystem::path p(carBasePath);
         std::string carName = p.filename().replace_extension("").string();
 
-        std::stringstream vivPath, fcePath, fshPath, fedataPath;
+        std::stringstream vivPath, fcePath, fshPath, fedataPath, carpPath;
         vivPath << carBasePath;
         fcePath << carOutPath;
         fedataPath << carOutPath << "/fedata.eng";
+        carpPath << carOutPath << "/carp.txt";
 
         if (version == NFSVersion::NFS_4) {
             vivPath << "/car.viv";
@@ -35,6 +36,9 @@ namespace LibOpenNFS::NFS4 {
         Shared::VivArchive vivFile;
         FceFile fceFile;
         FedataFile fedataFile;
+        Shared::CarpFile carpFile;
+
+        Car::PhysicsData carPhysicsData;
 
         if (std::filesystem::exists(carOutPath)) {
             LogInfo("VIV has already been extracted to %s, skipping", carOutPath.c_str());
@@ -46,6 +50,11 @@ namespace LibOpenNFS::NFS4 {
         ASSERT(NFS4::FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
         if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nColours)) {
             LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
+        }
+        if (Shared::CarpFile::Load(carpPath.str(), carpFile)) {
+            carPhysicsData = _ParsePhysicsData(carpFile);
+        } else {
+            LogWarning("Could not load carp.txt file: %s", carpPath.str().c_str());
         }
 
         if (version == NFSVersion::MCO) {
@@ -59,7 +68,7 @@ namespace LibOpenNFS::NFS4 {
 
         Car::MetaData const carData{_ParseAssetData(fceFile, fedataFile, version)};
 
-        return Car(carData, version, carName);
+        return Car(carData, version, carName, carPhysicsData);
     }
 
     Track Loader::LoadTrack(std::string const &trackBasePath) {
@@ -170,6 +179,100 @@ namespace LibOpenNFS::NFS4 {
         }
 
         return carMetadata;
+    }
+
+    Car::PhysicsData Loader::_ParsePhysicsData(Shared::CarpFile const &carpFile) {
+        Car::PhysicsData physicsData;
+
+        // Old fields (for backwards compatibility with Bullet physics)
+        physicsData.mass = carpFile.mass;
+        physicsData.maxSpeed = carpFile.topSpeedCap * 3.6f; // topSpeedCap is in m/s
+        physicsData.suspensionStiffness = carpFile.suspensionStiffness * 750.f;
+        physicsData.maxBreakingForce = carpFile.maximumBrakingDeceleration * 3.6f;
+
+        // NFS3/NFS4 carp.txt fields
+        physicsData.serialNumber = carpFile.serialNumber;
+        physicsData.carClassification = carpFile.carClassification;
+        physicsData.numberOfGearsManual = carpFile.numberOfGearsManual;
+        physicsData.numberOfGearsAutomatic = carpFile.numberOfGearsAutomatic;
+        physicsData.gearShiftDelay = carpFile.gearShiftDelay;
+        physicsData.shiftBlipInRpm = carpFile.shiftBlipInRpm;
+        physicsData.brakeBlipInRpm = carpFile.brakeBlipInRpm;
+        physicsData.velocityToRpmRatioManual = carpFile.velocityToRpmRatioManual;
+        physicsData.velocityToRpmRatioAutomatic = carpFile.velocityToRpmRatioAutomatic;
+        physicsData.gearRatiosManual = carpFile.gearRatiosManual;
+        physicsData.gearRatiosAutomatic = carpFile.gearRatiosAutomatic;
+        physicsData.gearEfficiencyManual = carpFile.gearEfficiencyManual;
+        physicsData.gearEfficiencyAutomatic = carpFile.gearEfficiencyAutomatic;
+        physicsData.torqueCurve = carpFile.torqueCurve;
+        physicsData.finalGearManual = carpFile.finalGearManual;
+        physicsData.finalGearAutomatic = carpFile.finalGearAutomatic;
+        physicsData.engineMinimumRpm = carpFile.engineMinimumRpm;
+        physicsData.engineRedlineInRpm = carpFile.engineRedlineInRpm;
+        physicsData.maximumVelocityOfCar = carpFile.maximumVelocityOfCar;
+        physicsData.topSpeedCap = carpFile.topSpeedCap;
+        physicsData.frontDriveRatio = carpFile.frontDriveRatio;
+        physicsData.usesAntilockBrakeSystem = carpFile.usesAntilockBrakeSystem;
+        physicsData.maximumBrakingDeceleration = carpFile.maximumBrakingDeceleration;
+        physicsData.frontBiasBrakeRatio = carpFile.frontBiasBrakeRatio;
+        physicsData.gasIncreasingCurve = carpFile.gasIncreasingCurve;
+        physicsData.gasDecreasingCurve = carpFile.gasDecreasingCurve;
+        physicsData.brakeIncreasingCurve = carpFile.brakeIncreasingCurve;
+        physicsData.brakeDecreasingCurve = carpFile.brakeDecreasingCurve;
+        physicsData.wheelBase = carpFile.wheelBase;
+        physicsData.frontGripBias = carpFile.frontGripBias;
+        physicsData.powerSteering = carpFile.powerSteering;
+        physicsData.minimumSteeringAcceleration = carpFile.minimumSteeringAcceleration;
+        physicsData.turnInRamp = carpFile.turnInRamp;
+        physicsData.turnOutRamp = carpFile.turnOutRamp;
+        physicsData.lateralAccelerationGripMultiplier = carpFile.lateralAccelerationGripMultiplier;
+        physicsData.aerodynamicDownforceMultiplier = carpFile.aerodynamicDownforceMultiplier;
+        physicsData.gasOffFactor = carpFile.gasOffFactor;
+        physicsData.gTransferFactor = carpFile.gTransferFactor;
+        physicsData.turningCircleRadius = carpFile.turningCircleRadius;
+        physicsData.tireSpecsFront = carpFile.tireSpecsFront;
+        physicsData.tireSpecsRear = carpFile.tireSpecsRear;
+        physicsData.tireWear = carpFile.tireWear;
+        physicsData.slideMultiplier = carpFile.slideMultiplier;
+        physicsData.spinVelocityCap = carpFile.spinVelocityCap;
+        physicsData.slideVelocityCap = carpFile.slideVelocityCap;
+        physicsData.slideAssistanceFactor = carpFile.slideAssistanceFactor;
+        physicsData.pushFactor = carpFile.pushFactor;
+        physicsData.lowTurnFactor = carpFile.lowTurnFactor;
+        physicsData.highTurnFactor = carpFile.highTurnFactor;
+        physicsData.pitchRollFactor = carpFile.pitchRollFactor;
+        physicsData.roadBumpinessFactor = carpFile.roadBumpinessFactor;
+        physicsData.spoilerFunctionType = carpFile.spoilerFunctionType;
+        physicsData.spoilerActivationSpeed = carpFile.spoilerActivationSpeed;
+        physicsData.gradualTurnCutoff = carpFile.gradualTurnCutoff;
+        physicsData.mediumTurnCutoff = carpFile.mediumTurnCutoff;
+        physicsData.sharpTurnCutoff = carpFile.sharpTurnCutoff;
+        physicsData.mediumTurnSpeedModifier = carpFile.mediumTurnSpeedModifier;
+        physicsData.sharpTurnSpeedModifier = carpFile.sharpTurnSpeedModifier;
+        physicsData.extremeTurnSpeedModifier = carpFile.extremeTurnSpeedModifier;
+        physicsData.subdivideLevel = carpFile.subdivideLevel;
+        physicsData.cameraArm = carpFile.cameraArm;
+        physicsData.bodyDamage = carpFile.bodyDamage;
+        physicsData.engineDamage = carpFile.engineDamage;
+        physicsData.suspensionDamage = carpFile.suspensionDamage;
+        physicsData.engineTuning = carpFile.engineTuning;
+        physicsData.breakBalance = carpFile.breakBalance;
+        physicsData.steeringSpeed = carpFile.steeringSpeed;
+        physicsData.gearRatFactor = carpFile.gearRatFactor;
+        physicsData.aeroFactor = carpFile.aeroFactor;
+        physicsData.tireFactor = carpFile.tireFactor;
+        physicsData.aiAcc0AccelerationTable = carpFile.aiAcc0AccelerationTable;
+        physicsData.aiAcc1AccelerationTable = carpFile.aiAcc1AccelerationTable;
+        physicsData.aiAcc2AccelerationTable = carpFile.aiAcc2AccelerationTable;
+        physicsData.aiAcc3AccelerationTable = carpFile.aiAcc3AccelerationTable;
+        physicsData.aiAcc4AccelerationTable = carpFile.aiAcc4AccelerationTable;
+        physicsData.aiAcc5AccelerationTable = carpFile.aiAcc5AccelerationTable;
+        physicsData.aiAcc6AccelerationTable = carpFile.aiAcc6AccelerationTable;
+        physicsData.aiAcc7AccelerationTable = carpFile.aiAcc7AccelerationTable;
+        // NFS4 specific
+        physicsData.understeerGradient = carpFile.understeerGradient;
+
+        return physicsData;
     }
 
     std::map<uint32_t, TrackTextureAsset> Loader::_ParseTextures(Track const &track) {

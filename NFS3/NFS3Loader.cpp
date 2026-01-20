@@ -25,7 +25,7 @@ namespace LibOpenNFS::NFS3 {
         Shared::VivArchive vivFile;
         FceFile fceFile;
         FedataFile fedataFile;
-        CarpFile carpFile;
+        Shared::CarpFile carpFile;
 
         Car::PhysicsData carPhysicsData;
 
@@ -40,7 +40,7 @@ namespace LibOpenNFS::NFS3 {
         if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nPriColours)) {
             LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
         }
-        if (CarpFile::Load(carpPath.str(), carpFile)) {
+        if (Shared::CarpFile::Load(carpPath.str(), carpFile)) {
             carPhysicsData = _ParsePhysicsData(carpFile);
         } else {
             LogWarning("Could not load carp.txt file: %s", carpPath.str().c_str());
@@ -154,7 +154,7 @@ namespace LibOpenNFS::NFS3 {
         return carMetadata;
     }
 
-    Car::PhysicsData Loader::_ParsePhysicsData(CarpFile const &carpFile) {
+    Car::PhysicsData Loader::_ParsePhysicsData(Shared::CarpFile const &carpFile) {
         Car::PhysicsData physicsData;
 
         physicsData.mass = carpFile.mass;

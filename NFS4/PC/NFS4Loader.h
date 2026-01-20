@@ -6,6 +6,7 @@
 #include "FCE/FceFile.h"
 #include "FEDATA/FedataFile.h"
 #include "FRD/FrdFile.h"
+#include "Shared/CARP/CarpFile.h"
 
 namespace LibOpenNFS::NFS4 {
     constexpr glm::vec3 NFS4_SCALE_FACTOR(-0.1, 0.1, 0.1f);
@@ -16,6 +17,7 @@ namespace LibOpenNFS::NFS4 {
 
       private:
         static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile, NFSVersion version);
+        static Car::PhysicsData _ParsePhysicsData(Shared::CarpFile const &carpFile);
         static std::map<uint32_t, TrackTextureAsset> _ParseTextures(Track const &track);
         static std::pair<std::vector<TrackBlock>, std::vector<TrackEntity>> _ParseFRDModels(FrdFile const &frdFile, Track &track);
         static std::vector<TrackVRoad> _ParseVirtualRoad(FrdFile const &frdFile);

@@ -33,7 +33,6 @@ set(LIBOPENNFS_SOURCES
         NFS2/TRK/TrackBlock.cpp
         NFS2/TRK/TrkFile.cpp
         NFS3/NFS3Loader.cpp
-        NFS3/CARP/CarpFile.cpp
         NFS3/COL/ColFile.cpp
         NFS3/FCE/FceFile.cpp
         NFS3/FEDATA/FedataFile.cpp
@@ -57,6 +56,7 @@ set(LIBOPENNFS_SOURCES
         NFS4/PC/FRD/AnimBlock.cpp
         NFS4/PC/FRD/SpecialBlock.cpp
         Shared/CAN/CanFile.cpp
+        Shared/CARP/CarpFile.cpp
         Shared/FSH/QfsCompression.cpp
         Shared/FSH/FshTexture.cpp
         Shared/FSH/FshArchive.cpp
