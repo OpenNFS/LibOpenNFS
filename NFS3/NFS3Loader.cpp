@@ -37,7 +37,7 @@ namespace LibOpenNFS::NFS3 {
                    "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
         }
         ASSERT(FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
-        if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nPriColours)) {
+        if (!FedataFile::Load(fedataPath.str(), fedataFile)) {
             LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
         }
         if (Shared::CarpFile::Load(carpPath.str(), carpFile)) {
@@ -49,6 +49,47 @@ namespace LibOpenNFS::NFS3 {
         Car::MetaData carData = _ParseAssetData(fceFile, fedataFile);
 
         return Car(carData, NFSVersion::NFS_3, carName, carPhysicsData);
+    }
+
+    Car::MetaData Loader::LoadCarMetaData(std::string const &carBasePath, std::string const &carOutPath) {
+        LogInfo("Loading NFS3 car from %s into %s", carBasePath.c_str(), carOutPath.c_str());
+
+        std::filesystem::path p(carBasePath);
+        std::string carName = p.filename().string();
+
+        std::stringstream vivPath, fcePath, fedataPath, carpPath;
+        vivPath << carBasePath << "/car.viv";
+        fcePath << carOutPath << "/car.fce";
+        fedataPath << carOutPath << "/fedata.eng";
+        carpPath << carOutPath << "/carp.txt";
+
+        Shared::VivArchive vivFile;
+        FceFile fceFile;
+        FedataFile fedataFile;
+        Shared::CarpFile carpFile;
+
+        Car::PhysicsData carPhysicsData;
+
+        if (std::filesystem::exists(carOutPath)) {
+            LogInfo("VIV has already been extracted to %s, skipping", carOutPath.c_str());
+        } else {
+            ASSERT(Shared::VivArchive::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
+            ASSERT(Shared::VivArchive::Extract(carOutPath, vivFile),
+                   "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
+        }
+        ASSERT(FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
+        if (!FedataFile::Load(fedataPath.str(), fedataFile)) {
+            LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
+        }
+        if (Shared::CarpFile::Load(carpPath.str(), carpFile)) {
+            carPhysicsData = _ParsePhysicsData(carpFile);
+        } else {
+            LogWarning("Could not load carp.txt file: %s", carpPath.str().c_str());
+        }
+
+        Car::MetaData carData = _ParseAssetData(fceFile, fedataFile);
+
+        return Car::MetaData();
     }
 
     Track Loader::LoadTrack(std::string const &trackBasePath) {

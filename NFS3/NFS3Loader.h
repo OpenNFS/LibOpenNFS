@@ -27,6 +27,8 @@ namespace LibOpenNFS::NFS3 {
     class Loader {
       public:
         static Car LoadCar(std::string const &carBasePath, std::string const &carOutPath);
+        static Car::MetaData LoadCarMetaData(std::string const &carBasePath, std::string const &carOutPath);
+
         static Track LoadTrack(std::string const &trackBasePath);
 
       private:
