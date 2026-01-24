@@ -239,7 +239,6 @@ namespace LibOpenNFS::NFS2 {
     }
 
     template <typename Platform> std::map<uint32_t, TrackTextureAsset> Loader<Platform>::_ParseTextures(Track const &track) {
-        // PshFile::Extract(track.texturePath, "./");
         Shared::FshArchive archive;
         ASSERT(archive.Load(track.texturePath), "Failed to load texture archive: " << track.texturePath << " - " << archive.LastError());
 

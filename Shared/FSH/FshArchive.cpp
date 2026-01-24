@@ -354,7 +354,7 @@ namespace LibOpenNFS::Shared {
         }
 
         // Apply global palette if no local palette and format requires it
-        if (texture.HasPalette() && texture.GetPalette().Size() == 0 && m_hasGlobalPalette) {
+        if (texture.HasPalette() && m_hasGlobalPalette) {
             texture.GetPalette() = m_globalPalette;
         }
 
