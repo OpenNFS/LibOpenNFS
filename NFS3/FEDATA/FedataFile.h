@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Common/IRawData.h"
+#include "../../Shared/VIV/VivArchive.h"
 
 namespace LibOpenNFS::NFS3 {
 

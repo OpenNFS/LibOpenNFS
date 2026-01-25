@@ -30,6 +30,8 @@ namespace LibOpenNFS::NFS3 {
         static Car LoadCar(std::string const &carBasePath, std::string const &carOutPath);
         static Track LoadTrack(std::string const &trackBasePath);
 
+        static FedataFile LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath);
+
       private:
         static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile);
         static Car::PhysicsData _ParsePhysicsData(Shared::CarpFile const &carpFile);

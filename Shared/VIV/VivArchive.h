@@ -14,6 +14,7 @@ namespace LibOpenNFS::Shared {
         static bool Load(std::string const &vivPath, VivArchive &vivFile);
         static void Save(std::string const &vivPath, VivArchive &vivFile);
         static bool Extract(std::string const &outPath, VivArchive &vivFile);
+        static bool ExtractFile(std::string const &outPath, VivArchive &vivFile, std::string const &fileName);
 
         char vivHeader[4];
         uint32_t vivSize;
