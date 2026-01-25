@@ -44,7 +44,7 @@ void FedataFile::Save(std::string const &fedataPath, FedataFile &fedataFile) {
 }
 
 bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
-    // Go get the offset of car name
+    // Go get the offset of car id
     ifstream.seekg(0, std::ios::beg);
     char carId[ID_LENGTH + 1];
     onfs_check(safe_read(ifstream, carId, sizeof(char) * ID_LENGTH));
