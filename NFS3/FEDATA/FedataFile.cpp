@@ -168,7 +168,7 @@ bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
                 std::getline(ifstream, gearbox, '\0');
                 break;
             default:
-                LogInfo("Unhandled string %d in fedata!", i);
+                LogWarning("Unhandled string %d in fedata!", i);
                 break;
         }
         ifstream.seekg(current_offset, std::ios::beg);
