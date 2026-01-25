@@ -47,7 +47,6 @@ namespace LibOpenNFS::NFS3 {
         onfs_check(safe_read(ifstream, partNames, sizeof(char) * 64 * 64));
         onfs_check(safe_read(ifstream, unknownTable, sizeof(uint32_t) * 64));
 
-        LogInfo("Number of primary colors %u", nPriColours);
         carParts.resize(nParts);
 
         for (uint32_t partIdx = 0; partIdx < nParts; ++partIdx) {
