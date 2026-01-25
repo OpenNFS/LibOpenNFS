@@ -74,6 +74,8 @@ namespace LibOpenNFS::Shared {
             }
             out.write((char *)curFile.data.data(), curFile.data.size());
             out.close();
+            fileExtracted = true;
+            break;
         }
 
         return fileExtracted;
