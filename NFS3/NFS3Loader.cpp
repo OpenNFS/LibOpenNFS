@@ -145,7 +145,7 @@ namespace LibOpenNFS::NFS3 {
         Car::MetaData carMetadata;
 
         // Go get car metadata from FEDATA
-        carMetadata.name = fedataFile.menuName;
+        carMetadata.name = fedataFile.carName;
 
         // Grab colours
         for (uint8_t colourIdx = 0; colourIdx < fceFile.nPriColours; ++colourIdx) {

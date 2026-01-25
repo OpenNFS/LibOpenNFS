@@ -4,8 +4,13 @@
 
 namespace LibOpenNFS::NFS3 {
 
-    static constexpr uint32_t COLOUR_TABLE_OFFSET = 0xA7;
-    static constexpr uint32_t MENU_NAME_FILEPOS_OFFSET = 0x37;
+    static constexpr uint32_t ID_LENGTH = 4;
+    static constexpr uint32_t STATS_OFFSET = 40;
+    static constexpr uint32_t STRING_OFFSET_OFFSET = 47;
+    static constexpr uint32_t EXPECTED_FLAG_COUNT = 9;
+    static constexpr uint32_t EXPECTED_STRING_ENTRIES = 40;
+    static constexpr uint32_t HISTORY_COUNT = 8;
+    static constexpr uint32_t COLOR_COUNT = 10;
 
     class FedataFile final : IRawData {
       public:
@@ -15,8 +20,51 @@ namespace LibOpenNFS::NFS3 {
         static void Save(std::string const &fedataPath, FedataFile &fedataFile);
 
         std::string id = "0000";
-        uint16_t isBonus = false;
-        std::string menuName;
+
+        // General data
+        bool isBonus = false;
+        bool isAvailableToAi = false;
+        uint16_t vehicleClass = 2;  // 2 is the slowest class, 0 the fastest
+        uint16_t unknown1 = 3;  // No idea what this is, but it is always 3
+        bool isDlcCar = 0;
+        bool isPolice = false;
+        uint16_t seat = 0;  // This is what Vivianne calls it, not sure what it means
+        uint16_t unknown2 = 1;  // Set to 0 for merc, elni, peln, knoc and lcop. Set to 1 for everything else
+        uint16_t unknown3 = 0;  // This value is different per car, but we have no clue what it means
+        uint16_t serial = 0;
+
+        // Compare values
+        uint8_t acceleration = 0;
+        uint8_t topSpeed = 0;
+        uint8_t handling = 0;
+        uint8_t breaking = 0;
+        uint8_t unknownStat = 5;  // This is always 5 for some reason
+
+        // Text translation values
+        std::string manufacturer;
+        std::string model;
+        std::string carName;
+        std::string price;
+        std::string status;
+        std::string weight;
+        std::string weightDistribution;
+        std::string length;
+        std::string width;
+        std::string height;
+        std::string engine;
+        std::string displacement;
+        std::string horsePower;
+        std::string torque;
+        std::string maximumRpm;
+        std::string brakes;
+        std::string tires;
+        std::string topSpeedText;
+        std::string zeroToSixty;
+        std::string zeroToOneHundred;
+        std::string transmission;
+        std::string gearbox;
+
+        std::vector<std::string> history;
         std::vector<std::string> primaryColourNames;
 
       private:
