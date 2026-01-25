@@ -59,7 +59,6 @@ namespace LibOpenNFS::Shared {
             return true;
         }
 
-        bool fileExtracted = false;
         for (uint32_t fileIdx = 0; fileIdx < vivFile.nFiles; ++fileIdx) {
             VivEntry &curFile{vivFile.files.at(fileIdx)};
 
@@ -74,11 +73,10 @@ namespace LibOpenNFS::Shared {
             }
             out.write((char *)curFile.data.data(), curFile.data.size());
             out.close();
-            fileExtracted = true;
-            break;
+            return true;
         }
 
-        return fileExtracted;
+        return false;
     }
 
     bool VivArchive::_SerializeIn(std::ifstream &ifstream) {
