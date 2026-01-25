@@ -46,10 +46,12 @@ void FedataFile::Save(std::string const &fedataPath, FedataFile &fedataFile) {
 bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
     // Go get the offset of car id
     ifstream.seekg(0, std::ios::beg);
-    char carId[ID_LENGTH + 1];
-    onfs_check(safe_read(ifstream, carId, sizeof(char) * ID_LENGTH));
-    carId[ID_LENGTH] = '\0';
-    id = carId;
+    id = "";
+    for (int i = 0; i< ID_LENGTH; i++) {
+        char character;
+        onfs_check(safe_read(ifstream, character));
+        id += std::tolower(character);
+    }
 
     // Read flag count, I think that means values until the serial
     uint16_t flagCount = 0;

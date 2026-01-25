@@ -19,7 +19,7 @@ namespace LibOpenNFS::NFS3 {
         static bool Load(std::string const &fedataPath, FedataFile &fedataFile);
         static void Save(std::string const &fedataPath, FedataFile &fedataFile);
 
-        std::string id = "0000";
+        std::string id;
 
         // General data
         bool isBonus = false;
