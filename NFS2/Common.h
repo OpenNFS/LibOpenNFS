@@ -110,7 +110,7 @@ namespace LibOpenNFS::NFS2 {
             uint32_t unknown1; // Block type? Changes how many padding bytes there are uint16_t[(unknown1 + extraPadByte)*2]
             uint32_t nNormals; // Extra verts for higher LOD?
             uint32_t nPolygons;
-            int32_t position[3];    // Absolute X,Y,Z reference
+            glm::i32vec3 position;  // Absolute X,Y,Z reference
             int16_t unknown2[4][2]; // No clue
             uint64_t padding[3];    // Always 0, 1, 1
         };

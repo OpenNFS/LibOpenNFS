@@ -9,7 +9,9 @@
 #include "Shared/CARP/CarpFile.h"
 
 namespace LibOpenNFS::NFS4 {
-    constexpr glm::vec3 NFS4_SCALE_FACTOR(-0.1, 0.1, 0.1f);
+    constexpr glm::vec3 TRACK_SCALE_FACTOR(-1, 1, 1);
+    constexpr glm::vec3 CAR_SCALE_FACTOR(-1.2, 1.2, 1.2);
+
     class Loader {
       public:
         static Car LoadCar(std::string const &carBasePath, std::string const &carOutPath, NFSVersion version);

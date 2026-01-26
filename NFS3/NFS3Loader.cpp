@@ -116,7 +116,7 @@ namespace LibOpenNFS::NFS3 {
         }
 
         for (uint32_t dummyIdx = 0; dummyIdx < fceFile.nDummies; ++dummyIdx) {
-            Car::Dummy dummy(fceFile.dummyNames[dummyIdx], fceFile.dummyCoords[dummyIdx] * SCALE_FACTOR);
+            Car::Dummy dummy(fceFile.dummyNames[dummyIdx], fceFile.dummyCoords[dummyIdx] * CAR_SCALE_FACTOR);
             carMetadata.dummies.emplace_back(dummy);
         }
 
@@ -128,14 +128,14 @@ namespace LibOpenNFS::NFS3 {
             std::vector<glm::vec2> uvs;
 
             std::string part_name(fceFile.partNames[partIdx]);
-            glm::vec3 center{fceFile.partCoords[partIdx] * SCALE_FACTOR};
+            glm::vec3 center{fceFile.partCoords[partIdx] * CAR_SCALE_FACTOR};
             FceFile::CarPart const &part{fceFile.carParts[partIdx]};
 
             for (uint32_t vert_Idx = 0; vert_Idx < fceFile.partNumVertices[partIdx]; ++vert_Idx) {
-                vertices.emplace_back(part.vertices[vert_Idx] * SCALE_FACTOR);
+                vertices.emplace_back(part.vertices[vert_Idx] * CAR_SCALE_FACTOR);
             }
             for (uint32_t normal_Idx = 0; normal_Idx < fceFile.partNumVertices[partIdx]; ++normal_Idx) {
-                normals.emplace_back(part.normals[normal_Idx] * SCALE_FACTOR);
+                normals.emplace_back(part.normals[normal_Idx] * CAR_SCALE_FACTOR);
             }
             for (uint32_t tri_Idx = 0; tri_Idx < fceFile.partNumTriangles[partIdx]; ++tri_Idx) {
                 polygonFlags.emplace_back(part.triangles[tri_Idx].polygonFlags);
@@ -225,7 +225,7 @@ namespace LibOpenNFS::NFS3 {
             TrkBlock rawTrackBlock{frdFile.trackBlocks[trackblockIdx]};
             PolyBlock trackPolygonBlock{frdFile.polygonBlocks[trackblockIdx]};
 
-            glm::vec3 rawTrackBlockCenter{rawTrackBlock.ptCentre * SCALE_FACTOR};
+            glm::vec3 rawTrackBlockCenter{rawTrackBlock.ptCentre * TRACK_SCALE_FACTOR};
             std::vector<uint32_t> trackBlockNeighbourIds;
             std::vector<glm::vec3> trackBlockVerts;
             std::vector<glm::vec4> trackBlockShadingData;
@@ -245,17 +245,17 @@ namespace LibOpenNFS::NFS3 {
 
             // Light and sound sources
             for (uint32_t lightNum = 0; lightNum < rawTrackBlock.nLightsrc; ++lightNum) {
-                glm::vec3 lightCenter{Utils::FixedToFloat(rawTrackBlock.lightsrc[lightNum].refpoint) * SCALE_FACTOR};
+                glm::vec3 lightCenter{Utils::FixedToFloat(rawTrackBlock.lightsrc[lightNum].refpoint) * TRACK_SCALE_FACTOR};
                 trackBlock.lights.emplace_back(lightNum, lightCenter, rawTrackBlock.lightsrc[lightNum].type);
             }
             for (uint32_t soundNum = 0; soundNum < rawTrackBlock.nSoundsrc; ++soundNum) {
-                glm::vec3 soundCenter{Utils::FixedToFloat(rawTrackBlock.soundsrc[soundNum].refpoint) * SCALE_FACTOR};
+                glm::vec3 soundCenter{Utils::FixedToFloat(rawTrackBlock.soundsrc[soundNum].refpoint) * TRACK_SCALE_FACTOR};
                 trackBlock.sounds.emplace_back(soundNum, soundCenter, rawTrackBlock.soundsrc[soundNum].type);
             }
 
             // Get Trackblock roadVertices and per-vertex shading data
             for (uint32_t vertIdx = 0; vertIdx < rawTrackBlock.nObjectVert; ++vertIdx) {
-                trackBlockVerts.emplace_back((rawTrackBlock.vert[vertIdx] * SCALE_FACTOR) - rawTrackBlockCenter);
+                trackBlockVerts.emplace_back((rawTrackBlock.vert[vertIdx] * TRACK_SCALE_FACTOR) - rawTrackBlockCenter);
                 trackBlockShadingData.emplace_back(TextureUtils::ShadingDataToVec4(rawTrackBlock.vertShading[vertIdx]));
             }
 
@@ -325,7 +325,7 @@ namespace LibOpenNFS::NFS3 {
                     ExtraObjectData extraObjectData{frdFile.extraObjectBlocks[l].obj[j]};
 
                     for (uint32_t vertIdx = 0; vertIdx < extraObjectData.nVertices; vertIdx++) {
-                        extraObjectVerts.emplace_back(extraObjectData.vert[vertIdx] * SCALE_FACTOR);
+                        extraObjectVerts.emplace_back(extraObjectData.vert[vertIdx] * TRACK_SCALE_FACTOR);
                         extraObjectShadingData.emplace_back(TextureUtils::ShadingDataToVec4(extraObjectData.vertShading[vertIdx]));
                     }
 
@@ -350,7 +350,7 @@ namespace LibOpenNFS::NFS3 {
 
                         accumulatedObjectFlags |= extraObjectData.polyData[k].flags;
                     }
-                    glm::vec3 extraObjectCenter{extraObjectData.ptRef * SCALE_FACTOR};
+                    glm::vec3 extraObjectCenter{extraObjectData.ptRef * TRACK_SCALE_FACTOR};
                     auto extraObjectModel{TrackGeometry(extraObjectVerts, normals, uvs, textureIndices, vertexIndices,
                                                         extraObjectShadingData, extraObjectCenter)};
                     if (extraObjectData.crosstype == 3) {
@@ -374,7 +374,7 @@ namespace LibOpenNFS::NFS3 {
             uint32_t accumulatedObjectFlags{0u};
 
             for (uint32_t vertIdx = 0; vertIdx < rawTrackBlock.nVertices; ++vertIdx) {
-                roadVertices.emplace_back((rawTrackBlock.vert[vertIdx] * SCALE_FACTOR) - rawTrackBlockCenter);
+                roadVertices.emplace_back((rawTrackBlock.vert[vertIdx] * TRACK_SCALE_FACTOR) - rawTrackBlockCenter);
                 roadShadingData.emplace_back(TextureUtils::ShadingDataToVec4(rawTrackBlock.vertShading[vertIdx]));
             }
             // Get indices from Chunk 4 and 5 for High Res polys, Chunk 6 for Road Lanes
@@ -426,16 +426,16 @@ namespace LibOpenNFS::NFS3 {
             ColVRoad const &vroad{colFile.vroad[vroadIdx]};
 
             // Transform NFS3/4 coords into ONFS 3d space
-            glm::vec3 position{Utils::FixedToFloat(vroad.refPt) * SCALE_FACTOR};
+            glm::vec3 position{Utils::FixedToFloat(vroad.refPt) * TRACK_SCALE_FACTOR};
             position.y += 0.2f;
 
             // Get VROAD right vector
             auto right{(glm::vec3(vroad.right) / 128.f)};
-            auto forward{(glm::vec3(vroad.forward) / 128.f) * SCALE_FACTOR};
-            auto normal{(glm::vec3(vroad.normal) / 128.f) * SCALE_FACTOR};
+            auto forward{(glm::vec3(vroad.forward) / 128.f) * TRACK_SCALE_FACTOR};
+            auto normal{(glm::vec3(vroad.normal) / 128.f) * TRACK_SCALE_FACTOR};
 
-            glm::vec3 leftWall{((vroad.leftWall / 65536.0f) * SCALE_FACTOR) * right};
-            glm::vec3 rightWall{((vroad.rightWall / 65536.0f) * SCALE_FACTOR) * right};
+            glm::vec3 leftWall{((vroad.leftWall / 65536.0f) * TRACK_SCALE_FACTOR) * right};
+            glm::vec3 rightWall{((vroad.rightWall / 65536.0f) * TRACK_SCALE_FACTOR) * right};
 
             virtualRoad.emplace_back(position, glm::vec3(0, 0, 0), normal, forward, right, leftWall, rightWall, vroad.unknown);
         }
@@ -458,7 +458,7 @@ namespace LibOpenNFS::NFS3 {
             ColStruct3D s{colFile.struct3D[colFile.object[i].struct3D]};
 
             for (uint32_t vertIdx = 0; vertIdx < s.nVert; ++vertIdx) {
-                verts.emplace_back(s.vertex[vertIdx].pt * SCALE_FACTOR);
+                verts.emplace_back(s.vertex[vertIdx].pt * TRACK_SCALE_FACTOR);
                 shading_data.emplace_back(TextureUtils::ShadingDataToVec4(s.vertex[vertIdx].unknown));
             }
             for (uint32_t polyIdx = 0; polyIdx < s.nPoly; ++polyIdx) {
@@ -480,7 +480,7 @@ namespace LibOpenNFS::NFS3 {
                     texture_indices.emplace_back(trackTextureAsset.id);
                 }
             }
-            glm::vec3 position{glm::vec3(colFile.object[i].ptRef) * SCALE_FACTOR};
+            glm::vec3 position{glm::vec3(colFile.object[i].ptRef) * TRACK_SCALE_FACTOR};
             colEntities.emplace_back(i, EntityType::GLOBAL,
                                      TrackGeometry(verts, norms, uvs, texture_indices, indices, shading_data, position), 0);
         }

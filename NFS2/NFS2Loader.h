@@ -9,8 +9,8 @@
 #include "TRK/TrkFile.h"
 
 namespace LibOpenNFS::NFS2 {
-    constexpr glm::vec3 SCALE_FACTOR(-0.000001, 0.000001, 0.000001f);
-    constexpr float CAR_SCALE_FACTOR = 2000.f;
+    constexpr glm::vec3 TRACK_SCALE_FACTOR(-0.00001, 0.00001, 0.00001f);
+    constexpr glm::vec3 CAR_SCALE_FACTOR(0.004, 0.004, 0.004);
 
     template <typename Platform> class Loader {
       public:

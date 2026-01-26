@@ -22,7 +22,8 @@
 #include "Shared/HRZ/HrzFile.h"
 
 namespace LibOpenNFS::NFS3 {
-    constexpr glm::vec3 SCALE_FACTOR(-0.1, 0.1, 0.1f);
+    constexpr glm::vec3 TRACK_SCALE_FACTOR(-1, 1, 1);
+    constexpr glm::vec3 CAR_SCALE_FACTOR(-1.2, 1.2, 1.2);
 
     class Loader {
       public:
