@@ -14,6 +14,12 @@ namespace LibOpenNFS::NFS3 {
 
     class FedataFile final : IRawData {
       public:
+        enum SeatPosition {
+            LEFT=0,
+            RIGHT=1,
+            Center=2
+        };
+
         FedataFile() = default;
 
         static bool Load(std::string const &fedataPath, FedataFile &fedataFile);
@@ -28,7 +34,7 @@ namespace LibOpenNFS::NFS3 {
         uint16_t unknown1 = 3;  // No idea what this is, but it is always 3
         bool isDlcCar = 0;
         bool isPolice = false;
-        uint16_t seat = 0;  // This is what Vivianne calls it, not sure what it means
+        SeatPosition seatPosition = LEFT;
         uint16_t unknown2 = 1;  // Set to 0 for merc, elni, peln, knoc and lcop. Set to 1 for everything else
         uint16_t unknown3 = 0;  // This value is different per car, but we have no clue what it means
         uint16_t serial = 0;

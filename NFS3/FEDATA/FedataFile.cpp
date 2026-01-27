@@ -77,7 +77,10 @@ bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
     onfs_check(safe_read(ifstream, isPoliceUint));
     isPolice = (bool) isPoliceUint;
 
-    onfs_check(safe_read(ifstream, seat));
+    u_int16_t seatPositionUint = 0;
+    onfs_check(safe_read(ifstream, seatPositionUint));
+    seatPosition = (SeatPosition) seatPositionUint;
+
     onfs_check(safe_read(ifstream, unknown2));
     onfs_check(safe_read(ifstream, unknown3));
     onfs_check(safe_read(ifstream, serial));
