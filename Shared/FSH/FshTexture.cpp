@@ -64,7 +64,7 @@ namespace LibOpenNFS::Shared {
             return false;
 
         // Convert to ARGB32
-        auto pixels = ToARGB32();
+        std::vector<uint32_t> pixels = ToARGB32();
 
         if (includeAlpha && HasAlpha()) {
             // Export as 32-bit BGRA BMP
@@ -201,17 +201,15 @@ namespace LibOpenNFS::Shared {
     }
 
     void FshTexture::ConvertARGB32(std::vector<uint32_t> &output) const {
-        auto const *src = m_rawData.data();
         for (size_t y = 0; y < m_height; ++y) {
             for (size_t x = 0; x < m_width; ++x) {
-                size_t const idx = y * m_width + x;
-                // FSH stores as BGRA, convert to ARGB
-                uint32_t const bgra = src[idx];
-                uint8_t const a = static_cast<uint8_t>(bgra & 0xFF);
-                uint8_t const r = static_cast<uint8_t>((bgra >> 8) & 0xFF);
-                uint8_t const g = static_cast<uint8_t>((bgra >> 16) & 0xFF);
-                uint8_t const b = static_cast<uint8_t>((bgra >> 24) & 0xFF);
-                output[idx] = (static_cast<uint32_t>(a) << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) |
+                size_t const srcIdx = (y * m_width + x) * 4;
+                size_t const dstIdx = y * m_width + x;
+                uint8_t const b = m_rawData[srcIdx];
+                uint8_t const g = m_rawData[srcIdx+1];
+                uint8_t const r = m_rawData[srcIdx+2];
+                uint8_t const a = m_rawData[srcIdx+3];
+                output[dstIdx] = (static_cast<uint32_t>(a) << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) |
                               static_cast<uint32_t>(b);
             }
         }
@@ -222,8 +220,11 @@ namespace LibOpenNFS::Shared {
             for (size_t x = 0; x < m_width; ++x) {
                 size_t const srcIdx = (y * m_width + x) * 3;
                 size_t const dstIdx = y * m_width + x;
-                output[dstIdx] = 0xFF000000 | (static_cast<uint32_t>(m_rawData[srcIdx + 2]) << 16) |
-                                 (static_cast<uint32_t>(m_rawData[srcIdx + 1]) << 8) | static_cast<uint32_t>(m_rawData[srcIdx + 0]);
+                uint8_t const b = m_rawData[srcIdx+0];
+                uint8_t const g = m_rawData[srcIdx+1];
+                uint8_t const r = m_rawData[srcIdx+2];
+                output[dstIdx] = 0xFF000000 | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) |
+                              static_cast<uint32_t>(b);
             }
         }
     }
