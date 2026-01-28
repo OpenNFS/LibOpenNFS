@@ -40,7 +40,7 @@ namespace LibOpenNFS::NFS4 {
 
         Car::PhysicsData carPhysicsData;
 
-        if (std::filesystem::exists(fcePath) && std::filesystem::exists(fedataPath) && std::filesystem::exists(carpPath)) {
+        if (std::filesystem::exists(fcePath.str()) && std::filesystem::exists(fedataPath.str()) && std::filesystem::exists(carpPath.str())) {
             LogInfo("VIV has already been extracted to %s, skipping", carOutPath.c_str());
         } else {
             ASSERT(Shared::VivArchive::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
@@ -105,7 +105,7 @@ namespace LibOpenNFS::NFS4 {
         return track;
     }
 
-    FedataFile Loader::LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath) {
+    FedataFile Loader::LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath, NFSVersion version) {
          LogInfo("Loading NFS4 car from %s into %s", carBasePath.c_str(), carOutPath.c_str());
 
         std::filesystem::path p(carBasePath);
@@ -127,9 +127,10 @@ namespace LibOpenNFS::NFS4 {
         }
 
         Shared::VivArchive vivFile;
+        FceFile fceFile;
         FedataFile fedataFile;
 
-        if (std::filesystem::exists(fedataPath.str()) && std::filesystem::exists(fcePath.str())) {
+        if (std::filesystem::exists(fedataPath.str())) {
             LogInfo("Fedata file has already been extracted to %s, skipping", carOutPath.c_str());
         } else {
             ASSERT(Shared::VivArchive::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
