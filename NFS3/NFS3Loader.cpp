@@ -37,7 +37,7 @@ namespace LibOpenNFS::NFS3 {
                    "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
         }
         ASSERT(FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
-        if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nPriColours)) {
+        if (!FedataFile::Load(fedataPath.str(), fedataFile)) {
             LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
         }
         if (Shared::CarpFile::Load(carpPath.str(), carpFile)) {
@@ -104,7 +104,7 @@ namespace LibOpenNFS::NFS3 {
         Car::MetaData carMetadata;
 
         // Go get car metadata from FEDATA
-        carMetadata.name = fedataFile.menuName;
+        carMetadata.name = fedataFile.carName;
 
         // Grab colours
         for (uint8_t colourIdx = 0; colourIdx < fceFile.nPriColours; ++colourIdx) {
