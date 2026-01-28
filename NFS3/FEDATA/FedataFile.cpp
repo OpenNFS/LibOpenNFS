@@ -44,8 +44,6 @@ void FedataFile::Save(std::string const &fedataPath, FedataFile &fedataFile) {
 }
 
 bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
-    // Go get the offset of car id
-    ifstream.seekg(0, std::ios::beg);
     id = "";
     for (int i = 0; i< ID_LENGTH; i++) {
         char character;
