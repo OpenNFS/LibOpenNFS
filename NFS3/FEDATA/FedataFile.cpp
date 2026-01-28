@@ -56,26 +56,26 @@ bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
     onfs_check(safe_read(ifstream, flagCount));
     ASSERT(flagCount == EXPECTED_FLAG_COUNT, "Flag count should be 9, other values are not supported");
 
-    u_int16_t isBonusUint = 0;
+    uint16_t isBonusUint = 0;
     onfs_check(safe_read(ifstream, isBonusUint));
     isBonus = (bool) isBonusUint;
 
-    u_int16_t isAvailableToAiUint = 0;
+    uint16_t isAvailableToAiUint = 0;
     onfs_check(safe_read(ifstream, isAvailableToAiUint));
     isAvailableToAi = (bool) isAvailableToAiUint;
 
     onfs_check(safe_read(ifstream, vehicleClass));
     onfs_check(safe_read(ifstream, unknown1));
 
-    u_int16_t isDlcCarUint = 0;
+    uint16_t isDlcCarUint = 0;
     onfs_check(safe_read(ifstream, isDlcCarUint));
     isDlcCar = (bool) isDlcCarUint;
 
-    u_int16_t isPoliceUint = 0;
+    uint16_t isPoliceUint = 0;
     onfs_check(safe_read(ifstream, isPoliceUint));
     isPolice = (bool) isPoliceUint;
 
-    u_int16_t seatPositionUint = 0;
+    uint16_t seatPositionUint = 0;
     onfs_check(safe_read(ifstream, seatPositionUint));
     seatPosition = (SeatPosition) seatPositionUint;
 
