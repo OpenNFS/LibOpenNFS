@@ -106,7 +106,7 @@ namespace LibOpenNFS::NFS4 {
     }
 
     FedataFile Loader::LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath, NFSVersion version) {
-         LogInfo("Loading NFS4 car from %s into %s", carBasePath.c_str(), carOutPath.c_str());
+         LogInfo("Loading NFS4 car menu data from %s into %s", carBasePath.c_str(), carOutPath.c_str());
 
         std::filesystem::path p(carBasePath);
         std::string carName = p.filename().replace_extension("").string();
