@@ -48,7 +48,7 @@ namespace LibOpenNFS::NFS4 {
                    "Could not extract VIV file: " << vivPath.str() << "to: " << carOutPath);
         }
         ASSERT(NFS4::FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
-        if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nColours)) {
+        if (!FedataFile::Load(fedataPath.str(), fedataFile)) {
             LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
         }
         if (Shared::CarpFile::Load(carpPath.str(), carpFile)) {
@@ -112,18 +112,15 @@ namespace LibOpenNFS::NFS4 {
         std::string carName = p.filename().replace_extension("").string();
         std::string const fedataFileName = "fedata.eng";
 
-        std::stringstream vivPath, fcePath, fedataPath;
+        std::stringstream vivPath, fedataPath;
         vivPath << carBasePath;
-        fcePath << carOutPath;
         fedataPath << carOutPath << "/" << fedataFileName;
 
         if (version == NFSVersion::NFS_4) {
             vivPath << "/car.viv";
-            fcePath << "/car.fce";
         } else {
             // MCO
             vivPath << ".viv";
-            fcePath << "/part.fce";
         }
 
         Shared::VivArchive vivFile;
@@ -137,8 +134,7 @@ namespace LibOpenNFS::NFS4 {
             ASSERT(Shared::VivArchive::ExtractFile(carOutPath, vivFile, fedataFileName),
                    "Could not extract fedata file from VIV file: " << vivPath.str() << "to: " << carOutPath);
         }
-        ASSERT(NFS4::FceFile::Load(fcePath.str(), fceFile), "Could not load FCE file: " << fcePath.str());
-        if (!FedataFile::Load(fedataPath.str(), fedataFile, fceFile.nColours)) {
+        if (!FedataFile::Load(fedataPath.str(), fedataFile)) {
             LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
         }
 

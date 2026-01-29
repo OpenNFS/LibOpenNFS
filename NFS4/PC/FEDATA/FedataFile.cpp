@@ -1,10 +1,12 @@
 #include "FedataFile.h"
 
+
+#include <Common/Logging.h>
+
 namespace LibOpenNFS::NFS4 {
-    bool FedataFile::Load(std::string const &fedataPath, FedataFile &fedataFile, uint8_t const nPriColours) {
+    bool FedataFile::Load(std::string const &fedataPath, FedataFile &fedataFile) {
         std::ifstream fedata(fedataPath, std::ios::in | std::ios::binary);
 
-        fedataFile.m_nPriColours = nPriColours;
         bool const loadStatus{fedataFile._SerializeIn(fedata)};
         fedata.close();
 
@@ -31,17 +33,14 @@ namespace LibOpenNFS::NFS4 {
         // Jump to location of FILEPOS table for car colour names
         ifstream.seekg(COLOUR_TABLE_OFFSET, std::ios::beg);
         // Read that table in
-        std::vector<uint32_t> colourNameOffsets(m_nPriColours);
-        onfs_check(safe_read(ifstream, colourNameOffsets));
+        uint32_t colourNameOffset;
+        onfs_check(safe_read(ifstream, colourNameOffset));
 
-        for (uint8_t colourIdx = 0; colourIdx < m_nPriColours; ++colourIdx) {
-            ifstream.seekg(colourNameOffsets[colourIdx], std::ios::beg);
-            std::string colourName;
-            std::getline(ifstream, colourName, '\0');
+        std::string colourName;
+        ifstream.seekg(colourNameOffset, std::ios::beg);
+        while (std::getline(ifstream, colourName, '\0')) {
             primaryColourNames.emplace_back(colourName.begin(), colourName.end());
         }
-
-        //uint32_t colourNameLength = colourIdx < (fceHeader->nColours - 1) ? (colourNameOffsets[colourIdx + 1] - colourNameOffsets[colourIdx]) : 32;
 
         return true;
     }
