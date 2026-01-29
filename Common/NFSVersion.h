@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-#include <magic_enum/magic_enum.hpp>
+
+#include "../../lib/magic_enum/magic_enum.hpp"
 
 enum class NFSVersion {
     UNKNOWN,
