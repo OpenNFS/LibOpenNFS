@@ -24,13 +24,19 @@ namespace LibOpenNFS::Shared {
     }
 
     bool VivArchive::Extract(std::string const &outPath, VivArchive &vivFile) {
-        std::filesystem::create_directories(outPath);
+        if (!std::filesystem::exists(outPath))
+            std::filesystem::create_directories(outPath);
 
         for (uint32_t fileIdx = 0; fileIdx < vivFile.nFiles; ++fileIdx) {
             VivEntry &curFile{vivFile.files.at(fileIdx)};
 
             std::stringstream out_file_path;
             out_file_path << outPath << "/" << curFile.filename;
+
+            if (std::filesystem::exists(out_file_path.str())) {
+                LogInfo("Not extracting file %s, because it already exists", out_file_path.str().c_str());
+                continue;
+            }
 
             std::ofstream out(out_file_path.str(), std::ios::out | std::ios::binary);
             if (!out.is_open()) {
@@ -41,6 +47,36 @@ namespace LibOpenNFS::Shared {
             out.close();
         }
         return true;
+    }
+
+    bool VivArchive::ExtractFile(std::string const &outPath, VivArchive &vivFile, std::string const &fileName) {
+        if (!std::filesystem::exists(outPath))
+            std::filesystem::create_directories(outPath);
+
+        std::stringstream out_file_path;
+        out_file_path << outPath << "/" << fileName;
+        if (std::filesystem::exists(out_file_path.str())) {
+            return true;
+        }
+
+        for (uint32_t fileIdx = 0; fileIdx < vivFile.nFiles; ++fileIdx) {
+            VivEntry &curFile{vivFile.files.at(fileIdx)};
+
+            if (curFile.filename != fileName) {
+                continue;
+            }
+
+            std::ofstream out(out_file_path.str(), std::ios::out | std::ios::binary);
+            if (!out.is_open()) {
+                LogWarning("Error while creating output file %s", out_file_path.str().c_str());
+                return false;
+            }
+            out.write((char *)curFile.data.data(), curFile.data.size());
+            out.close();
+            return true;
+        }
+
+        return false;
     }
 
     bool VivArchive::_SerializeIn(std::ifstream &ifstream) {

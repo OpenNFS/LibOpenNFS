@@ -17,6 +17,8 @@ namespace LibOpenNFS::NFS4 {
         static Car LoadCar(std::string const &carBasePath, std::string const &carOutPath, NFSVersion version);
         static Track LoadTrack(std::string const &trackBasePath);
 
+        static FedataFile LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath, NFSVersion version);
+
       private:
         static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile, NFSVersion version);
         static Car::PhysicsData _ParsePhysicsData(Shared::CarpFile const &carpFile);

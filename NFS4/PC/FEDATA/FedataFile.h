@@ -10,7 +10,7 @@ namespace LibOpenNFS::NFS4 {
       public:
         FedataFile() = default;
 
-        static bool Load(std::string const &fedataPath, FedataFile &fedataFile, uint8_t nPriColours);
+        static bool Load(std::string const &fedataPath, FedataFile &fedataFile);
         static void Save(std::string const &fedataPath, FedataFile &fedataFile);
 
         std::string menuName;

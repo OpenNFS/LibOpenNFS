@@ -29,7 +29,7 @@ namespace LibOpenNFS::NFS3 {
 
         Car::PhysicsData carPhysicsData;
 
-        if (std::filesystem::exists(carOutPath)) {
+        if (std::filesystem::exists(fcePath.str()) && std::filesystem::exists(fedataPath.str()) && std::filesystem::exists(carpPath.str())) {
             LogInfo("VIV has already been extracted to %s, skipping", carOutPath.c_str());
         } else {
             ASSERT(Shared::VivArchive::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
@@ -96,6 +96,33 @@ namespace LibOpenNFS::NFS3 {
         LogInfo("Track loaded successfully");
 
         return track;
+    }
+
+    FedataFile Loader::LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath) {
+        LogInfo("Loading NFS3 car menu data from %s into %s", carBasePath.c_str(), carOutPath.c_str());
+
+        std::filesystem::path p(carBasePath);
+        std::string carName = p.filename().string();
+        std::string const fedataFileName = "fedata.eng";
+        std::stringstream vivPath, fcePath, fedataPath, carpPath;
+        vivPath << carBasePath << "/car.viv";
+        fedataPath << carOutPath << "/" << fedataFileName;
+
+        Shared::VivArchive vivFile;
+        FedataFile fedataFile;
+
+        if (std::filesystem::exists(fedataPath.str())) {
+            LogInfo("Fedata file has already been extracted to %s, skipping", carOutPath.c_str());
+        } else {
+            ASSERT(Shared::VivArchive::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
+            ASSERT(Shared::VivArchive::ExtractFile(carOutPath, vivFile, fedataFileName),
+                   "Could not extract fedata file from VIV file: " << vivPath.str() << "to: " << carOutPath);
+        }
+        if (!FedataFile::Load(fedataPath.str(), fedataFile)) {
+            LogWarning("Could not load FeData file: %s", fedataPath.str().c_str());
+        }
+
+        return fedataFile;
     }
 
     Car::MetaData Loader::_ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile) {
