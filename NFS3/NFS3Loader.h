@@ -18,6 +18,7 @@
 #include "FEDATA/FedataFile.h"
 #include "FRD/FrdFile.h"
 #include "SPEEDS/SpeedsFile.h"
+#include "TEXT/TextFile.h"
 #include "Shared/CARP/CarpFile.h"
 #include "Shared/HRZ/HrzFile.h"
 
@@ -31,6 +32,7 @@ namespace LibOpenNFS::NFS3 {
         static Track LoadTrack(std::string const &trackBasePath);
 
         static FedataFile LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath);
+        static TextFile LoadMenuText(std::string const &textBasePath);
 
       private:
         static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile);
