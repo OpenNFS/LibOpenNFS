@@ -25,10 +25,7 @@ namespace LibOpenNFS::NFS4 {
         ifstream.seekg(MENU_NAME_FILEPOS_OFFSET, std::ios::beg);
         onfs_check(safe_read(ifstream, menuNameOffset));
         ifstream.seekg(menuNameOffset, std::ios::beg);
-
-        char carMenuName[64];
-        onfs_check(safe_read(ifstream, carMenuName, sizeof(char) * 64));
-        menuName = carMenuName;
+        onfs_check(std::getline(ifstream, menuName, '\0'));
 
         // Jump to location of FILEPOS table for car colour names
         ifstream.seekg(COLOUR_TABLE_OFFSET, std::ios::beg);
