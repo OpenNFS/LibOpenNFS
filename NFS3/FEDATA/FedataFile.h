@@ -77,5 +77,7 @@ namespace LibOpenNFS::NFS3 {
       private:
         bool _SerializeIn(std::ifstream &ifstream) override;
         void _SerializeOut(std::ofstream &ofstream) override;
+
+        void _convertToUtf8(std::string &string);
     };
 } // namespace LibOpenNFS::NFS3

@@ -104,69 +104,91 @@ bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
         switch ((StringField) i) {
             case MANUFACTURER:
                 std::getline(ifstream, manufacturer, '\0');
+                _convertToUtf8(manufacturer);
                 break;
             case MODEL:
                 std::getline(ifstream, model, '\0');
+                _convertToUtf8(model);
                 break;
             case CAR_NAME:
                 std::getline(ifstream, carName, '\0');
+                _convertToUtf8(carName);
                 break;
             case PRICE:
                 std::getline(ifstream, price, '\0');
+                _convertToUtf8(price);
                 break;
             case STATUS:
                 std::getline(ifstream, status, '\0');
+                _convertToUtf8(status);
                 break;
             case WEIGHT:
                 std::getline(ifstream, weight, '\0');
+                _convertToUtf8(weight);
                 break;
             case WEIGHT_DISTRIBUTION:
                 std::getline(ifstream, weightDistribution, '\0');
+                _convertToUtf8(weightDistribution);
                 break;
             case LENGTH:
                 std::getline(ifstream, length, '\0');
+                _convertToUtf8(length);
                 break;
             case WIDTH:
                 std::getline(ifstream, width, '\0');
+                _convertToUtf8(width);
                 break;
             case HEIGHT:
                 std::getline(ifstream, height, '\0');
+                _convertToUtf8(height);
                 break;
             case ENGINE:
                 std::getline(ifstream, engine, '\0');
+                _convertToUtf8(engine);
                 break;
             case DISPLACEMENT:
                 std::getline(ifstream, displacement, '\0');
+                _convertToUtf8(displacement);
                 break;
             case HORSE_POWER:
                 std::getline(ifstream, horsePower, '\0');
+                _convertToUtf8(horsePower);
                 break;
             case TORQUE:
                 std::getline(ifstream, torque, '\0');
+                _convertToUtf8(torque);
                 break;
             case MAXIMUM_RPM:
                 std::getline(ifstream, maximumRpm, '\0');
+                _convertToUtf8(maximumRpm);
                 break;
             case BRAKES:
                 std::getline(ifstream, brakes, '\0');
+                _convertToUtf8(brakes);
                 break;
             case TIRES:
                 std::getline(ifstream, tires, '\0');
+                _convertToUtf8(tires);
                 break;
             case TOP_SPEED:
                 std::getline(ifstream, topSpeedText, '\0');
+                _convertToUtf8(topSpeedText);
                 break;
             case ZERO_TO_SIXTY:
                 std::getline(ifstream, zeroToSixty, '\0');
+                _convertToUtf8(zeroToSixty);
                 break;
             case ZERO_TO_ONE_HUNDRED:
                 std::getline(ifstream, zeroToOneHundred, '\0');
+                _convertToUtf8(zeroToOneHundred);
                 break;
             case TRANSMISSION:
                 std::getline(ifstream, transmission, '\0');
+                _convertToUtf8(transmission);
                 break;
             case GEARBOX:
                 std::getline(ifstream, gearbox, '\0');
+                _convertToUtf8(gearbox);
                 break;
             default:
                 LogWarning("Unhandled string %d in fedata!", i);
@@ -182,6 +204,7 @@ bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
 
         std::string current_string = "";
         std::getline(ifstream, current_string, '\0');
+        _convertToUtf8(current_string);
         history.push_back(current_string);
 
         ifstream.seekg(current_offset, std::ios::beg);
@@ -194,6 +217,7 @@ bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
 
         std::string current_string = "";
         std::getline(ifstream, current_string, '\0');
+        _convertToUtf8(current_string);
         primaryColourNames.push_back(current_string);
 
         ifstream.seekg(current_offset, std::ios::beg);
@@ -204,4 +228,16 @@ bool FedataFile::_SerializeIn(std::ifstream &ifstream) {
 
 void FedataFile::_SerializeOut(std::ofstream &ofstream) {
     ASSERT(false, "Fedata output serialization is not currently implemented");
+}
+
+void FedataFile::_convertToUtf8(std::string &string) {
+    // Go backwards, so we can insert after the current character if that makes sense
+    for (int i = string.size() - 1; i >= 0; i--) {
+        uint8_t character = *reinterpret_cast<uint8_t*>(&string[i]);
+        if (character & 128) {
+            uint8_t byte1 = (character >> 5) & 3 | 0xC0;
+            uint8_t byte2 = character & 0x3F | 128;
+            string.replace(i, 1, {*reinterpret_cast<char*>(&byte1), *reinterpret_cast<char*>(&byte2)});
+        }
+    }
 }
