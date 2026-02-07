@@ -141,6 +141,19 @@ namespace LibOpenNFS::NFS4 {
         return fedataFile;
     }
 
+    TextFile Loader::LoadMenuText(std::string const &textBasePath) {
+        std::stringstream textPath;
+        std::string const textFileName = "text.eng";
+        textPath << textBasePath << "/" << textFileName;
+
+        TextFile textFile;
+        if (!TextFile::Load(textPath.str(), textFile)) {
+            LogWarning("Could not load Text file: %s", textPath.str().c_str());
+        }
+
+        return textFile;
+    }
+
     Car::MetaData Loader::_ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile, NFSVersion version) {
         LogInfo("Parsing FCE File into ONFS Structures");
         Car::MetaData carMetadata;

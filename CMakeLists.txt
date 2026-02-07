@@ -57,6 +57,7 @@ set(LIBOPENNFS_SOURCES
         NFS4/PC/FRD/BaseObjectBlock.cpp
         NFS4/PC/FRD/AnimBlock.cpp
         NFS4/PC/FRD/SpecialBlock.cpp
+        NFS4/PC/TEXT/TextFile.cpp
         Shared/CAN/CanFile.cpp
         Shared/CARP/CarpFile.cpp
         Shared/FSH/QfsCompression.cpp
