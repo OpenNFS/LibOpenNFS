@@ -138,6 +138,16 @@ namespace LibOpenNFS::NFS3 {
         return textFile;
     }
 
+    LibOpenNFS::Shared::FshTexture Loader::LoadTrackPreviewImage(std::string const &artBasePath, std::string const &trackId) {
+        std::stringstream archivePath;
+        archivePath << artBasePath << "/slides/t" << trackId.back() << "_00.qfs";
+
+        LibOpenNFS::Shared::FshArchive archive;
+        ASSERT(archive.Load(archivePath.str()), "Failed to load track preview image archive: " << archivePath.str() << " - " << archive.LastError());
+
+        return archive.GetTexture(0);
+    }
+
     Car::MetaData Loader::_ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile) {
         LogInfo("Parsing FCE File into ONFS Structures");
 

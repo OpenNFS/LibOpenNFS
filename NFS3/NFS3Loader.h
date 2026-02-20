@@ -7,6 +7,7 @@
 
 #include "../Shared/CAN/CanFile.h"
 #include "../Shared/VIV/VivArchive.h"
+#include "../Shared/FSH/FshTexture.h"
 #include "COL/ColFile.h"
 #include "Common/TextureUtils.h"
 #include "Entities/Car.h"
@@ -33,6 +34,7 @@ namespace LibOpenNFS::NFS3 {
 
         static FedataFile LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath);
         static TextFile LoadMenuText(std::string const &textBasePath);
+        static LibOpenNFS::Shared::FshTexture LoadTrackPreviewImage(std::string const &artBasePath, std::string const &trackId);
 
       private:
         static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile);
