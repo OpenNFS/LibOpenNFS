@@ -62,7 +62,7 @@ namespace LibOpenNFS {
             float wheelRadius{0.3f};
             float wheelWidth{0.2f};
             float wheelFriction = 0.45f;
-            float suspensionRestLength = 0.020f;
+            float suspensionRestLength = 0.040f;
 
             // Suspension (old)
             float suspensionStiffness = 950.f;
