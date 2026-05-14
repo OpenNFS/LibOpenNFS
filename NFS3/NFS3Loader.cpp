@@ -138,6 +138,50 @@ namespace LibOpenNFS::NFS3 {
         return textFile;
     }
 
+    FceFile Loader::LoadTrackPreviewModel(std::string const &artBasePath, std::string const &previewModelOutPath, std::string const &trackId) {
+        std::stringstream vivPath, fcePath;
+        vivPath << artBasePath << "/track/trkgo.viv";
+        fcePath << previewModelOutPath;
+
+        Shared::VivArchive vivFile;
+        FceFile fceFile;
+
+        if (std::filesystem::exists(previewModelOutPath)) {
+            LogInfo("VIV with track preview models has already been extracted to %s, skipping", previewModelOutPath.c_str());
+        } else {
+            ASSERT(Shared::VivArchive::Load(vivPath.str(), vivFile), "Could not open VIV file: " << vivPath.str());
+            ASSERT(Shared::VivArchive::Extract(previewModelOutPath, vivFile),
+                   "Could not extract VIV file: " << vivPath.str() << "to: " << previewModelOutPath);
+        }
+
+        // // Map track ID (folder) to preview model name
+        // if (trackId == "trk000") {
+
+        // } else if (trackId == "trk001") {
+
+        // } else if (trackId == "trk002") {
+        
+        // } else if (trackId == "trk003") {
+        
+        // } else if (trackId == "trk004") {
+        
+        // } else if (trackId == "trk005") {
+        
+        // } else if (trackId == "trk006") {
+        
+        // } else if (trackId == "trk007") {
+        
+        // } else if (trackId == "trk008") {
+        
+        // } else if (trackId == "trk009") {
+        
+        // } else {
+        //     LogWarning("Could not load track preview model for: %s", trackId.c_str());
+        //     return fceFile;
+        // }
+        return fceFile;
+    }
+
     LibOpenNFS::Shared::FshTexture Loader::LoadTrackPreviewImage(std::string const &artBasePath, std::string const &trackId) {
         std::stringstream archivePath;
         archivePath << artBasePath << "/slides/t" << trackId.back() << "_00.qfs";

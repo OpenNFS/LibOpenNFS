@@ -35,6 +35,7 @@ namespace LibOpenNFS::NFS3 {
         static FedataFile LoadCarMenuData(std::string const &carBasePath, std::string const &carOutPath);
         static TextFile LoadMenuText(std::string const &textBasePath);
         static LibOpenNFS::Shared::FshTexture LoadTrackPreviewImage(std::string const &artBasePath, std::string const &trackId);
+        static FceFile LoadTrackPreviewModel(std::string const &artBasePath, std::string const &previewModelOutPath, std::string const &trackId);
 
       private:
         static Car::MetaData _ParseAssetData(FceFile const &fceFile, FedataFile const &fedataFile);
